@@ -19,13 +19,13 @@ Install [Git](https://git-scm.com/downloads) and [mise](https://mise.jdx.dev/get
 Open a terminal in the folder where you keep your projects. Run:
 
 ```sh
-git clone --filter=blob:none --branch v0.2.0 https://github.com/itspatmorgan/design-studio-starter.git my-studio
-cd my-studio
+git clone --filter=blob:none --branch v0.2.0 https://github.com/itspatmorgan/design-studio-starter.git design-studio
+cd design-studio
 git remote rename origin upstream
 git switch -c main
 ```
 
-`my-studio` is your new studio folder. You can choose a different name. If the folder already exists, choose another name or open the existing studio; do not replace its files.
+Design Studio is installed in the `design-studio` folder. You can choose a different name. If the folder already exists, choose another name or open the existing studio; do not replace its files.
 
 These commands install release `v0.2.0` and preserve the history needed for future updates. Use them rather than **Use this template** or a ZIP download. The `upstream` remote is for receiving Studio releases. If you later connect your own hosted repository, use `origin` for it.
 
@@ -41,11 +41,11 @@ mise exec -- pnpm dev
 
 If mise asks you to trust the project's tool configuration, review `mise.toml` before accepting. Open the local address printed by the server. Keep that terminal running while you use Studio.
 
-You can explore the examples before configuring anything. The browser shows your studio; the working files stay in `my-studio`.
+You can explore the examples before configuring anything. The browser shows your studio; the working files stay in `design-studio`.
 
 ## 4. Open the folder in your agent harness
 
-Open the `my-studio` folder as your agent harness's project or workspace. Use a coding agent that can read files and run commands in that folder. Opening the browser preview alone does not select the folder for your agent.
+Open the `design-studio` folder as your agent harness's project or workspace. Use a coding agent that can read files and run commands in that folder. Opening the browser preview alone does not select the folder for your agent.
 
 Ask:
 
