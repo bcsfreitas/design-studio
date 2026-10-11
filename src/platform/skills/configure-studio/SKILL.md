@@ -5,7 +5,7 @@ description: "Configure a running studio for the first time, update requested st
 
 ## Scope and input
 
-Use this skill when someone is ready to configure a running studio. The first-run install and launch steps are in the [public setup instructions](https://github.com/itspatmorgan/design-studio-plugin/blob/main/SETUP.md); do not make configuration a prerequisite for launching the starter. Preserve existing work and confirmed choices.
+Use this skill when someone is ready to configure a running studio. The first-run install and launch steps are in the [installation guide](../../context/installing.md); do not make configuration a prerequisite for launching the starter. Preserve existing work and confirmed choices.
 
 Read [contributor scope](../../context/contributor-scope.md), [manage-modules](../manage-modules/SKILL.md), and the relevant [configuration contract](../../context/config.md) sections. Run `pnpm studio status --json` and inspect current configuration. Settings live in `studio.config.json`, which `pnpm studio configure` and Studio settings edit as JSON; when you edit it by hand, keep it plain JSON (no comments), keep its `$schema` line first, and do not list Studio's own system in `systems`.
 

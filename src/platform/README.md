@@ -13,6 +13,7 @@ All platform knowledge and requirements live together in `context/`:
 
 | Subject | Source |
 | --- | --- |
+| Installation | [Install Design Studio](context/installing.md) |
 | Configuration and roles | [Studio configuration](context/config.md) |
 | Ownership and updates | [Ownership and updates](context/ownership.md) |
 | Modules and extensions | [Modules and extensions](context/modules.md) |

@@ -4,7 +4,7 @@
 
 An open-source, local prototype sandbox for designers and product managers who build with coding agents. Turn ideas into interactive prototypes, keep the thinking behind them close, and shape an environment that fits your team.
 
-**[View demo](https://itspatmorgan.com/design-studio-starter/) · [Set up Design Studio](https://github.com/itspatmorgan/design-studio-plugin/blob/main/SETUP.md)**
+**[View demo](https://itspatmorgan.com/design-studio-starter/) · [Install Design Studio](src/platform/context/installing.md)**
 
 ## What you can do
 
@@ -14,13 +14,21 @@ An open-source, local prototype sandbox for designers and product managers who b
 
 ## Get started
 
-Ask your coding agent to set up Studio. It needs filesystem access and command execution where you want to save your work. No plugin is required.
+Install Design Studio in a folder on your computer, then open that folder in your preferred coding tool. Use an agent that can read files and run commands to configure your studio and build prototypes.
 
-> Set up Design Studio for me using https://github.com/itspatmorgan/design-studio-plugin/blob/main/SETUP.md. Follow direct setup without installing a plugin. Confirm where my files will live, preserve existing work, clone the pinned starter release with its history and upstream remote, and verify the local preview. Help me continue in my studio folder.
+Follow the [installation guide](src/platform/context/installing.md). It gives you one set of steps to run yourself or ask your agent to carry out.
 
-Use a release clone rather than **Use this template** or a ZIP download, so later releases can arrive with `pnpm studio update`. The [setup guide](https://github.com/itspatmorgan/design-studio-plugin/blob/main/SETUP.md) also covers manual installation and optional Codex, Claude Code, and Cursor plugins. Tool access and workspace handoff depend on your agent and environment.
+Once you have opened your studio folder, ask:
 
-To share a viewing site, use the [publishing prompt](https://github.com/itspatmorgan/design-studio-plugin/blob/main/SETUP.md#publish-to-a-static-host). If ChatGPT Sites tools are available, the [setup-and-publish prompt](https://github.com/itspatmorgan/design-studio-plugin/blob/main/SETUP.md#set-up-and-publish-with-chatgpt-sites) includes setup and a review link. Editing stays local.
+> Read AGENTS.md and help me configure my Design Studio. Start with the included examples and show me the running preview.
+
+## Share your work
+
+Design Studio builds a static website you can publish with hosting services such as [Vercel](https://vercel.com/docs/frameworks/frontend/vite), [Netlify](https://docs.netlify.com/build/configure-builds/javascript-spas/), and GitHub Pages. When you are ready, ask your agent:
+
+> Help me publish my Design Studio with [hosting service] so [audience] can explore it. Follow my studio's publishing instructions and guide me through setting up hosting. Review what will be shared and verify the published link.
+
+Your agent can help you choose a host if you do not have one in mind. You keep editing in your local studio; publish again to share updates. See [Publishing](src/platform/context/publishing.md) for technical requirements and access controls.
 
 ## Explore further
 
