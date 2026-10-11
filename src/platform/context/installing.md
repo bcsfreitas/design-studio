@@ -8,7 +8,7 @@ Design Studio lives in an ordinary folder on your computer. Install it once, the
 
 These are the installation steps for both you and your agent. If you want your agent to handle them, use a session that can create files and run commands on your computer and ask:
 
-> Install Design Studio using https://github.com/itspatmorgan/design-studio-starter/blob/main/src/platform/context/installing.md. Help me choose a folder, preserve existing files, and verify the running preview. Then help me open the studio folder in my agent harness.
+> Install Design Studio using https://github.com/itspatmorgan/design-studio-starter/blob/main/src/platform/context/installing.md. Help me choose a folder, preserve existing files, and verify the running preview. Then help me open the Design Studio folder in my agent harness.
 
 ## 1. Prepare your computer
 
