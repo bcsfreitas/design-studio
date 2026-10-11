@@ -9,7 +9,7 @@ toc: true
 
 If you are reading this in your local studio, it is already running. For a new installation, follow the [installation guide](/documentation/context/platform.core/context/installing). It provides one set of steps you or your agent can carry out.
 
-Install Studio in a folder on your computer, then open that folder in your preferred coding tool. Use an agent that can read files and run commands. Ask:
+Install Studio in a folder on your computer, then open that folder in your preferred agent harness. Use an agent that can read files and run commands. Ask:
 
 > Read AGENTS.md and help me configure my Design Studio. Start with the included examples and show me the running preview.
 
@@ -17,18 +17,18 @@ Your agent uses the repository's instructions to register you and configure Stud
 
 ## What needs to be open?
 
-Your **agent app** changes files in your **studio folder**. A local server reads those files and provides the **browser preview** where you explore the result.
+Your **agent harness** changes files in your **studio folder**. A local server reads those files and provides the **browser preview** where you explore the result.
 
 ```mermaid
 flowchart TB
   accTitle: Your agent and browser work with the same local studio
   accDescr: The coding agent edits files in the studio folder. A running local server shows those files in a browser preview for you to review.
-  agent[Agent app] -->|Edits| folder[Studio folder]
+  agent[Agent harness] -->|Edits| folder[Studio folder]
   folder --> server[Running local server]
   server --> browser[Browser preview]
 ```
 
-Continue agent work in the studio folder shown during setup. Opening its browser address alone does not select that folder in your agent app.
+Continue agent work in the studio folder shown during setup. Opening its browser address alone does not select that folder in your agent harness.
 
 Keep the local server running while using Studio. Closing a browser tab does not delete your work. If the server stops, ask your agent to reopen the studio.
 

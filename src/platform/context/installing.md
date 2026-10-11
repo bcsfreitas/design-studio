@@ -1,14 +1,14 @@
 ---
 title: Install Design Studio
-description: Install a local studio, open it in your coding tool, and start working with your agent.
+description: Install a local studio, open it in your agent harness, and start working with your agent.
 toc: true
 ---
 
-Design Studio lives in an ordinary folder on your computer. Install it once, then open that folder in your preferred coding tool. A GitHub account is not required for local use.
+Design Studio lives in an ordinary folder on your computer. Install it once, then open that folder in your preferred agent harness. A GitHub account is not required for local use.
 
 These are the installation steps for both you and your agent. If you want your agent to handle them, use a session that can create files and run commands on your computer and ask:
 
-> Install Design Studio using https://github.com/itspatmorgan/design-studio-starter/blob/main/src/platform/context/installing.md. Help me choose a folder, preserve existing files, and verify the running preview. Then help me open the studio folder in my coding tool.
+> Install Design Studio using https://github.com/itspatmorgan/design-studio-starter/blob/main/src/platform/context/installing.md. Help me choose a folder, preserve existing files, and verify the running preview. Then help me open the studio folder in my agent harness.
 
 ## 1. Prepare your computer
 
@@ -43,19 +43,19 @@ If mise asks you to trust the project's tool configuration, review `mise.toml` b
 
 You can explore the examples before configuring anything. The browser shows your studio; the working files stay in `my-studio`.
 
-## 4. Open the folder in your coding tool
+## 4. Open the folder in your agent harness
 
-Open the `my-studio` folder as your coding tool's project or workspace. Use a coding agent that can read files and run commands in that folder. Opening the browser preview alone does not select the folder for your agent.
+Open the `my-studio` folder as your agent harness's project or workspace. Use a coding agent that can read files and run commands in that folder. Opening the browser preview alone does not select the folder for your agent.
 
 Ask:
 
 > Read AGENTS.md and help me configure my Design Studio. Start with the included examples and show me the running preview.
 
-Your agent follows the repository's instructions to register you and configure Studio. Tools that do not automatically discover project instructions can still use them when you ask the agent to read `AGENTS.md`. Keep the included examples until you decide what to customize.
+Your agent follows the repository's instructions to register you and configure Studio. Agent harnesses that do not automatically discover project instructions can still use them when you ask the agent to read `AGENTS.md`. Keep the included examples until you decide what to customize.
 
 ## Return to your studio
 
-Open the same folder in your coding tool and ask:
+Open the same folder in your agent harness and ask:
 
 > Open my Design Studio and show me the running preview.
 
@@ -69,4 +69,4 @@ Confirm the destination and where that filesystem lives before creating files. P
 
 After cloning, read the installed repository's `AGENTS.md` and linked guidance. Verify the release ancestry, local `main` branch, and `upstream` remote. A release clone does not need a hand-written `studio.lock.json`; see [Ownership and updates](ownership.md#the-installed-release).
 
-Verify the actual local preview and report the absolute studio path. Help the person open that folder in their coding tool; distinguish instructions to open it from a verified workspace handoff. Use [Configure Studio](../skills/configure-studio/SKILL.md) when they request configuration. Installation alone does not authorize creating a hosted repository, pushing, or publishing.
+Verify the actual local preview and report the absolute studio path. Help the person open that folder in their agent harness; distinguish instructions to open it from a verified workspace handoff. Use [Configure Studio](../skills/configure-studio/SKILL.md) when they request configuration. Installation alone does not authorize creating a hosted repository, pushing, or publishing.

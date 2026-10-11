@@ -14,7 +14,7 @@ An open-source, local prototype sandbox for designers and product managers who b
 
 ## Get started
 
-Install Design Studio in a folder on your computer, then open that folder in your preferred coding tool. Use an agent that can read files and run commands to configure your studio and build prototypes.
+Install Design Studio in a folder on your computer, then open that folder in your preferred agent harness. Use an agent that can read files and run commands to configure your studio and build prototypes.
 
 Follow the [installation guide](src/platform/context/installing.md). It gives you one set of steps to run yourself or ask your agent to carry out.
 
