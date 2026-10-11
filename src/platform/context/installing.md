@@ -27,7 +27,7 @@ git switch -c main
 
 Design Studio is installed in the `design-studio` folder. You can choose a different name. If the folder already exists, choose another name or open the existing studio; do not replace its files.
 
-These commands install release `v0.2.0` and preserve the history needed for future updates. Use them rather than **Use this template** or a ZIP download. The `upstream` remote is for receiving Studio releases. If you later connect your own hosted repository, use `origin` for it.
+These commands install release `v0.2.0` and preserve the history needed for future updates. The `upstream` remote is for receiving Studio releases. You can keep your copy in your own private or company repository, using `origin` for that repository. Your team controls its access and decides when to take updates.
 
 ## 3. Install dependencies and open the preview
 
