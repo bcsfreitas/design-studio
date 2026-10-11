@@ -1,34 +1,74 @@
-[![Design Studio — Design with intent. Build with an agent. A prototype sandbox for designers and product managers. Works with ChatGPT Codex, Claude Code, and Cursor.](public/images/design-studio-readme-share.jpg)](https://itspatmorgan.com/design-studio)
+[![Design Studio — Design with intent. Build with an agent. A prototype sandbox for designers and product managers.](public/images/design-studio-readme-share.jpg)](https://itspatmorgan.com/design-studio)
 
 # Design Studio Starter
 
 An open-source, local prototype sandbox for designers and product managers who build with coding agents. Turn ideas into interactive prototypes, keep the thinking behind them close, and shape an environment that fits your team.
 
-**[View demo](https://itspatmorgan.com/design-studio-starter/) · [Set up Design Studio](https://github.com/itspatmorgan/design-studio-plugin/blob/main/SETUP.md)**
+You direct the work in your preferred agent harness. Design Studio gives you a browser preview, reusable design systems, and a place to connect screens, diagrams, canvases, and documents. The code and context live together in a folder you own.
 
-## What you can do
+**[View demo](https://itspatmorgan.com/design-studio-starter/) · [Install Design Studio](src/platform/context/installing.md) · [See the product](https://itspatmorgan.com/design-studio)**
 
-- **Connect the whole idea.** Keep working prototypes, diagrams, canvases, and documents together as you explore and refine a flow.
-- **Give your agent a foundation.** Bring together your components, theme, product context, and instructions so prototypes reflect your team's design system.
-- **Make it yours.** Start with included examples, customize the studio, and own the code and everything you create. Work individually or with a team.
+## What you can build
+
+- **Interactive prototypes.** Explore onboarding, dashboards, settings, and other product flows. Build connected screens with states and simulated data that people can try in the browser.
+- **Wireframes and alternatives.** Start with a rough layout, compare approaches, and refine the one you choose with your agent.
+- **Diagrams and canvases.** Map a journey or system with Mermaid diagrams, sketch in Excalidraw, or arrange views, documents, and notes together on a canvas.
+- **The thinking behind the work.** Keep briefs, assumptions, decisions, and open questions in Markdown documents alongside the prototype. You and your agent can read and edit the same files.
+- **A foundation for your team.** Bring React components, theme, assets, product context, and instructions into a design system your agent can reuse across prototypes.
+
+Use one artifact on its own or connect several to explain an idea. The included Product and Marketing systems and sample prototypes give you a starting point to explore, adapt, or replace.
+
+## Use the agent harness you already use
+
+Design Studio does not supply its own coding agent. Open your Design Studio folder in an agent harness that can read files and run commands, such as Codex, Claude Code, or Cursor. Your agent follows the repository's `AGENTS.md` and linked instructions to configure the environment and build with you.
+
+The working files use familiar formats: React and TypeScript for screens, Markdown for documents, Mermaid for diagrams, and Excalidraw for canvases. The starting stack is React, TypeScript, and Tailwind CSS. Ask your agent to assess your team's components and dependencies before bringing them in.
+
+Design Studio is a front-end prototyping environment. You can simulate data and service behavior; connecting production services requires additional work.
 
 ## Get started
 
-Use Codex, Claude Code, or Cursor in a local desktop session. Copy one prompt from [the setup guide](https://github.com/itspatmorgan/design-studio-plugin/blob/main/SETUP.md) to install the [Design Studio plugin](https://github.com/itspatmorgan/design-studio-plugin) and create your studio. Your agent handles setup and opens it on your computer.
+Install Design Studio in a `design-studio` folder on your computer, then open that folder in your preferred agent harness. A GitHub account is not required for local use.
 
-The guide also covers [direct setup without a plugin](https://github.com/itspatmorgan/design-studio-plugin/blob/main/SETUP.md#4-direct-from-the-source-repository) and [manual installation](https://github.com/itspatmorgan/design-studio-plugin/blob/main/SETUP.md#manual-installation). If ChatGPT Sites is available, the [setup-and-publish prompt](https://github.com/itspatmorgan/design-studio-plugin/blob/main/SETUP.md#set-up-and-publish-with-chatgpt-sites) includes a viewing link you can share. Editing stays local.
+The [installation guide](src/platform/context/installing.md) provides one set of steps you can run yourself or ask your agent to carry out:
 
-## Explore further
+> Install Design Studio using https://github.com/itspatmorgan/design-studio-starter/blob/main/src/platform/context/installing.md. Help me choose a folder, preserve existing files, and verify the running preview. Then help me open the Design Studio folder in my agent harness.
 
-Design Studio is in early beta. Explore the examples, then ask your agent to help build your first prototype.
+Once the folder is open, ask:
 
-- [Manual](src/platform/modules/documentation/pages/index.md) — using and customizing your studio.
+> Read AGENTS.md and help me configure my Design Studio. Start with the included examples and show me the running preview.
+
+Explore the examples, then describe the idea you want to build. You can customize the design system and product context as your work develops.
+
+## Own your copy and work together
+
+Keep Design Studio locally or put it in your own private or company repository. You control access to that repository and decide when to take new Design Studio releases. The project does not need access to your environment. Ask your agent to help connect your repository and review updates; the [installation guide](src/platform/context/installing.md#keep-your-own-repository-and-choose-when-to-update) includes prompts for both.
+
+Work individually in Personal mode, or use Team mode to register contributors and assign access within the local Design Studio. Teammates share source changes through Git. Engineers can inspect the prototype's code and supporting context when you hand off the work.
+
+## Publish a viewing site
+
+Design Studio builds a static website you can publish with hosting services such as [Vercel](https://vercel.com/docs/frameworks/frontend/vite), [Netlify](https://docs.netlify.com/build/configure-builds/javascript-spas/), [Cloudflare](https://developers.cloudflare.com/workers/static-assets/), or another static-site host. Ask your agent to guide you through the host you use:
+
+> Help me publish my Design Studio with [hosting service] so [audience] can explore it. Follow my Design Studio's publishing instructions and guide me through setting up hosting. Review what will be shared and verify the published link.
+
+If you have not chosen a host, your agent can help you choose one. Reviewers can explore interactive prototypes and supporting material through the published link. You keep editing locally and publish again to share updates.
+
+Private viewing access depends on your host's access controls. Design Studio does not provide built-in sign-in for published sites. See [Publishing](src/platform/context/publishing.md) for the build, routing, and visibility requirements your agent should follow.
+
+## Documentation and feedback
+
+Design Studio is in early beta. Feedback about installation, agent workflows, and prototyping helps improve the starting experience.
+
+- [Manual](src/platform/modules/documentation/pages/index.md) — using and customizing Design Studio.
 - [Modules](src/platform/context/modules.md) — extending its capabilities.
-- [Contributing](CONTRIBUTING.md) — feedback, issues, and pull requests.
+- [Ownership and updates](src/platform/context/ownership.md) — keeping your work as the platform changes.
+- [Report an issue](https://github.com/itspatmorgan/design-studio-starter/issues) — bugs, questions, and feature requests.
+- [Contributing](CONTRIBUTING.md) — development and contribution guidance.
 - [Changelog](CHANGELOG.md) — what's changed.
 
 Created by **[Patrick Morgan](https://itspatmorgan.com)**. Follow the thinking behind the work at [Unknown Arts](https://www.unknownarts.com/).
 
 ## License
 
-[MIT](LICENSE). Includes [Flexoki](https://stephango.com/flexoki) by Steph Ango (MIT) and [Pragmatic drag and drop](https://atlassian.design/components/pragmatic-drag-and-drop/) by Atlassian (Apache-2.0).
+[MIT](LICENSE). Includes [Flexoki](https://stephango.com/flexoki) by Steph Ango (MIT) and [Pragmatic drag and drop](https://atlassian.design/components/pragmatic-drag-and-drop) by Atlassian (Apache-2.0).

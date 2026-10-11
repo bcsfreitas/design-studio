@@ -27,20 +27,13 @@ Saving does not publish. Sharing working files through Git is a [separate team w
 
 ## How do I publish?
 
-Design Studio produces a static website that many hosting services can serve. The right choice depends on your company's policies, available accounts, and who needs access. Hosting usually needs configuration outside Studio.
+Design Studio builds a static website you can publish with hosting services such as [Vercel](https://vercel.com/docs/frameworks/frontend/vite), [Netlify](https://docs.netlify.com/build/configure-builds/javascript-spas/), [Cloudflare](https://developers.cloudflare.com/workers/static-assets/), or another static-site host. Ask your agent to guide you through setting up the service you use:
 
-Two paths have specific support:
+> Help me publish my Design Studio with [hosting service] so [audience] can explore it. Follow my Design Studio's publishing instructions and guide me through setting up hosting. Review what will be shared and verify the published link.
 
-| Path | What you need |
-| --- | --- |
-| ChatGPT Sites through Codex | The Design Studio plugin and an available, connected Sites integration. Ask your agent to publish your studio through Sites. |
-| GitHub Pages | Your studio in a GitHub repository, with access to configure Pages and its deployment workflow. Your agent can help set this up. |
+If you have not chosen a host, ask your agent to help you choose one based on who needs access and your team's requirements. Your agent can prepare the build and hosting configuration; you may need to sign in or approve account changes.
 
-Having a GitHub repository does not automatically publish your studio. Copies of the starter need their own deployment configuration.
-
-For other hosts, ask your agent to assess what is needed with whoever manages hosting for your team. The agent can help prepare the build and configuration. What it can complete depends on its tools and your access. See [Publishing](/documentation/context/platform.core/context/publishing) for technical requirements.
-
-Building checks your source and creates the viewing site. Maintainer regression tests run separately, so each publication does not repeat the full test suite. Your hosting service still controls deployment queues and upload time.
+The [Publishing contract](/documentation/context/platform.core/context/publishing) gives your agent the routing, base-path, access-control, and verification requirements. Creating a GitHub repository alone does not publish your studio.
 
 After publishing, open the site, follow a direct prototype link, and refresh that page. Try the document, canvas, or diagram you plan to share. Then copy links from the published site. A **localhost** link points to the viewer's own computer and will not share your local studio with remote reviewers.
 

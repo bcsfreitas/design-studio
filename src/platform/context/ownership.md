@@ -66,7 +66,11 @@ The update:
 
 It never pushes and never changes the branch it started from. It runs before the studio runtime loads, so a studio whose settings don't validate can still update.
 
-The update's base is Git's merge base with the release. A studio created by the installer starts as a fresh repository that shares no history with upstream; there the release recorded in `studio.lock.json` is the base, and the update branch first records that release as an ancestor (a merge that keeps all of the studio's files), so later merges see only what upstream changed since. A studio with neither shared history nor a recorded release can't be updated by the command.
+The update's base is Git's merge base with the release. New studios clone a tagged release with the starter's history, keep the starter as `upstream`, and start a local `main` branch. The default [installation guide](installing.md) uses this release clone directly. The separate plugin installer also records the tag's version and commit in `studio.lock.json` and commits that record on top of the release.
+
+Clone a release with its history for manual setup too. Updates need release ancestry; a ZIP download or shallow studio clone does not preserve the required history. Keep `upstream` for fetching releases. If you connect a private or company repository for your studio, use `origin` for that repository. Your team controls its access and when updates are reviewed and merged. Do not push studio work to the starter's `upstream`.
+
+For an older studio without shared history, the release recorded in `studio.lock.json` is the fallback base. The update first records that release as an ancestor while keeping the studio's files. A studio with neither shared history nor a recorded release can't be updated by the command.
 
 ## The installed release
 
