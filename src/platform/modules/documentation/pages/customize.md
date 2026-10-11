@@ -66,7 +66,7 @@ If you or your agent changed a part of Studio that the release also changed, the
 
 When the update finishes, try your studio on the update branch. When you're happy, merge the branch into your own (in a team, through a pull request). Your studio records which release it is on, so the next update knows where to start.
 
-The first time, your agent may need to connect your studio to the Design Studio project with `git remote add upstream https://github.com/itspatmorgan/design-studio-starter.git`; the update command says so. Updating a setup plugin does not update a studio folder. Your agent can use the [ownership map](/documentation/context/platform.core/context/ownership) for the details.
+The first time, your agent may need to connect your studio to the Design Studio project with `git remote add upstream https://github.com/itspatmorgan/design-studio-starter.git`; the update command says so. Your agent can use the [ownership map](/documentation/context/platform.core/context/ownership) for the details.
 
 ## Where do I add guidance for my agent?
 

@@ -48,7 +48,7 @@ Work individually in Personal mode, or use Team mode to register contributors an
 
 ## Publish a viewing site
 
-Design Studio builds a static website you can publish with hosting services such as [Vercel](https://vercel.com/docs/frameworks/frontend/vite), [Netlify](https://docs.netlify.com/build/configure-builds/javascript-spas/), and GitHub Pages. Ask your agent to guide you through the host you use:
+Design Studio builds a static website you can publish with hosting services such as [Vercel](https://vercel.com/docs/frameworks/frontend/vite), [Netlify](https://docs.netlify.com/build/configure-builds/javascript-spas/), [Cloudflare](https://developers.cloudflare.com/workers/static-assets/), or another static-site host. Ask your agent to guide you through the host you use:
 
 > Help me publish my Design Studio with [hosting service] so [audience] can explore it. Follow my Design Studio's publishing instructions and guide me through setting up hosting. Review what will be shared and verify the published link.
 

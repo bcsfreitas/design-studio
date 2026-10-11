@@ -27,9 +27,9 @@ Saving does not publish. Sharing working files through Git is a [separate team w
 
 ## How do I publish?
 
-Design Studio builds a static website you can publish with hosting services such as [Vercel](https://vercel.com/docs/frameworks/frontend/vite), [Netlify](https://docs.netlify.com/build/configure-builds/javascript-spas/), and GitHub Pages. Ask your agent to guide you through setting up the service you use:
+Design Studio builds a static website you can publish with hosting services such as [Vercel](https://vercel.com/docs/frameworks/frontend/vite), [Netlify](https://docs.netlify.com/build/configure-builds/javascript-spas/), [Cloudflare](https://developers.cloudflare.com/workers/static-assets/), or another static-site host. Ask your agent to guide you through setting up the service you use:
 
-> Help me publish my Design Studio with [hosting service] so [audience] can explore it. Follow my studio's publishing instructions and guide me through setting up hosting. Review what will be shared and verify the published link.
+> Help me publish my Design Studio with [hosting service] so [audience] can explore it. Follow my Design Studio's publishing instructions and guide me through setting up hosting. Review what will be shared and verify the published link.
 
 If you have not chosen a host, ask your agent to help you choose one based on who needs access and your team's requirements. Your agent can prepare the build and hosting configuration; you may need to sign in or approve account changes.
 
