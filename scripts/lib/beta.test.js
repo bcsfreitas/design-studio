@@ -1,3 +1,4 @@
+import { linkSystemDependencies } from './fixtures/workspace-dependencies.js';
 import { writeProfiles, ensureTeamManagement } from './fixtures/contributors.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -81,6 +82,7 @@ test('create and rename preserve addresses, file errors recover, and system remo
     fs.cpSync(root, dir, { recursive: true, filter: (file) => !['node_modules', 'dist', '.git'].includes(path.basename(file)) });
     ensureTeamManagement(dir);
     fs.symlinkSync(path.join(root, 'node_modules'), path.join(dir, 'node_modules'));
+    linkSystemDependencies(root, dir);
     // This journey creates prototypes with both starter systems, regardless of the host's QA state.
     const { editStudioConfig } = await import('./studio-setup.js');
     for (const id of ['product', 'marketing']) {
@@ -288,12 +290,13 @@ test('CI accepts reviewed platform proposals and maintainer pushes, rejecting ot
     const systemFile = path.join(dir, 'src/systems/product/system.ts');
     const { editStudioConfig } = await import('./studio-setup.js');
     fs.writeFileSync(systemFile, editStudioConfig(fs.readFileSync(systemFile, 'utf8'), { status: 'active' }));
-    runGit('add', 'studio.config.ts', 'contributors/sam.json', 'src/systems/product/system.ts', 'src/systems/marketing/system.ts', 'src/systems/studio/system.ts'); runGit('commit', '-qm', 'Trusted grants');
+    runGit('add', 'studio.config.ts', 'contributors/sam.json', ...config.systems.map((key) => `src/systems/${key}/system.ts`)); runGit('commit', '-qm', 'Trusted grants');
     const granted = runGit('rev-parse', 'HEAD');
     fs.writeFileSync(path.join(dir, 'src/systems/product/scope-fixture.md'), '# Assigned system');
     runGit('add', 'src/systems/product/scope-fixture.md'); runGit('commit', '-qm', 'Assigned system work');
     const check = (before, actor = 'sam-fixture', review = false) => spawnSync(process.execPath, ['scripts/check/check-scope.js', '--ci', before, runGit('rev-parse', 'HEAD'), ...(review ? ['--review'] : [])], { cwd: dir, encoding: 'utf8', env: { ...process.env, STUDIO_SCOPE_ACTOR: actor, STUDIO_PLATFORM_ROLE: 'write', MISE_TRUSTED_CONFIG_PATHS: dir } });
-    assert.equal(check(granted).status, 0, 'Assigned maintainer can push system work');
+    const maintainerCheck = check(granted);
+    assert.equal(maintainerCheck.status, 0, 'Assigned maintainer can push system work\n' + maintainerCheck.stderr + maintainerCheck.stdout);
     const beforeImpersonation = runGit('rev-parse', 'HEAD');
     const profileFile = path.join(dir, 'contributors/patrick.json');
     const profile = JSON.parse(fs.readFileSync(profileFile));
@@ -388,6 +391,7 @@ test('standalone diagrams are discovered by both extensions and disabling preser
   try {
     fs.cpSync(root, dir, { recursive: true, filter: file => !['.git', 'node_modules', 'dist'].includes(path.basename(file)) });
     fs.symlinkSync(path.join(root, 'node_modules'), path.join(dir, 'node_modules'));
+    linkSystemDependencies(root, dir);
     // Availability is a metadata contract, independent of the Manual's editorial structure.
     const pages = path.join(dir, 'src/modules/documentation/pages');
     if (fs.existsSync(pages)) fs.writeFileSync(path.join(pages, 'diagrams.md'), '---\ntitle: Diagrams fixture\norder: 99\nmodule: diagrams\n---\nFixture chapter.\n');

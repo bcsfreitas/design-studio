@@ -1,32 +1,74 @@
-import { useState } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Copy01Icon } from '@hugeicons/core-free-icons';
-import { Button } from '@/systems/studio/components/button';
+import { useEffect, useState } from 'react';
+import { ArrowUpRight, CircleHelp, Copy } from 'lucide-react';
+import { Button, buttonVariants } from '@/systems/studio/components/button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/systems/studio/components/tabs';
+import { Textarea } from '@/systems/studio/components/textarea';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/systems/studio/components/tooltip';
+import presetHelpImage from '../assets/shadcn-preset-help.png';
+import { Input } from '@/systems/studio/components/input';
+import { curationPrompt } from '../curation';
 
-export default function SystemSetup({ system, label }: { system: string; label: string }) {
-  const [copied, setCopied] = useState<string | null>(null);
+type Props = { system: string; label: string };
+
+export default function SystemSetup({ system, label }: Props) {
+  const [path, setPath] = useState<'shadcn' | 'import'>('shadcn');
+  const [preset, setPreset] = useState('');
+  const [designMd, setDesignMd] = useState('');
+  const [materials, setMaterials] = useState({ shadcn: '', import: '' });
+  const [components, setComponents] = useState({ shadcn: '', import: '' });
+  const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
-  const paths = [
-    { id: 'curate', label: 'Curate a toolkit from open libraries', description: 'Start with an idea. Your agent helps choose the components and visual style you need.', prompt: `Help me build the “${label}” system (system ID: ${system}) from open libraries such as shadcn or Untitled UI. Ask what I want to prototype, then suggest a small set of components, styles, and assets. Let’s review the choices before adding only what we need. Leave other systems, prototypes, and the default unchanged.` },
-    { id: 'import', label: 'Bring your own system', description: 'Your agent audits your existing React components, theme, and assets, then proposes a plan for bringing them into Studio.', prompt: `Help me audit my existing React design system and plan how to bring it into the “${label}” system (system ID: ${system}). Ask where the source is. Review its components, theme, fonts, icons, images, and dependencies. Propose an import plan that preserves component properties and visual styling. Explain required adaptations and any gaps. Review the plan with me before importing. Leave other systems, prototypes, and the default unchanged.` },
-  ];
-  async function copy(id: string, prompt: string) {
-    try { await navigator.clipboard.writeText(prompt); setError(''); setCopied(id); }
-    catch { setError('Could not copy. Select the prompt and paste it into your agent’s chat.'); }
+  const prompt = curationPrompt({ system, label, path, preset, designMd, materials: materials[path], components: components[path] });
+  useEffect(() => { setCopied(false); setError(''); }, [prompt]);
+  async function copy() {
+    try { await navigator.clipboard.writeText(prompt); setCopied(true); setError(''); }
+    catch { setError('Could not copy. Select the prompt below and paste it into your agent’s chat.'); }
   }
-  return <div className="space-y-4">
-    <div className="space-y-2 text-sm leading-6 text-muted-foreground">
-      <p>Build and manage your system in collaboration with your agent. Your agent does the setup work. Use Design Studio to review the results, give feedback, and guide the next steps.</p>
-      <p>Choose a starting point below. Copy its prompt into your coding agent’s chat to begin.</p>
-    </div>
-    {paths.map(path => <section key={path.id} aria-labelledby={`setup-${path.id}`} className="rounded-xl border border-border bg-background p-5">
-      <h2 id={`setup-${path.id}`} className="text-base font-semibold">{path.label}</h2>
-      <p className="mt-1 text-sm leading-6 text-muted-foreground">{path.description}</p>
-      <p className="mt-5 select-text rounded-lg border border-border/50 bg-muted/40 p-4 text-sm leading-6">{path.prompt}</p>
-      <div className="mt-4">
-        <Button variant="outline" size="sm" onClick={() => void copy(path.id, path.prompt)} aria-label={`Copy prompt: ${path.label}`}><HugeiconsIcon icon={Copy01Icon} data-icon="inline-start" />{copied === path.id ? 'Copied' : 'Copy prompt'}</Button>
-      </div>
-    </section>)}
-    <p role="status" className="text-sm text-muted-foreground">{error || (copied ? 'Prompt copied. Paste it into your coding agent’s chat to continue.' : '')}</p>
+  const block = 'min-w-0 rounded-xl border border-border/50 bg-muted/40 p-6';
+  const heading = 'mb-4 text-lg font-semibold tracking-tight';
+  return <div className="mb-6 grid gap-4">
+      <Tabs value={path} onValueChange={value => setPath(value as typeof path)} className="gap-4">
+        <section className={block} aria-labelledby="system-starting-point"><h2 id="system-starting-point" className={heading}>1. Choose your system foundation</h2>
+          <TabsList aria-label="System starting point" className="max-w-full overflow-x-auto">
+            <TabsTrigger value="shadcn">Curate from shadcn</TabsTrigger>
+            <TabsTrigger value="import">Bring your own</TabsTrigger>
+          </TabsList>
+        </section>
+        <section className={block} aria-labelledby="system-choices">
+          <h2 id="system-choices" className={heading}>2. Add your setup details</h2>
+        {(['shadcn', 'import'] as const).map(id => <TabsContent key={id} value={id} className="space-y-4">
+          {id === 'shadcn' ? <>
+            <p className="text-sm leading-6 text-muted-foreground">Bring a preset from shadcn’s builder, a DESIGN.md, or both.</p>
+            <a href="https://ui.shadcn.com/create" target="_blank" rel="noreferrer" className={buttonVariants({ variant: "default", size: "sm" })}>Open shadcn builder<ArrowUpRight className="size-3" aria-hidden /></a>
+            <div><div className="mb-2 flex items-center gap-2"><label htmlFor="curation-preset" className="text-sm font-medium">Paste your preset here</label>
+              <Tooltip><TooltipTrigger render={<Button variant="ghost" size="icon-sm" aria-label="Where to find your shadcn preset" />}><CircleHelp className="size-4" aria-hidden /></TooltipTrigger>
+                <TooltipContent side="top" className="block max-w-64 p-3">
+                  <p className="mb-3 leading-5">Find <strong>--preset</strong> at the bottom of shadcn’s sidebar. Paste that code here.</p>
+                  <img src={presetHelpImage} width={192} height={194} alt="Bottom of shadcn’s builder sidebar showing the --preset b0 control above Open Preset and Shuffle." className="mx-auto rounded-md" />
+                </TooltipContent>
+              </Tooltip>
+            </div><Input id="curation-preset" value={preset} placeholder="Preset code or builder link" onChange={event => setPreset(event.target.value)} /></div>
+            <div><label htmlFor="curation-design-md" className="mb-2 block text-sm font-medium">DESIGN.md <span className="font-normal text-muted-foreground">(optional)</span></label>
+              <Input id="curation-design-md" value={designMd} placeholder="Paste a link or the full path to your DESIGN.md" onChange={event => setDesignMd(event.target.value)} />
+            </div>
+          </> : <p className="text-sm leading-6 text-muted-foreground">Your agent will inspect the code and recommend what to import first, what needs adaptation, and what’s missing.</p>}
+          <div><label htmlFor={'curation-materials-' + id} className="mb-2 block text-sm font-medium">{id === 'import' ? 'React project or component library' : 'What do you want to build?'} <span className="font-normal text-muted-foreground">(optional)</span></label>
+            <Textarea id={'curation-materials-' + id} value={materials[id]} rows={3} placeholder={id === 'import' ? 'Paste a repository URL or the full path to its folder' : 'For example: A dashboard for tracking customer support requests'} onChange={event => setMaterials(previous => ({ ...previous, [id]: event.target.value }))} />
+            <p className="mt-2 text-xs text-muted-foreground">{id === 'import' ? 'Leave this blank and your agent will ask for the source in chat.' : 'Your agent uses this to choose the first components.'}</p>
+          </div>
+          {id !== 'import' && <div>
+            <label htmlFor={'curation-components-' + id} className="mb-2 block text-sm font-medium">Any components you already know you want? <span className="font-normal text-muted-foreground">(optional)</span></label>
+            <Textarea rows={3} id={'curation-components-' + id} value={components[id]} placeholder="For example: Buttons, a data table, and a date picker" onChange={event => setComponents(previous => ({ ...previous, [id]: event.target.value }))} />
+          </div>}
+        </TabsContent>)}
+        </section>
+      </Tabs>
+    <section className={block} aria-labelledby="system-prompt">
+      <h2 id="system-prompt" className={heading}>3. Copy and send your prompt</h2>
+      <p className="mb-4 text-sm leading-6 text-muted-foreground">Paste this into your agent’s chat and send. Your agent will ask for any files it needs.</p>
+      <p className="select-text whitespace-pre-wrap rounded-lg border border-border bg-background p-4 text-sm leading-6">{prompt}</p>
+      <Button className="mt-4" onClick={() => void copy()}><Copy className="size-4" aria-hidden />{copied ? 'Prompt copied' : 'Copy prompt'}</Button>
+      <p role="status" className="mt-2 text-xs text-muted-foreground">{error || (copied ? 'Paste into your agent’s chat and send to continue.' : '')}</p>
+    </section>
   </div>;
 }

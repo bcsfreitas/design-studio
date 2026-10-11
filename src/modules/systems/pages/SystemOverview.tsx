@@ -12,6 +12,7 @@ import { SYSTEM_SPECS, PLATFORM_ID } from '../data/systems';
 import { systemAssets } from '../data/assets';
 import SystemReferenceNotice from './SystemReferenceNotice';
 import SystemSetup from './SystemSetup';
+import SystemStarterNotice from './SystemStarterNotice';
 import { finishSystemCreation } from './creationTransition';
 import { isSkillFile } from '../content/rules';
 import type { DesignSystem } from '@/platform/app/data/types';
@@ -42,7 +43,7 @@ export default function SystemOverview({ system, sys, components, tokens }: {
   if (blank && spec.status === 'active' && import.meta.env.DEV) return <>
     <PageHeader title={sys.label} description="This system is empty. Choose how you want to build it." />
     <SystemReferenceNotice system={system} />
-    <SystemSetup system={system} label={sys.label} />
+    <SystemSetup key={system} system={system} label={sys.label} />
   </>;
 
   return <>
@@ -54,11 +55,8 @@ export default function SystemOverview({ system, sys, components, tokens }: {
       <AlertDescription>Files are kept locally and excluded from deployment. Choose Restore from the system menu to use it again.</AlertDescription>
     </Alert>}
     {platform && <p className="mb-6 text-[13px] text-muted-foreground">Required application system</p>}
-    {sys.overview?.starter && <aside className="mb-8 rounded-lg border border-border bg-background p-4" aria-label="Starter design system">
-      <p className="mb-1 text-sm font-semibold">Replace this starter with your team’s design system</p>
-      <p className="text-sm leading-6 text-foreground/80">{sys.label} is included to help you explore. Bring in your team’s components, styles, and instructions when you’re ready.</p>
-      <Link to={'/documentation/manual/prototypes' as never} hash="how-do-i-bring-in-my-own-system" className="mt-2 inline-flex items-center gap-1 text-sm hover:underline">Set up your system<ArrowUpRight aria-hidden className="size-3.5" /></Link>
-    </aside>}
+    {sys.overview?.starter && <SystemStarterNotice label={sys.label} />}
+    {!platform && spec.status === 'active' && import.meta.env.DEV && !sys.overview?.curation && !sys.overview?.starter && <details className="mb-6"><summary className="cursor-pointer text-sm font-medium">Curate or bring in a system</summary><div className="mt-4"><SystemSetup system={system} label={sys.label} /></div></details>}
 
     <div className="mb-4 grid gap-4">
       <section className="min-w-0 rounded-xl border border-border/50 bg-muted/40 p-6" aria-labelledby="system-guidance">
@@ -82,7 +80,7 @@ export default function SystemOverview({ system, sys, components, tokens }: {
       <div className="min-w-0">
         {platform ? <p className="text-sm leading-6 text-foreground/80">Studio’s navigation, menus, editors, and documentation use this system. It is maintained with platform releases and is unavailable as a prototype system.</p> : usage.count ? <>
           <ul className="space-y-1">{usage.recent.map(proto => <li key={proto.contributorKey + '/' + proto.id}><Link {...prototypeLink(proto)} className="flex items-center gap-3 rounded-lg border border-border bg-transparent px-4 py-3 text-sm hover:bg-muted"><span className="min-w-0 flex-1 truncate">{proto.title}</span><span className="max-w-36 truncate text-[12px] text-muted-foreground">{proto.contributor}</span><ArrowUpRight aria-hidden className="size-3.5 shrink-0" /></Link></li>)}</ul>
-          <Link to={'/prototypes' as never} search={{ system } as never} className="mt-3 inline-flex items-center gap-1 text-sm hover:underline">View all prototypes<ArrowUpRight aria-hidden className="size-3.5" /></Link>
+          <Link to={'/prototypes' as never} search={{ system } as never} className="mt-3 inline-flex items-center gap-1 text-sm hover:underline">View prototypes using this system<ArrowUpRight aria-hidden className="size-3.5" /></Link>
         </> : <p className="text-sm leading-6 text-foreground/80">No active prototypes use this system yet. Choose {sys.label} when creating a prototype.</p>}
       </div>
     </section>

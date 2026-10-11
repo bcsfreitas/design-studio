@@ -16,16 +16,21 @@ A prototype system lives in `src/systems/<id>/` and contains:
 | `assets/` | Optional system-owned fonts, logos, and images. |
 | `styles/theme.css` | Scoped tokens and styles, loaded by the platform. |
 | `intro.tsx` | Optional Systems overview page. |
+| `components.json` | Optional system-owned shadcn source configuration; consumed through isolated preparation. |
+| `package.json` | Prototype-system dependency ownership and shared React peer requirements. |
+| `libraries/` | Declared external library entries available to assigned prototypes. |
 
 `system.ts`, introductions, examples, and Markdown are documentation adapters. Runtime components and prototypes cannot import these adapters.
 
 `intro.tsx` supplies optional overview content. Its exports and presentation are defined in [Systems interface](context/interface.md#overview).
 
+[System curation](context/curation.md) defines the Overview setup prompt builder, saved decisions, and isolated `pnpm prepare-shadcn` command.
+
 The Studio system lives in `src/systems/studio/` with the same structure as other systems. Its `system.ts` declares `role: 'platform'`; other systems explicitly declare `role: 'prototype'`. Exactly one installed system must declare that role. Discovery resolves the application system by role, independently of its folder name. It must be registered and cannot be removed or assigned to prototypes. Its documentation mode is `off`. Every system explicitly declares `status` (`active` or `archived`), `role`, `styling`, `colorModes`, `docs`, and `origin`. Platform infrastructure remains under `src/platform/`.
 
 Follow the [static asset convention](../../platform/context/assets.md) for system assets and font loading.
 
-The starter Product system uses shadcn/ui on Base UI. `components.json` controls the CLI destination. A replacement system may use another library.
+The starter Product and Marketing systems use shadcn/ui on Base UI. Shadcn-based systems own `components.json`; other systems do not need it. Its style and icon choices describe the upstream starting configuration, not every adaptation in the current theme or components. There is no root shadcn configuration. Prototype system folders are private dependency workspaces, but are not standalone shadcn projects. Use the [isolated preparation command](context/curation.md#isolated-shadcn-preparation), which translates configuration for a standalone upstream project. Do not run shadcn initialization or preset application directly against Studio source folders.
 
 `colorModes` declares supported modes: `['light']`, `['dark']`, or `['light', 'dark']`. This field is required; omission fails validation. Declare a single mode explicitly to protect a system that supports only that mode. Empty, duplicate, and unknown modes fail validation.
 
@@ -37,7 +42,7 @@ The starter Product system and new system scaffolds declare both modes. New scaf
 
 ## Runtime boundaries
 
-System runtime code may depend on its own runtime files, independent shared utilities, installed packages, and enabled public module libraries through `@module/<id>`. Other systems, prototype files, private platform implementation, and documentation adapters are outside its runtime boundary. Indirect and type-only dependencies follow the same requirements. Dynamic imports use literal paths.
+System runtime code may depend on its own runtime files, independent shared utilities, its declared package dependencies, shared React runtime, and enabled public module libraries through `@module/<id>`. Other systems, prototype files, private platform implementation, and documentation adapters are outside its runtime boundary. Indirect and type-only dependencies follow the same requirements. Dynamic imports use literal paths. [System libraries and dependencies](context/libraries.md) owns package manifests, public library declarations, installation, and access rules.
 
 Theme selectors and imported stylesheets stay under the system's unique theme class or its descendants. Keyframe names use the theme class followed by a dash. Font-face registration is permitted and follows the [static asset convention](../../platform/context/assets.md#scope-and-fonts).
 
@@ -67,9 +72,11 @@ button/
 
 The Markdown page has a `title`, `description`, and `## When to use` section. Other sections are optional.
 
+Optional `source` frontmatter supplies a short provenance sentence, such as the library, CLI version, and preset. The compact Source block links the system’s declared origin and libraries whose `components` include this component to their Libraries entries. It preserves the component-specific upstream `docs` link. Label generation versions as shadcn CLI, not as runtime library versions. Keep technical adaptation details in system context.
+
 Each capitalized export from the examples file is one live example. The platform frames examples with the system's theme.
 
-Props tables come from TypeScript. They summarize inputs rather than replacing upstream API documentation.
+Component pages show guidance, then Examples, then Source with the local file path. Props comes last in a disclosure, collapsed initially and labeled with component and documented-prop counts. Props tables come from TypeScript. They summarize inputs rather than replacing upstream API documentation.
 
 `origin: 'shadcn'` adds upstream component links. A Markdown page can provide its own `docs` URL. Declare `origin: null` when replacing the starter kit with another library.
 
@@ -146,7 +153,7 @@ The [contracts and operating instructions foundation](../../platform/context/con
 
 A system’s guidance applies to its product and design domain. Platform and modules own their operating knowledge and procedures.
 
-A system owns five parts: theme, components, assets, context, and skills. Assets include fonts, icons, logos, and shared imagery. They may be local files or explicit package dependencies; their ownership follows the static asset convention. Context and skills live directly in their system folders. The navigation exposes all five parts, including Assets when no local files exist.
+A system owns theme, components, assets, libraries, context, and skills. Assets include fonts, icons, logos, and shared imagery. They may be local files or explicit package dependencies; their ownership follows the static asset convention. Context and skills live directly in their system folders. The navigation exposes these parts, including Assets and Libraries when empty.
 
 Systems exposes these files at `/systems/<system-id>/context/<file>` and `/systems/<system-id>/skills/<skill>/SKILL`. Old readable system routes have no compatibility aliases. The shared source editor and file operations use explicit system and section identifiers. Content remains platform-styled even for a single-mode product system.
 
