@@ -396,7 +396,7 @@ export function StorySketch({ kind, exampleIds }: { kind: string; exampleIds?: s
               </text>
               <path d='M249 96H394M249 104H359' stroke={ink} opacity='.25' />
               <rect x='249' y='118' width='58' height='19' rx='4' fill={ink} />
-              <text x='259' y='131' fontSize='9' fill={paper}>
+              <text x='278' y='127.5' textAnchor='middle' dominantBaseline='middle' fontSize='9' fill={paper}>
                 Get started
               </text>
               <rect x='320' y='116' width='85' height='31' rx='3' fill={paper} stroke={border} />
