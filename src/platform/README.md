@@ -22,9 +22,17 @@ All platform knowledge and requirements live together in `context/`:
 | Editing and saving | [Editing and saving](context/source.md) |
 | Assets and fonts | [Assets and fonts](context/assets.md) |
 | Validation and recovery | [Checks and fixes](context/checks.md) |
+| Cutting a release (maintainers) | [Releasing](context/releasing.md) |
 | Deployment | [Publishing](context/publishing.md) |
 | Shared diagram rendering | [Diagrams and code formatting](context/diagrams.md) |
 | Implementation dependencies | [Technology stack](context/stack.md) |
+
+## Commands
+
+| Command | Purpose |
+| --- | --- |
+| `pnpm studio update [version] [--dry-run]` | Take a newer Design Studio release on a `studio-update/v<version>` branch; `--continue` finishes one after its conflicts are resolved. See [Updating a studio](context/ownership.md#updating-a-studio). |
+| `pnpm release <version> [--dry-run]` | Upstream maintainers only: cut a platform release on `main` and tag it locally. See [Releasing](context/releasing.md). |
 
 ## Skills
 
