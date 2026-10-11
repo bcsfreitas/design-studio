@@ -27,7 +27,7 @@ git switch -c main
 
 Design Studio is installed in the `design-studio` folder. You can choose a different name. If the folder already exists, choose another name or open the existing studio; do not replace its files.
 
-These commands install release `v0.2.0` and preserve the history needed for future updates. The `upstream` remote is for receiving Studio releases. You can keep your copy in your own private or company repository, using `origin` for that repository. Your team controls its access and decides when to take updates.
+These commands install release `v0.2.0` and preserve the history needed for future updates.
 
 ## 3. Install dependencies and open the preview
 
@@ -52,6 +52,18 @@ Ask:
 > Read AGENTS.md and help me configure my Design Studio. Start with the included examples and show me the running preview.
 
 Your agent follows the repository's instructions to register you and configure Studio. Agent harnesses that do not automatically discover project instructions can still use them when you ask the agent to read `AGENTS.md`. Keep the included examples until you decide what to customize.
+
+## Keep your own repository and choose when to update
+
+You can keep Design Studio in your own private or company repository. You control access to your copy; the Design Studio project does not need access to it. Ask your agent:
+
+> Help me put this Design Studio in my own private or company repository. Preserve my work and keep it ready to receive future Studio releases.
+
+Updates are your choice. New Studio releases do not change your copy automatically. When you want to update, ask:
+
+> Check for Design Studio updates and show me what would change before applying them.
+
+Your agent handles the Git details and helps you review the update before you take it. See [Ownership and updates](ownership.md#updating-a-studio) for the technical procedure.
 
 ## Return to your studio
 
