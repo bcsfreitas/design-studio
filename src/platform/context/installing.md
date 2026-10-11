@@ -19,7 +19,7 @@ Install [Git](https://git-scm.com/downloads) and [mise](https://mise.jdx.dev/get
 Open a terminal in the folder where you keep your projects. Run:
 
 ```sh
-git clone --filter=blob:none --branch v0.2.0 https://github.com/itspatmorgan/design-studio-starter.git design-studio
+git clone --filter=blob:none --branch v0.2.1 https://github.com/itspatmorgan/design-studio-starter.git design-studio
 cd design-studio
 git remote rename origin upstream
 git switch -c main
@@ -27,7 +27,7 @@ git switch -c main
 
 Design Studio is installed in the `design-studio` folder. You can choose a different name. If the folder already exists, choose another name or open the existing studio; do not replace its files.
 
-These commands install release `v0.2.0` and preserve the history needed for future updates.
+These commands install release `v0.2.1` and preserve the history needed for future updates.
 
 ## 3. Install dependencies and open the preview
 
