@@ -33,12 +33,14 @@ Two paths have specific support:
 
 | Path | What you need |
 | --- | --- |
-| ChatGPT Sites through Codex | The Design Studio plugin and an available, connected Sites integration. Ask your agent to publish your studio through Sites. |
+| ChatGPT Sites | Available Sites publishing tools and access to the destination. The Design Studio plugin provides a convenient publishing procedure; installing it is optional. |
 | GitHub Pages | Your studio in a GitHub repository, with access to configure Pages and its deployment workflow. Your agent can help set this up. |
 
 Having a GitHub repository does not automatically publish your studio. Copies of the starter need their own deployment configuration.
 
-For other hosts, ask your agent to assess what is needed with whoever manages hosting for your team. The agent can help prepare the build and configuration. What it can complete depends on its tools and your access. See [Publishing](/documentation/context/platform.core/context/publishing) for technical requirements.
+> Help me publish my Studio to [host] for [audience]. Read the repository's publishing contract, assess the host and my access, and handle its setup. Check the base path, direct links and reloads, and review what will be visible before publication.
+
+Your agent can prepare the build and host configuration. What it can complete depends on its tools and your access. The [Publishing contract](/documentation/context/platform.core/context/publishing) covers routing, base paths, caching, and verification.
 
 Building checks your source and creates the viewing site. Maintainer regression tests run separately, so each publication does not repeat the full test suite. Your hosting service still controls deployment queues and upload time.
 

@@ -14,9 +14,13 @@ An open-source, local prototype sandbox for designers and product managers who b
 
 ## Get started
 
-Use Codex, Claude Code, or Cursor in a local desktop session. Copy one prompt from [the setup guide](https://github.com/itspatmorgan/design-studio-plugin/blob/main/SETUP.md) to install the [Design Studio plugin](https://github.com/itspatmorgan/design-studio-plugin) and create your studio. Your agent handles setup and opens it on your computer.
+Ask your coding agent to set up Studio. It needs filesystem access and command execution where you want to save your work. No plugin is required.
 
-The guide also covers [direct setup without a plugin](https://github.com/itspatmorgan/design-studio-plugin/blob/main/SETUP.md#4-direct-from-the-source-repository) and [manual installation](https://github.com/itspatmorgan/design-studio-plugin/blob/main/SETUP.md#manual-installation). If ChatGPT Sites is available, the [setup-and-publish prompt](https://github.com/itspatmorgan/design-studio-plugin/blob/main/SETUP.md#set-up-and-publish-with-chatgpt-sites) includes a viewing link you can share. Editing stays local.
+> Set up Design Studio for me using https://github.com/itspatmorgan/design-studio-plugin/blob/main/SETUP.md. Follow direct setup without installing a plugin. Confirm where my files will live, preserve existing work, clone the pinned starter release with its history and upstream remote, and verify the local preview. Help me continue in my studio folder.
+
+Use a release clone rather than **Use this template** or a ZIP download, so later releases can arrive with `pnpm studio update`. The [setup guide](https://github.com/itspatmorgan/design-studio-plugin/blob/main/SETUP.md) also covers manual installation and optional Codex, Claude Code, and Cursor plugins. Tool access and workspace handoff depend on your agent and environment.
+
+To share a viewing site, use the [publishing prompt](https://github.com/itspatmorgan/design-studio-plugin/blob/main/SETUP.md#publish-to-a-static-host). If ChatGPT Sites tools are available, the [setup-and-publish prompt](https://github.com/itspatmorgan/design-studio-plugin/blob/main/SETUP.md#set-up-and-publish-with-chatgpt-sites) includes setup and a review link. Editing stays local.
 
 ## Explore further
 
