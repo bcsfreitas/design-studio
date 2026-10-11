@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.1 (2026-10-11)
+
 - The upgrade test now starts from the latest release.
 - Installation now follows one release-pinned path, with the same instructions for people and their agents. The README and Manual explain agent harnesses, private or company repositories, optional updates, and separate static-site publishing without promoting plugins.
 - The onboarding illustration centers its example button label.
