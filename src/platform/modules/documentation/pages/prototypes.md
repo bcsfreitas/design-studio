@@ -56,6 +56,8 @@ Ask your agent, describing the goal and system. Or select **New prototype**, ent
 
 The assigned system appears beneath the prototype title. Browsing another system does not change it. **No system — custom styling** uses local components and styles.
 
+The prototype keeps all its artifacts together, but they do not all use the product system to render. Views use its runtime toolkit. Documents, diagrams and canvas scenes use their own readers; embedded views keep their own system dependency.
+
 Changing the default in Studio settings affects new prototypes and preserves existing assignments. Changes to a shared system's components or styles can affect every prototype using it.
 
 ## How do I bring in my own system?
@@ -113,3 +115,5 @@ Use the prototype or system's **…** menu. Permissions determine available acti
 | Delete | Permanently removes the prototype. | Removes system files; associated prototype source remains but needs another system and a rebuild. |
 
 Restore archived work before routine editing. Choose another default before archiving or deleting the default system. Studio keeps no recovery copy for deletion; ask the agent to check available version history before removing work you may need.
+
+If an assigned system is deleted, you can still read documents, diagrams and canvas scenes locally. Its views show rebuild guidance, and source remains available. The whole prototype stays out of publication until its system-dependent implementation has been rebuilt. Preserve supporting thinking documents when migrating to another system.

@@ -9,6 +9,7 @@ import { writeProfiles } from './fixtures/contributors.js';
 import { readDeclaration } from '../../core/declarations.ts';
 import { parseConfigFile, serializeConfig, withSettings } from '../../core/config-file.ts';
 import { inspectBuild } from '../check/inspect-build.js';
+import { PLATFORM_VERSION } from '../../core/modules/index.ts';
 
 const temporary = () => fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'studio-boundaries-')));
 const write = (root, file, code) => {
@@ -88,7 +89,7 @@ test('private module consumers and symlink scopes are rejected; disabled app and
     write(
       root,
       'src/modules/extra/type.ts',
-      "Object.assign(globalThis, { __BOUNDARY_DISABLED_SENTINEL__: true }); export default {label:'Extra',extensions:[],inPrototype:false,inSystemContent:false,fallback:false,capabilities:{source:false,create:false,fidelity:false,embeds:[],actions:[]}};",
+      "Object.assign(globalThis, { __BOUNDARY_DISABLED_SENTINEL__: true }); export default {label:'Extra',extensions:[],systemUsage: 'independent', inPrototype:false,inSystemContent:false,fallback:false,capabilities:{source:false,create:false,fidelity:false,embeds:[],actions:[]}};",
     );
     const consumer = write(
       root,
@@ -187,7 +188,7 @@ test('private module consumers and symlink scopes are rejected; disabled app and
       JSON.parse(fs.readFileSync(path.join(root, 'public/prototypes/manifest.json'))).contributions.extra;
     const calls = () => fs.readFileSync(path.join(root, '.extra-build-calls'), 'utf8');
     run('src/platform/node/build/build-manifest.js', '--strict', '--deploy');
-    assert.deepEqual(contributed(), { label: '__PUBLIC_CONTRIBUTION_PROOF__', version: '0.3.0' });
+    assert.deepEqual(contributed(), { label: '__PUBLIC_CONTRIBUTION_PROOF__', version: PLATFORM_VERSION });
     run('src/platform/node/check/check-modules.js');
     run('src/platform/node/check/typecheck.js');
     run('node_modules/vite/bin/vite.js', 'build');

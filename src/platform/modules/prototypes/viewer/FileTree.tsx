@@ -648,6 +648,7 @@ export default function FileTree({
       present: Boolean(menuItem),
       renderer: Boolean(menuItem && fileTypeModules[menuItem.fileType]),
       scope: isSystemContent ? ('systemContent' as const) : ('prototype' as const),
+      systemMissing: proto.systemMissing,
     };
     const spec = menuItem && FILE_TYPES[menuItem.fileType];
     const available = artifactAvailability(spec, environment);

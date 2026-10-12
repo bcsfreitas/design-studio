@@ -33,10 +33,31 @@ The `identity` adapter for prototype file types reads and writes permanent proto
 | `type.ts` | Extensions, label, language, capabilities, implementations, validation, and scope flags. |
 | `open.tsx` | Icon, loader, page, optional live `Embed`, and module-owned actions. |
 | `loader.ts` | Production file globs and its own HMR acceptance. |
+| `references.ts` | Optional Node-only source adapters for moves and copied permanent links. |
 
 `type.ts` imports only the file type declarations, because Node loads it directly: `#studio/files` in a team module, `../../core/fileTypes.ts` in a supplied one.
 
 `inPrototype`, `inSystemContent`, and `fallback` are required booleans. `inPrototype: true` permits prototype artifacts; `inSystemContent: true` permits system knowledge files. Omission fails validation. A `fallback` type opens other system context text files without claiming extensions.
+
+## Prototype and system dependencies
+
+From platform 0.4.0, every type explicitly declares `systemUsage: 'assigned'` or `'independent'`. Views consume the prototype's assigned runtime toolkit. Documents, Diagrams, Canvas scenes, and knowledge readers render independently. Missing declarations fail validation; existing third-party types must add this field before they can load. Modules using this field or the new reference and lifecycle APIs declare `requires: '0.4.0'`.
+
+The prototype owns identity, source authority, organization, archive status and publication eligibility. Its `systemId` remains the single product-system assignment. Independent rendering does not grant access to another system or discard relevant product context.
+
+`artifactSystemAvailability` is available through `#studio/files`. The shared availability resolver accepts the prototype's validated `systemMissing` state. Pages and document/canvas previews refuse system-consuming renderers with an explanatory reason. Source remains readable and repairable. Nested previews resolve their own dependency state; a missing view does not block a document or canvas scene.
+
+Independent artifacts remain locally readable after system deletion. Affected prototypes remain excluded from publication until rebuilt. Prototype archiving still excludes the whole container.
+
+## Source reference adapters
+
+A module may export an adapter list from `references.ts`, importing Node-only helpers and types through `#studio/references`. Each adapter declares unique `extensions`, a `move` transformation and a `copy` transformation. Extensions cover supporting files and underscore helpers too; they do not register additional artifacts.
+
+The adapter understands syntax and returns source text. Platform callbacks resolve relative paths, imports, navigation targets and exact permanent-link mappings. Preserve queries, fragments, external origins and unrecognized dynamic expressions. The platform prepares edits, checks file versions and containment, and owns authorized writes and rollback. Invalid or oversized output aborts the operation. Adapters must not write files themselves.
+
+Installed adapters remain available for source maintenance when their runtime module is disabled, like retained identity adapters. Removal removes the grammar but preserves authored content; unknown source is not guessed or rewritten. Duplicate extension ownership is a check error.
+
+Views owns code and CSS source adapters. Text files owns the shared Markdown grammar, including system knowledge and retained Documents source. Canvas owns Excalidraw links and scene update rules. Ordinary Markdown moves and copied permanent links preserve prose and fenced examples. Prototype-name migration retains its existing legacy-address behavior.
 
 ## Artifact capabilities
 
@@ -74,7 +95,7 @@ Replace `preview` in `type.ts` and `embedSurfaces` in `open.tsx` with `capabilit
 
 Add explicit `source`, `create`, `fidelity`, and `actions` declarations. Keep syntax, template, and fidelity functions as implementation details. Do not add capabilities to prototype files or a second artifact registry. Permanent identity and module enablement retain their existing contracts.
 
-Future inspection, exports, and preview lifecycle can extend these boundaries. No inspector, new export format, lifecycle state machine, or agent runtime is implied by the declaration.
+Future inspection and exports can extend these boundaries. No inspector, new export format, or agent runtime is implied by the declaration. Renderers use the existing [shared lifecycle contract](source.md#artifact-revision-and-preview-lifecycle).
 
 ## Rendering and source
 
@@ -115,3 +136,5 @@ Restart the dev server after capability changes. Ordinary content edits are refl
 3. Add `loader.ts` if published content needs bundled file loading.
 4. Use the artifact registry to resolve other artifacts rather than importing optional file types.
 5. Run module checks and a build. Verify disabling and removal for optional types.
+
+The mixed-artifact conformance fixture lives in `node/lib/fixtures/artifacts.js`. Its integration test installs a team-owned format in a disposable studio using only public APIs. It verifies identity, mixed discovery, reference moves and copying, disabled source maintenance, missing-system availability, production base paths and retained content after removal. Browser interaction checks complement this source/build suite.

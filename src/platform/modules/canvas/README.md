@@ -9,6 +9,8 @@ Human orientation: [Prototypes & systems](/documentation/manual/prototypes#what-
 so the app runs with or without it. Canvas doesn't import another file type either: it asks the
 registry (`src/platform/app/data/fileTypes.ts`) how to show an artifact. Browser and CLI sizing use the same surface declaration.
 
+Canvas declares `systemUsage: 'independent'`. Its scene remains readable locally when the prototype's assigned system is missing; each embed checks its own artifact dependency. `references.ts` owns scene-link repair during moves and copies, preserving scene identity and updating changed element versions.
+
 ### The model
 
 - **One file per canvas:** `<name>.excalidraw`, anywhere in a prototype. An Excalidraw scene as JSON.

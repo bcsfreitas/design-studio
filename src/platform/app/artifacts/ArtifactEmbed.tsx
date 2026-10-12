@@ -63,7 +63,7 @@ export default function ArtifactEmbed({ source, label = 'Artifact' }: { source: 
   }, [source, base, revision]);
   const previewType = target?.item.fileType ?? (reference ? fileTypeOf(reference.path) : null);
   const Embed = previewType
-    ? embedFor(FILE_TYPES[previewType], fileTypeModules[previewType], 'document', 'prototype')
+    ? embedFor(FILE_TYPES[previewType], fileTypeModules[previewType], 'document', 'prototype', target?.proto)
     : undefined;
   const Pending = Embed && previewType ? fileTypeModules[previewType]?.EmbedPending : undefined;
   const pendingSurface = Pending ? <Pending loadingStartedAt={opening.current.started} /> : null;

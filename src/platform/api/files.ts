@@ -19,3 +19,5 @@ export { markdownFileType } from '../core/fileTypes.ts';
 export { markdownIdentity } from '../core/fileTypes.ts';
 /** @experimental A file's path without its extension: the slug in its address. */
 export { artifactSlug } from '../core/fileTypes.ts';
+/** @experimental Whether the format can render with this prototype's system dependency. */
+export { artifactSystemAvailability } from '../core/fileTypes.ts';

@@ -5,9 +5,11 @@ import { PROTOTYPE_SYSTEMS } from '@/platform/modules/systems/data/systems';
 import { repoPath } from '@/platform/app/data/files';
 import { emptyView } from '@/lib/emptyView';
 import { views } from './loader';
+import { artifactSystemAvailability } from '@/platform/core/fileTypes';
+import viewType from './type';
 
 export async function loadView({ proto, item }: ArtifactContext) {
-  if (proto.systemMissing)
+  if (!artifactSystemAvailability(viewType, proto).available && proto.systemMissing)
     return {
       prototype: { ...proto, currentArtifactId: item.studioId },
       Component: () => null,

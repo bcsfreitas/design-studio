@@ -48,7 +48,8 @@ test('stale signatures and requirements need a snapshot update, without a pre-re
       delete now.api['#studio/data'].APP_NAME;
     },
     now => {
-      now.platformVersion = '0.4.0';
+      const [major, minor] = now.platformVersion.split('.').map(Number);
+      now.platformVersion = `${major}.${minor + 1}.0`;
     },
   ]) {
     const now = base();

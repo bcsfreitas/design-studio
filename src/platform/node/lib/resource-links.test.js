@@ -91,9 +91,9 @@ test('copied artifacts receive unique IDs and remap contained permanent links wh
   fs.mkdirSync(path.join(directory, '_helpers'));
   fs.writeFileSync(path.join(directory, '_helpers/nav.ts'), `export const href = '${from}';`);
   const types = {
-    view: { inPrototype: true, extensions: ['.tsx'], identity: viewIdentity },
-    document: { inPrototype: true, extensions: ['.md'], identity: markdownIdentity },
-    canvas: { inPrototype: true, extensions: ['.excalidraw'], identity: canvasIdentity },
+    view: { systemUsage: 'independent', inPrototype: true, extensions: ['.tsx'], identity: viewIdentity },
+    document: { systemUsage: 'independent', inPrototype: true, extensions: ['.md'], identity: markdownIdentity },
+    canvas: { systemUsage: 'independent', inPrototype: true, extensions: ['.excalidraw'], identity: canvasIdentity },
   };
   const used = new Set([parent, child, next, resourceId('3456789abcdefghj'), resourceId('456789abcdefghjk')]);
   identifyPrototypeArtifacts(directory, types, used, next, parent);

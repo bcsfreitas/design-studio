@@ -34,7 +34,7 @@ Development manifest and file-loader notifications share a serialized refresh qu
 
 ## Artifact revision and preview lifecycle
 
-`core/artifact-lifecycle/index.ts` is the supported framework entrypoint. Its versioned state separates three facts:
+Supplied renderers use `core/artifact-lifecycle/index.ts`. Team renderers use the public `#studio/lifecycle` entry for the same state controller, input digests and DOM evidence. Its versioned state separates three facts:
 
 | Fact | Meaning |
 | --- | --- |

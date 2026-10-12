@@ -8,6 +8,7 @@ import { FILE_TYPES, fileTypeModules } from '@/platform/app/data/fileTypes';
 import { artifactLabel, artifactLink } from '@/platform/app/data/manifest';
 import type { Artifact, Prototype } from '@/platform/app/data/types';
 import { cn } from '@/lib/utils';
+import { artifactSystemAvailability } from '@/platform/core/fileTypes';
 
 export const ITEM_CARD_HEIGHT = 88;
 
@@ -24,6 +25,8 @@ export default function ArtifactCard({
 }) {
   const icon = item && fileTypeModules[item.fileType]?.icon;
   const found = proto && item;
+  const dependency = artifactSystemAvailability(item && FILE_TYPES[item.fileType], proto ?? {});
+  const reason = dependency.supported && !dependency.available ? dependency.reason : undefined;
   return (
     <div
       className={cn(
@@ -43,11 +46,11 @@ export default function ArtifactCard({
           title={
             elsewhere
               ? 'A canvas shows only its own prototype. Copy the view into this prototype, then link that.'
-              : undefined
+              : reason
           }
         >
           {found
-            ? (FILE_TYPES[item.fileType]?.label ?? 'File')
+            ? (reason ?? FILE_TYPES[item.fileType]?.label ?? 'File')
             : elsewhere
               ? 'A canvas shows only its own prototype. Copy the view here.'
               : // On the deployed site a missing file may be archived work, which it leaves out (src/platform/core/archive.ts).

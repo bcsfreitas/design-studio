@@ -34,7 +34,7 @@ For agent inspection, run `pnpm studio context src/prototypes/<contributor>/<pro
 | `rebuild` | Optional pending migration: `targetSystemId` is an installed ID or `null`; `sourcePrototypeId` is the original prototype’s permanent ID. Current `systemId` remains the runtime boundary until migration. |
 | `order` | Relative file and folder paths placed first within their folder, in sequence. |
 | `archivedBySystemId` | System ID that archived this prototype; used to offer restoration only for work archived together. |
-| `systemMissing` | `{ systemId, label }` for a deleted assigned system. Preserve source and assignment; rendering and deployment wait for a rebuild. Remove this field after migrating code and assignment together. |
+| `systemMissing` | `{ systemId, label }` for a deleted assigned system. Preserve source and assignment. System-consuming views and publication wait for a rebuild; independent artifacts remain readable locally. Remove this field after migrating code and assignment together. |
 | `status` | `active` or `archived`. Omission means active. |
 
 Remaining artifacts sort alphabetically, files before folders. Use `order` to reorder, rather than renaming files.
@@ -42,6 +42,8 @@ Remaining artifacts sort alphabetically, files before folders. Use `order` to re
 Moving, renaming, or deleting an artifact must update its `order` entries. The app performs these updates for its own operations.
 
 Invalid metadata skips the prototype with a local warning and fails the production build.
+
+The prototype is the ownership and organization container. Its assigned system supplies product context and a runtime toolkit. Each file type explicitly declares whether it consumes that toolkit; see [artifact system dependencies](../../context/file-types.md#prototype-and-system-dependencies). Documents, diagrams and canvas scenes remain independently readable, while embedded views resolve their own availability. Source repair never requires a runnable system.
 
 With `systemId: null`, views start from browser colors and a system font, without registered system tokens or components. Use local components, CSS Modules, shared utilities, and React. System imports remain outside this prototype's runtime boundary. Layout utilities without system tokens remain available; style colors, typography, and spacing in local CSS. This is distinct from an invalid system ID, which fails validation.
 
@@ -66,6 +68,8 @@ Changing the title in the app also renames the prototype folder to its slug. Dir
 Renaming preserves permanent shared URLs and all resource IDs. Relative document links survive a prototype-folder rename. File moves still affect source dependencies; permanent routes do not replace reference repair.
 
 The app repairs internal references when files or folders are renamed or moved: local literal imports and exports, literal view navigation paths, Markdown link destinations, and canvas element links. Moving a source file also rebases its relative references. Prototype renaming retains permanent browser links. Duplication remaps copied permanent links to fresh prototype and artifact IDs. Both preserve applicable filesystem reference repair.
+
+These transformations are supplied by installed [source reference adapters](../../context/file-types.md#source-reference-adapters). Supporting CSS URLs and imports participate too. New formats supply an adapter rather than requiring central file-operation branches.
 
 File moves publish the completed inventory and follow the open artifact once. Exact move and relinking writes suppress stale Vite module entries that would reload the document. Retained refresh boundaries update in place. Other rewritten artifacts refresh through their loader, and subsequent code edits retain normal HMR. The loader keeps cached modules for unchanged files when its inventory changes. Reordering keeps the currently displayed index artifact and its navigation selection, while changing the opening artifact for the next visit. A brief toast confirms when references were updated.
 
