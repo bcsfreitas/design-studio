@@ -7,12 +7,13 @@
     @font-face { font-family: Geist; src: url('../../../../../../node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2'); font-weight: 100 900; }
     * { box-sizing: border-box; }
     body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: #f7f6f2; color: #171715; font-family: Geist, sans-serif; }
-    .brand { position: absolute; top: 54px; left: 64px; display: flex; align-items: center; gap: 16px; font-size: 28px; font-weight: 600; letter-spacing: -1px; }
-    .brand img { width: 54px; height: 54px; }
+    .brand { position: absolute; top: 64px; left: 64px; display: flex; align-items: center; gap: 14px; font-size: 25px; font-weight: 550; letter-spacing: -.8px; }
+    .brand img { width: 44px; height: 44px; }
     .dark-logo { display: none; }
-    h1 { position: absolute; top: 185px; left: 64px; margin: 0; font-size: 61px; line-height: 1.06; font-weight: 560; letter-spacing: -3.5px; }
-    .description { position: absolute; top: 360px; left: 64px; width: 600px; margin: 0; font-size: 24px; line-height: 1.4; color: #65645e; letter-spacing: -.5px; }
-    .scene { position: absolute; top: 168px; right: 48px; width: 440px; height: 360px; }
+    .composition { position: absolute; top: 176px; left: 64px; right: 64px; height: 340px; display: grid; grid-template-columns: 576px 400px; gap: 96px; align-items: center; }
+    h1 { margin: 0; font-size: 58px; line-height: 1.08; font-weight: 560; letter-spacing: -3px; }
+    .description { max-width: 560px; margin: 28px 0 0; font-size: 23px; line-height: 1.45; color: #65645e; letter-spacing: -.45px; }
+    .scene { display: block; width: 400px; height: auto; }
     .grid { stroke: #e7e5de; stroke-width: 1; }
     .card { fill: #fcfbf8; stroke: #c9c6bd; stroke-width: 1.5; }
     .line { stroke: #c9c6bd; stroke-width: 1.5; }
@@ -31,8 +32,11 @@
 </head>
 <body>
   <div class="brand"><img class="light-logo" src="../../../../../../public/brand/design-studio-light.svg" alt=""><img class="dark-logo" src="../../../../../../public/brand/design-studio-dark.svg" alt="">Design Studio</div>
-  <h1>Design with intent.<br>Build with an agent.</h1>
-  <p class="description">Design Studio is an open source, AI prototype sandbox for designers and product managers who build.</p>
+  <main class="composition">
+  <div class="copy">
+    <h1>Design with intent.<br>Build with an agent.</h1>
+    <p class="description">Design Studio is an open source, AI prototype sandbox for designers and product managers who build.</p>
+  </div>
   <svg class="scene" viewBox="0 0 440 360" aria-label="Connected prototype, context, and flow cards">
     <defs><pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path class="grid" d="M24 0H0V24" fill="none"/></pattern></defs>
     <rect width="440" height="360" fill="url(#grid)"/>
@@ -58,5 +62,6 @@
     <g transform="translate(160 142)"><path fill="currentColor" stroke="#f7f6f2" stroke-width="2" d="M0 0L0 25L7 19L12 30L18 27L13 17L23 17Z"/><rect x="23" y="21" width="57" height="27" rx="5" fill="#171715"/><text x="36" y="40" fill="#f7f6f2" font-size="14">You</text></g>
     <g transform="translate(214 288)"><path class="accent" stroke="#f7f6f2" stroke-width="2" d="M0 0L0 25L7 19L12 30L18 27L13 17L23 17Z"/><rect class="accent" x="23" y="21" width="71" height="27" rx="5"/><text x="35" y="40" fill="#171715" font-size="14">Agent</text></g>
   </svg>
+  </main>
 </body>
 </html>
