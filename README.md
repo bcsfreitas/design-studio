@@ -1,4 +1,10 @@
-[![Design Studio — Design with intent. Build with an agent. Design Studio is an open source, AI prototype sandbox for designers and product managers who build.](public/images/design-studio-social.png)](https://itspatmorgan.com/design-studio)
+<a href="https://itspatmorgan.com/design-studio">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="public/images/design-studio-social-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="public/images/design-studio-social.png">
+    <img src="public/images/design-studio-social.png" alt="Design Studio — Design with intent. Build with an agent. Design Studio is an open source, AI prototype sandbox for designers and product managers who build.">
+  </picture>
+</a>
 
 # Design Studio
 
@@ -17,6 +23,14 @@ You direct the work in your preferred agent harness. Design Studio gives you a b
 - **A foundation for your team.** Bring React components, theme, assets, product context, and instructions into a design system your agent can reuse across prototypes.
 
 Use one artifact on its own or connect several to explain an idea. The included Product and Marketing systems and sample prototypes give you a starting point to explore, adapt, or replace.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="public/images/design-studio-product-dark.jpg">
+  <source media="(prefers-color-scheme: light)" srcset="public/images/design-studio-product-light.jpg">
+  <img src="public/images/design-studio-product-light.jpg" alt="Design Studio displaying the Feedback Inbox sample, with a working feedback table beside navigation for screens, states, diagrams, and project context.">
+</picture>
+
+The Feedback Inbox sample keeps working screens, alternate states, and project context together.
 
 ## Use the agent harness you already use
 
