@@ -1,6 +1,9 @@
 import { parseConfigFile } from '../../core/config-file.ts';
-import { discoverModuleFolders } from './module-folders.js';
-import { readDeclaration } from '../../core/modules/pack.ts';
+import {
+  installedModuleDeclarations,
+  installedModuleDeclaration,
+  installedDeclarationProblems,
+} from './installed-module-declarations.js';
 import { compatible, moduleProblems, preferenceProblems } from '../../core/modules/index.ts';
 import { serializeJson } from '../../core/json.ts';
 import { FORMAT_VERSIONS } from '../../core/formats.ts';
@@ -51,18 +54,18 @@ export function transactPreferenceProfile(root, actor, { contributor = actor, ba
   return next;
 }
 
-// Module declarations are data. Read the current installed declaration, including in disposable studios.
+// Initialization inspects the complete installed catalog; ordinary transactions resolve one owner.
 export function preferenceDeclarations(root) {
-  return discoverModuleFolders(root).map(({ dir, id }) => {
-    const result = readDeclaration(fs.readFileSync(path.join(root, dir, 'module.ts'), 'utf8'));
-    if ('error' in result) throw fail(`${id}: ${result.error}`, 422);
-    const problems = moduleProblems(result.value, id, dir + '/');
-    if (problems.length) throw fail(problems.join('\n'), 422);
-    return result.value;
-  });
+  const declarations = installedModuleDeclarations(root);
+  const problems = installedDeclarationProblems(declarations);
+  if (problems.length) throw fail(problems.join('\n'), 422);
+  return declarations.map(({ spec }) => spec);
 }
 function schemaFor(root, module) {
-  const spec = preferenceDeclarations(root).find(spec => spec.id === module);
+  const installed = installedModuleDeclaration(root, module);
+  const spec = installed?.spec;
+  const problems = installed ? moduleProblems(spec, module, installed.dir) : [];
+  if (problems.length) throw fail(problems.join('\n'), 422);
   if (!spec?.preferences || !compatible(spec))
     throw fail(`Module ${module} has no compatible preference declaration.`, 422);
   const file = path.join(root, 'studio.config.json');

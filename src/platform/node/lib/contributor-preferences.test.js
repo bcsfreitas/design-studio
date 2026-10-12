@@ -252,3 +252,57 @@ test('non-JSON input cannot erase custom namespace fields', t => {
     );
   assert.equal(fs.readFileSync(file, 'utf8'), source);
 });
+
+test('installed executable declarations share loading without unrelated preference failures', async t => {
+  const root = fixture(t);
+  declarations(root);
+  const folder = path.join(root, 'src/platform/modules/onboarding');
+  const original = fs.readFileSync(path.join(folder, 'module.ts'), 'utf8');
+  fs.writeFileSync(path.join(folder, 'defaults.ts'), 'export const defaults = {welcomeDismissed:false};');
+  fs.writeFileSync(
+    path.join(folder, 'module.ts'),
+    "import {defaults} from './defaults.ts';\n" + original.replace('defaults: { welcomeDismissed: false }', 'defaults'),
+  );
+  // The supplied declaration has an executable helper; an unrelated valid declaration does too.
+  const unrelated = path.join(root, 'src/modules/unrelated');
+  fs.mkdirSync(unrelated, { recursive: true });
+  fs.writeFileSync(
+    path.join(unrelated, 'module.ts'),
+    "const label='Unrelated'; export default {id:'unrelated',label,version:'0.1.0',requires:'0.4.0',optional:true,lib:false};",
+  );
+  const { installedModuleDeclarations } = await import('./installed-module-declarations.js');
+  const installed = installedModuleDeclarations(root);
+  assert.equal(installed.find(d => d.id === 'unrelated').spec.label, 'Unrelated');
+  assert.deepEqual(readContributorPreferences(root, { actor: 'sam', module: 'onboarding' }).value, {
+    welcomeDismissed: false,
+  });
+  fs.writeFileSync(path.join(unrelated, 'module.ts'), "throw new Error('unrelated broken module');");
+  const current = readContributorPreferences(root, { actor: 'sam', module: 'onboarding' });
+  updateContributorPreferences(root, {
+    actor: 'sam',
+    module: 'onboarding',
+    base: current.version,
+    value: { welcomeDismissed: true },
+  });
+  assert.equal(readContributorPreferences(root, { actor: 'sam', module: 'onboarding' }).value.welcomeDismissed, true);
+});
+
+test('a loaded declaration edit rejects writes until restart instead of silently using a stale schema', t => {
+  const root = fixture(t);
+  declarations(root);
+  const current = readContributorPreferences(root, { actor: 'sam', module: 'onboarding' });
+  const file = path.join(root, 'contributors/sam.json'),
+    source = fs.readFileSync(file, 'utf8');
+  fs.appendFileSync(path.join(root, 'src/platform/modules/onboarding/module.ts'), '\n// edited declaration\n');
+  assert.throws(
+    () =>
+      updateContributorPreferences(root, {
+        actor: 'sam',
+        module: 'onboarding',
+        base: current.version,
+        value: { welcomeDismissed: true },
+      }),
+    error => error.status === 409 && /restart/.test(error.message),
+  );
+  assert.equal(fs.readFileSync(file, 'utf8'), source);
+});

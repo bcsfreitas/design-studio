@@ -12,6 +12,8 @@ Registration writes defaults for enabled, compatible modules. The shared checker
 
 `#studio/preferences` exposes `readContributorPreferences(root, {actor, contributor?, module})` and `updateContributorPreferences(root, {actor, contributor?, module, base, value})`. Reads return `value` and an opaque source `version`; writes require that version. Only the server- or CLI-resolved contributor can access their own profile through this service. Never take actor identity from request data.
 
+The service uses the same root-aware executable declaration loader as the runtime catalog. Ordinary transactions resolve only the selected module; initialization inspects all installed declarations. Installed declaration changes and their helper changes require a process restart. Source changes in a loaded declaration reject transactions rather than using a stale schema. Installation previews retain their separate safe data parser.
+
 The service validates the current installed schema and enabled state, rejects symbolic paths and stale source, and updates only the selected namespace. Omitted fields, including unknown fields inside that namespace, retain their current values. Submitted values must be JSON; this API does not delete fields. Shared setup transactions provide atomic replacement and rollback. Other namespaces, identity, and custom fields remain intact.
 
 ## Explicit initialization

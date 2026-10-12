@@ -161,8 +161,12 @@ export function apiEnvironmentPolicy({ root, scopeOf, resolve = dependencyResolv
       for (const { source, typeOnly } of importsOf(code, file)) {
         if (typeOnly) continue;
         if (source === null) {
-          // The supplied application owns compiled glob loaders; Node and runtime contracts cannot use them.
-          if (environment !== 'application' || isTeamCode(relative(file)))
+          // Supplied application globs and the bounded installed-module loader own discovery.
+          // Discovered module.ts graphs are checked independently as Node entries.
+          if (
+            (environment !== 'application' || isTeamCode(relative(file))) &&
+            !(environment === 'node' && relative(file) === 'src/platform/node/lib/installed-module-declarations.js')
+          )
             report('Computed imports cannot be checked; use literal import paths.');
           continue;
         }
