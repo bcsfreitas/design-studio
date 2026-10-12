@@ -12,6 +12,7 @@ export function readPreferenceProfile(root, actor, contributor = actor) {
   if (!KEY.test(contributor)) throw fail('Invalid contributor key.', 400);
   const directory = path.join(root, 'contributors');
   const file = path.join(directory, `${contributor}.json`);
+  if (!fs.existsSync(file)) throw fail('Contributor is not registered.', 422);
   const validateFile = () => {
     for (const [target, directoryExpected] of [
       [directory, true],
@@ -19,7 +20,7 @@ export function readPreferenceProfile(root, actor, contributor = actor) {
     ]) {
       const stat = fs.lstatSync(target);
       if (stat.isSymbolicLink() || !(directoryExpected ? stat.isDirectory() : stat.isFile()))
-        throw fail('Contributor profiles must use ordinary directories and files.', 422);
+        throw fail('Contributor profiles must use ordinary files and directories.', 422);
     }
   };
   validateFile();
