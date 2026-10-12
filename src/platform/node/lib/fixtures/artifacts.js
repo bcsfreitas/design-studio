@@ -31,7 +31,7 @@ export function artifactFixture(original = process.cwd()) {
   fs.writeFileSync(configFile, JSON.stringify(config, null, 2) + '\n');
   write(
     'src/modules/fixture/module.ts',
-    `export default {id:'fixture',label:'Fixture',version:'0.1.0',requires:'0.4.0',optional:true,lib:false};\n`,
+    `export default {id:'fixture',label:'Fixture',version:'0.1.0',requires:'0.4.0',optional:true,lib:false,hosts:[{id:'fixture/storyboard',scopes:['prototype'],references:'same-prototype'}]};\n`,
   );
   write(
     'src/modules/fixture/type.ts',
@@ -41,7 +41,7 @@ export function artifactFixture(original = process.cwd()) {
 export default defineFileType({
   label: 'Fixture', extensions: ['.fixture'], language: 'json',
   systemUsage: 'independent', inPrototype: true, inSystemContent: false, fallback: false,
-  capabilities: {source:true,create:true,fidelity:false,embeds:['document','canvas'],actions:[]},
+  capabilities: {source:true,create:true,fidelity:false,embeds:['document','canvas','fixture/storyboard'],actions:[]},
   identity: fixtureIdentity,
   template: () => JSON.stringify({title:'Fixture', links:[]}),
 });

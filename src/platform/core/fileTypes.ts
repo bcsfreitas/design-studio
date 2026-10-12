@@ -23,7 +23,14 @@ export {
 } from './resourceIdentity.ts';
 export type { IdentityMetadata, ResourceId } from './resourceIdentity.ts';
 
-export type EmbedSurface = 'document' | 'canvas';
+export type EmbedSurface = 'document' | 'canvas' | `${string}/${string}`;
+export type HostSurfaceSpec = {
+  id: EmbedSurface;
+  scopes: readonly ArtifactAvailabilityContext['scope'][];
+  references: 'same-prototype';
+};
+export const validHostSurface = (id: unknown): id is EmbedSurface =>
+  typeof id === 'string' && /^(document|canvas|[a-z][a-z0-9-]*\/[a-z][a-z0-9-]*)$/.test(id);
 
 // Supported behavior, independent of a particular file's permissions or runtime state.
 export type ArtifactCapabilities = {
@@ -98,7 +105,7 @@ export function artifactAvailability(spec: FileTypeSpec | undefined, context: Ar
       context.scope !== 'prototype' && 'Fidelity changes apply only to prototype artifacts.',
     ),
     embeds: Object.fromEntries(
-      (['document', 'canvas'] as const).map(surface => [
+      [...new Set<EmbedSurface>(['document', 'canvas', ...(caps?.embeds ?? [])])].map(surface => [
         surface,
         capabilityAvailability(caps?.embeds.includes(surface) === true, scope, missing, renderer, dependency),
       ]),
@@ -171,10 +178,10 @@ export const defineFileType = (spec: FileTypeSpec) => {
   }
   if (
     !Array.isArray(caps.embeds) ||
-    caps.embeds.some(surface => !['document', 'canvas'].includes(surface)) ||
+    caps.embeds.some(surface => !validHostSurface(surface)) ||
     new Set(caps.embeds).size !== caps.embeds.length
   )
-    throw new Error(`File type ${spec.label}: capabilities.embeds must list unique document/canvas surfaces, or [].`);
+    throw new Error(`File type ${spec.label}: capabilities.embeds must list unique declared host surface IDs, or [].`);
   if (
     !Array.isArray(caps.actions) ||
     caps.actions.some(id => typeof id !== 'string' || !/^[a-z][a-z0-9-]*\.[a-z][a-z0-9-]*$/.test(id)) ||

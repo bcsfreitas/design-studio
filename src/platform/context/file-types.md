@@ -68,7 +68,7 @@ Every file type declares a required `capabilities` object in `type.ts`. Node com
 | `source` | Local source viewing and editing are supported. A supported `language` is required. |
 | `create` | The type offers new-file creation. It must match the presence of a `template` function. |
 | `fidelity` | Prototype fidelity switching is supported. It must match the `fidelity` implementation. |
-| `embeds` | Allowed live-preview surfaces: `document`, `canvas`, both, or `[]`. |
+| `embeds` | Allowed live-preview host IDs, or `[]`. Built-in hosts are `document` and `canvas`; modules declare namespaced hosts. |
 | `actions` | Namespaced module-owned action IDs, or `[]`. Implementations live in `open.tsx`. |
 
 Declare every field, including false and empty values. Unknown fields, duplicate surfaces, unsupported surfaces, and invalid action IDs fail validation. File types always supply a page and loader; there is no separate optional page capability.
@@ -103,7 +103,7 @@ Supported editor languages are `tsx`, `markdown`, `json`, `mermaid`, and `text`.
 
 The app record is `Artifact`, and a loaded `Prototype` holds an `artifacts` collection. Manifest lookup and navigation use `findArtifact`, `firstArtifact`, `artifactLink`, and `artifactSlug`. Shared readers such as the system context reuse the same record and file-type machinery while keeping their own user-facing document terms.
 
-An `Embed` in `open.tsx` supplies a read-only preview for documents and canvases. Core resolves references and uses this contract without importing individual modules. The required `capabilities.embeds` array in `type.ts` explicitly permits `document`, `canvas`, both, or neither (`[]`). Omission never enables a surface. Types without a preview on that surface appear as cards. Canvas restricts its preview to documents, keeping canvas nesting bounded.
+An `Embed` in `open.tsx` supplies a read-only preview for documents and canvases. Core resolves references and uses this contract without importing individual modules. The required `capabilities.embeds` array in `type.ts` explicitly permits declared host IDs, or neither (`[]`). Omission never enables a surface. Types without a preview on that surface appear as cards. Canvas restricts its preview to documents, keeping canvas nesting bounded.
 
 A module can provide a lightweight `EmbedPending` in `open.tsx` for document loading. The shared reader uses it during reference resolution and lazy renderer loading. It passes the same `loadingStartedAt` timestamp to the pending surface and `Embed`, so delayed feedback can continue across the handoff. Modules without this surface retain generic loading feedback. The pending component must not import its heavy renderer.
 
@@ -138,3 +138,9 @@ Restart the dev server after capability changes. Ordinary content edits are refl
 5. Run module checks and a build. Verify disabling and removal for optional types.
 
 The mixed-artifact conformance fixture lives in `node/lib/fixtures/artifacts.js`. Its integration test installs a team-owned format in a disposable studio using only public APIs. It verifies identity, mixed discovery, reference moves and copying, disabled source maintenance, missing-system availability, production base paths and retained content after removal. Browser interaction checks complement this source/build suite.
+
+## Artifact resolution and host declarations
+
+`#studio/data` provides `inspectArtifact(request, manifest)` for synchronous metadata decisions and `resolveArtifact(request, { manifest, signal })` for lazy inventory completion. Both validate the current origin and use one reference/scope/availability policy. Inspection does not import format renderers. Permanent addresses survive source moves; source-relative references stay within their origin prototype and exclude helper files. Published inventories omit disabled content, so an absent ID is unavailable without asserting why.
+
+The shared Markdown reader owns the `document` host independently of the optional Document file type. Canvas declares its `canvas` host in `module.ts`. Other hosts declare `hosts: [{ id: "owner/surface", scopes: ["prototype"], references: "same-prototype" }]`. Missing or disabled hosts make presentation unavailable; retained capability references remain valid. Malformed, foreign-owned, and duplicate declarations fail validation. Cross-prototype reference policies require a separate architecture decision.

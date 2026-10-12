@@ -4,15 +4,15 @@
 // the item's file type has an Embed), or a card (if it doesn't), or a "not found" card (if the
 // link points at nothing). This file knows nothing about any file type: it asks the registry.
 import { memo } from 'react';
-import { embedFor } from '@/platform/app/data/fileTypeModule';
+import { inspectArtifact } from '#studio/data';
 import { CaptureUpdateAction, newElementWith } from '@excalidraw/excalidraw';
 import type { ExcalidrawElement } from '@excalidraw/excalidraw/element/types';
 import type { AppState, ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types';
-import { FILE_TYPES, fileTypeModules } from '@/platform/app/data/fileTypes';
+import { fileTypeModules } from '@/platform/app/data/fileTypes';
 import { artifactLabel } from '@/platform/app/data/manifest';
 import type { Manifest, Prototype } from '@/platform/app/data/types';
 import ArtifactCard, { ITEM_CARD_HEIGHT } from '@/platform/app/artifacts/ArtifactCard';
-import { appPathOf, isInPrototype, resolveArtifactPath } from '@/platform/app/artifacts/artifactLinks';
+import { appPathOf } from '@/platform/app/artifacts/artifactLinks';
 
 import EmbedFrame, { EMBED_HEADER_HEIGHT as HEADER_HEIGHT } from '@/platform/app/artifacts/EmbedFrame';
 const BORDER = 2; // 1px each side
@@ -25,25 +25,18 @@ export const validateEmbed = (link: string) => appPathOf(link) !== null;
 
 // A canvas shows only items from its own prototype, so a prototype is all of its own: an item from
 // another one doesn't resolve (and its spot says so: ArtifactCard).
-const resolve = (manifest: Manifest, link: string | null, current: Prototype) => {
-  const path = link && appPathOf(link);
-  return path && isInPrototype(path, current) ? resolveArtifactPath(manifest, path) : null;
-};
-const elsewhere = (link: string | null, current: Prototype) => {
-  const path = link && appPathOf(link);
-  return Boolean(path && !isInPrototype(path, current));
-};
+const inspect = (manifest: Manifest, link: string | null, current: Prototype) =>
+  inspectArtifact(
+    {
+      reference: link ?? '',
+      origin: { proto: current, item: current.artifacts.find(i => i.fileType === 'canvas') ?? current.artifacts[0] },
+      surface: 'canvas',
+    },
+    manifest,
+  );
 const embedOf = (manifest: Manifest, link: string | null, current: Prototype) => {
-  const target = resolve(manifest, link, current);
-  return target
-    ? embedFor(
-        FILE_TYPES[target.item.fileType],
-        fileTypeModules[target.item.fileType],
-        'canvas',
-        'prototype',
-        target.proto,
-      )
-    : undefined;
+  const result = inspect(manifest, link, current);
+  return result.state === 'resolved' && result.preview.available;
 };
 
 // The size of a new embed: a preview is a screen, a card is a compact row.
@@ -151,21 +144,22 @@ type ItemProps = {
 
 function CanvasItemInner({ element, manifest, current, offscreen, overview, mounted }: ItemProps) {
   const link = element.type === 'embeddable' ? element.link : null;
-  const target = resolve(manifest, link, current);
+  const resolution = inspect(manifest, link, current);
+  const target = resolution.state === 'resolved' ? resolution.target : null;
   const Embed =
     target &&
-    embedFor(
-      FILE_TYPES[target.item.fileType],
-      fileTypeModules[target.item.fileType],
-      'canvas',
-      'prototype',
-      target.proto,
-    );
+    resolution.state === 'resolved' &&
+    resolution.preview.available &&
+    fileTypeModules[target.item.fileType]?.Embed;
   // A card fills the element. A missing one is a card too, and so is one from another prototype.
   if (!target || !Embed)
     return (
       <div data-canvas-frame='' className='h-full w-full'>
-        <ArtifactCard proto={target?.proto} item={target?.item} elsewhere={elsewhere(link, current)} />
+        <ArtifactCard
+          proto={target?.proto}
+          item={target?.item}
+          elsewhere={resolution.state === 'unavailable' && resolution.code === 'unsupported_scope'}
+        />
       </div>
     );
   const { proto, item } = target;

@@ -103,3 +103,14 @@ export { setArtifactLofi } from '../app/data/files.ts';
 
 /** @experimental Calls an owner route whose successful receipt includes its updated manifest. */
 export { callModuleMutation } from '../app/data/files.ts';
+
+/** @experimental Inspect artifact scope and availability using current metadata, without mounting a renderer. */
+export { inspectArtifact } from '../app/artifacts/resolveArtifact.ts';
+/** @experimental Complete missing artifact inventory, then use the shared inspection policy. */
+export { resolveArtifact } from '../app/artifacts/resolveArtifact.ts';
+/** @experimental A host request with a current artifact origin. */
+export type { ArtifactRequest } from '../app/artifacts/resolveArtifact.ts';
+/** @experimental Shared pending, availability, and presentation metadata. */
+export type { ArtifactResolution } from '../app/artifacts/resolveArtifact.ts';
+/** @experimental Machine-readable artifact availability reasons. */
+export type { AvailabilityCode } from '../app/artifacts/resolveArtifact.ts';

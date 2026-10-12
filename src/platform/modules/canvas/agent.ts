@@ -1,4 +1,4 @@
-import { embedFor } from '@/platform/app/data/fileTypeModule';
+import { inspectArtifact } from '#studio/data';
 // The canvas tools in the open canvas: `window.__studioCanvas`, for an agent that has a browser. Dev
 // only. They are the tools in tools.ts (the command line runs the same ones on the file), applied to
 // the scene on screen, so the person sees each change as it is made and can undo it with ⌘Z: one
@@ -13,10 +13,10 @@ import { embedFor } from '@/platform/app/data/fileTypeModule';
 import { CaptureUpdateAction, exportToBlob, restoreElements } from '@excalidraw/excalidraw';
 import type { ExcalidrawElement } from '@excalidraw/excalidraw/element/types';
 import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types';
-import { FILE_TYPES, fileTypeModules } from '@/platform/app/data/fileTypes';
+import { FILE_TYPES } from '@/platform/app/data/fileTypes';
 import { artifactLabel } from '@/platform/app/data/manifest';
 import type { Artifact, Manifest, Prototype } from '@/platform/app/data/types';
-import { appPathOf, isInPrototype, resolveArtifactPath, artifactPath } from '@/platform/app/artifacts/artifactLinks';
+import { appPathOf, artifactPath } from '@/platform/app/artifacts/artifactLinks';
 import { prototypeAddress, resourceId } from '#studio/files';
 import { boundsOf } from './elements';
 import { help, run, ToolError, type Ctx, type El, type ArtifactInfo } from './tools';
@@ -41,10 +41,9 @@ export function createCanvasAgent({ api, proto, item, manifest, editable, persis
   const ctx: Ctx = {
     base: prototypeAddress(resourceId(proto.studioId)),
     artifact(path) {
-      // A canvas shows only its own prototype's items.
-      if (!isInPrototype(path, proto)) return null;
-      const found = resolveArtifactPath(manifest(), path);
-      if (!found) return null;
+      const resolution = inspectArtifact({ reference: path, origin: { proto, item }, surface: 'canvas' }, manifest());
+      if (resolution.state !== 'resolved') return null;
+      const found = resolution.target;
       const type = found.item.fileType;
       return {
         path,
@@ -52,7 +51,7 @@ export function createCanvasAgent({ api, proto, item, manifest, editable, persis
         title: artifactLabel(found.item.path),
         type,
         typeLabel: FILE_TYPES[type]?.label ?? 'File',
-        preview: Boolean(embedFor(FILE_TYPES[type], fileTypeModules[type], 'canvas', 'prototype')),
+        preview: resolution.preview.available,
       };
     },
     artifacts() {

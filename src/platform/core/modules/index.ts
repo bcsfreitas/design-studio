@@ -3,6 +3,7 @@
 // adds, so the build, the dev server and the app all read one list instead of each knowing about every module.
 // A file type is a module that has a type.ts and an open.tsx (src/platform/context/file-types.md).
 // This file has no imports but the import-free roots.ts, so Node scripts can load it directly.
+import { validHostSurface, type HostSurfaceSpec } from '../fileTypes.ts';
 import { MODULE_ROOTS, TEAM_MODULES_ROOT } from '../roots.ts';
 
 // The version of the public contract this copy of the platform offers: the declaration types and the #studio/*
@@ -22,6 +23,8 @@ export type ModuleSpec = {
   requires: string;
   // Explicitly declare whether studio.config.json may turn this module off.
   optional: boolean;
+  // Explicit host policies; absent/disabled hosts leave retained references unavailable.
+  hosts?: readonly HostSurfaceSpec[];
   // Where Studio settings lists the module: one of its groups and a place within it, low first. Without one it is listed with the other modules.
   settings?: { group: 'prototyping' | 'systems' | 'team'; order: number };
   // The top-level area the module adds: its address in the app (/examples) and, if it keeps content, the folder
@@ -129,6 +132,23 @@ export function moduleProblems(spec: unknown, folder: string, dir = `${TEAM_MODU
   )
     problems.push(`${where}: settings must be { group: 'prototyping' | 'systems' | 'team', order: <number> }.`);
   if (typeof m.optional !== 'boolean') problems.push(`${where}: declare optional as true or false.`);
+  if (m.hosts !== undefined) {
+    if (!Array.isArray(m.hosts)) problems.push(`${where}: hosts must be a list of host declarations.`);
+    else
+      for (const host of m.hosts) {
+        if (
+          !host ||
+          !validHostSurface(host.id) ||
+          !((host.id === 'canvas' && folder === 'canvas') || host.id.startsWith(folder + '/')) ||
+          host.references !== 'same-prototype' ||
+          !Array.isArray(host.scopes) ||
+          !host.scopes.length ||
+          host.scopes.some((scope: string) => !['prototype', 'systemContent'].includes(scope)) ||
+          new Set(host.scopes).size !== host.scopes.length
+        )
+          problems.push(`${where}: hosts need an owner-prefixed ID, unique scopes, and same-prototype references.`);
+      }
+  }
   if (m.instructions !== undefined) {
     if (!Array.isArray(m.instructions)) problems.push(`${where}: instructions should be a list of { path, when }.`);
     else
@@ -212,6 +232,12 @@ export function moduleRootProblems(found: readonly { id: string; dir: string }[]
 // Problems across the whole list: two modules claiming the same section key or folder.
 export function listProblems(specs: readonly ModuleSpec[]): string[] {
   const problems: string[] = [];
+  const hosts = new Set<string>();
+  for (const m of specs)
+    for (const host of m.hosts ?? []) {
+      if (hosts.has(host.id)) problems.push(`Host surface ${host.id} is declared more than once.`);
+      hosts.add(host.id);
+    }
   const keys = new Map<string, string>();
   const dirs = new Map<string, string>();
   for (const m of specs) {

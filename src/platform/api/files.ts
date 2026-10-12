@@ -37,3 +37,6 @@ export { jsonIdentity } from '../core/resourceIdentity.ts';
 export { jsonIdentityMetadata } from '../core/resourceIdentity.ts';
 /** @experimental Validates zero or one identity declarations, rejecting duplicates. */
 export { identityFromDeclarations } from '../core/resourceIdentity.ts';
+
+/** @experimental An owner-declared artifact host policy. */
+export type { HostSurfaceSpec } from '../core/fileTypes.ts';

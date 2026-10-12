@@ -188,3 +188,16 @@ test('a module id can exist in only one root', () => {
   assert.match(problems[0], /only one of src\/platform\/modules and src\/modules/);
   assert.match(problems[0], /can't reuse a supplied module's id/);
 });
+
+test('host declarations require ownership, explicit scopes, and one claim per surface', () => {
+  const host = { id: 'examples/storyboard', scopes: ['prototype'], references: 'same-prototype' } as const;
+  assert.deepEqual(moduleProblems({ ...examples, hosts: [host] }, 'examples'), []);
+  for (const bad of [
+    { ...host, id: 'document' },
+    { ...host, id: 'other/storyboard' },
+    { ...host, scopes: [] },
+    { ...host, references: 'anywhere' },
+  ])
+    assert.ok(moduleProblems({ ...examples, hosts: [bad] }, 'examples').some(p => p.includes('hosts')));
+  assert.ok(listProblems([{ ...examples, hosts: [host, host] }]).some(p => p.includes('declared more than once')));
+});
