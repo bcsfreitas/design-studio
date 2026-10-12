@@ -2,9 +2,6 @@
 // open.tsx implement (src/platform/context/file-types.md). Browser code only.
 import { CONFIG as STUDIO_CONFIG } from '../app/data/config.ts';
 import type { StudioConfig } from '../core/config.ts';
-import { fileOp as mutateFiles } from '../app/data/files.ts';
-import type { FileOp as InternalFileOp, FileOpResult } from '../app/data/files.ts';
-import type { PrototypeInfo } from '../app/data/types.ts';
 
 /** @stable The studio's name, from studio.config.json. */
 export { APP_NAME } from '../app/data/config.ts';
@@ -80,13 +77,13 @@ export { markdownFileModule } from '../app/docs/markdownFileModule.tsx';
 /** @experimental Tracks browser compilation and renderer commits; Node-neutral lifecycle primitives remain in #studio/lifecycle. */
 export { compiledLifecycle } from '../core/artifact-lifecycle/compiled.ts';
 /** @experimental Generic source operations; system-specific creation stays with Systems. */
-export type FileOp = Exclude<InternalFileOp, { op: 'create-skill' } | { op: 'add-docs' }>;
+export type { FileOp } from '../app/data/files.ts';
 /** @experimental A mutation receipt with updated inventory and optional artifact identity/location. */
 export type { FileOpResult } from '../app/data/files.ts';
 /** @experimental A node in the repository file tree. */
 export type { FileNode } from '../app/data/files.ts';
 /** @experimental Applies a generic file operation and synchronizes the application on success. */
-export const fileOp: (prototype: PrototypeInfo, operation: FileOp) => Promise<FileOpResult> = mutateFiles;
+export { fileOp } from '../app/data/files.ts';
 /** @experimental Creates a prototype and returns its permanent identity, location, and updated inventory. */
 export { createPrototype } from '../app/data/files.ts';
 /** @experimental Copies an owned prototype and returns the new identity and location. */
@@ -103,3 +100,6 @@ export { openInEditor } from '../app/data/files.ts';
 export { revealInFinder } from '../app/data/files.ts';
 /** @experimental Changes an artifact's fidelity against its current source version. */
 export { setArtifactLofi } from '../app/data/files.ts';
+
+/** @experimental Calls an owner route whose successful receipt includes its updated manifest. */
+export { callModuleMutation } from '../app/data/files.ts';

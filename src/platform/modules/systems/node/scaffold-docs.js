@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { SYSTEM_SOURCES } from './systems.js';
 import { docTemplates } from '../scaffold.ts';
 import { systemDocs } from './docs.js';
+import { canonicalDirectory } from '../../../node/lib/safe-paths.js';
 import { extractProps } from './extract-props.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../../..');
@@ -50,6 +51,16 @@ export function scaffold(system, only, moved = []) {
   const sys = Object.hasOwn(SYSTEM_SOURCES, system) ? SYSTEM_SOURCES[system] : null;
   if (!sys) throw new Error(`"${system}" isn't a system. The systems are: ${Object.keys(SYSTEM_SOURCES).join(', ')}.`);
   const dir = path.join(ROOT, sys.components);
+  if (!canonicalDirectory(dir, ROOT)) throw new Error('This components folder is unavailable.');
+  // Validate the whole source tree before a multi-file scaffold can move or write anything.
+  const ordinary = folder => {
+    for (const entry of fs.readdirSync(folder, { withFileTypes: true })) {
+      if (entry.isSymbolicLink()) throw new Error('Component scaffolding requires ordinary files and folders.');
+      if (entry.isDirectory()) ordinary(path.join(folder, entry.name));
+      else if (!entry.isFile()) throw new Error('Component scaffolding requires ordinary files and folders.');
+    }
+  };
+  ordinary(dir);
   const all = systemDocs(dir).components;
   const targets = only
     ? all.filter(c => c.slug === only.toLowerCase() || c.name.toLowerCase() === only.toLowerCase())

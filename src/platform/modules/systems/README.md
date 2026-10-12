@@ -175,3 +175,7 @@ folders in `src/systems/<id>/`, which are your content, plus Studio's own system
 - `node/`: finding systems, building their docs and props, and `pnpm component-docs` (Node).
 
 Page loading follows the [shared navigation handoff](../../context/source.md#navigation-handoff). Route loaders prepare the reader and content before replacing the current page.
+
+## Local owner routes
+
+Systems owns `source`, `skill`, and `component-docs` under `/__studio/systems/`. Requests use the current permanent system identity and relative source paths. Active-system resolution precedes current contributor authorization; Studio remains Admin-only. Platform and module skill owners use their declared knowledge-owner IDs. Source editing uses the shared ordinary-file catalog and version-conflict contract. Creation receipts include the same manifest published to other tabs and use `callModuleMutation` for origin-tab synchronization. The generic file endpoint has no Systems creation cases.

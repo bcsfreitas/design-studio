@@ -234,6 +234,10 @@
         "stability": "experimental",
         "signature": "<T>(module: string, route: string, body: object) => Promise<T>"
       },
+      "callModuleMutation": {
+        "stability": "experimental",
+        "signature": "<T extends { manifest: Manifest; }>(module: string, route: string, body: unknown) => Promise<T>"
+      },
       "canChangePrototype": {
         "stability": "experimental",
         "signature": "(p: PrototypeInfo, me: string | null) => boolean"
@@ -272,7 +276,7 @@
       },
       "fileOp": {
         "stability": "experimental",
-        "signature": "(prototype: PrototypeInfo, operation: FileOp) => Promise<FileOpResult>"
+        "signature": "(p: PrototypeInfo, op: FileOp) => Promise<FileOpResult>"
       },
       "findArtifact": {
         "stability": "experimental",
@@ -990,10 +994,6 @@
     "#studio/data.CONFIG.ReadOnly": {
       "stability": "stable",
       "signature": "<T> T extends (...args: never[]) => unknown ? T : T extends object ? { readonly [K in keyof T]: ReadOnly<T[K]>; } : T"
-    },
-    "#studio/data.FileOp.FileOp": {
-      "stability": "experimental",
-      "signature": "{ op: \"create\"; path: string; name: string; dir?: boolean; } | { op: \"rename\"; path: string; name: string; } | { op: \"move\"; path: string; to: string; } | { op: \"delete\"; path: string; } | { op: \"reorder\"; path: string; to?: string; before?: string; } | { op: \"meta\"; title?: string; status?: Status; } | { op: \"create-skill\"; name: string; description: string; } | { op: \"add-docs\"; component: string; }"
     },
     "#studio/data.FileOp.STATUSES": {
       "stability": "experimental",
@@ -2191,6 +2191,10 @@
       "stability": "experimental",
       "signature": "<T>(module: string, route: string, body: object) => Promise<T>"
     },
+    "callModuleMutation": {
+      "stability": "experimental",
+      "signature": "<T extends { manifest: Manifest; }>(module: string, route: string, body: unknown) => Promise<T>"
+    },
     "canChangePrototype": {
       "stability": "experimental",
       "signature": "(p: PrototypeInfo, me: string | null) => boolean"
@@ -2257,7 +2261,7 @@
     },
     "fileOp": {
       "stability": "experimental",
-      "signature": "(prototype: PrototypeInfo, operation: FileOp) => Promise<FileOpResult>"
+      "signature": "(p: PrototypeInfo, op: FileOp) => Promise<FileOpResult>"
     },
     "findArtifact": {
       "stability": "experimental",

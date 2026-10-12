@@ -172,11 +172,7 @@ export type FileOp =
   | { op: 'delete'; path: string }
   // Put a file or folder before another in its folder (`before` empty: last), moving it to folder `to` first if that's elsewhere.
   | { op: 'reorder'; path: string; to?: string; before?: string }
-  | { op: 'meta'; title?: string; status?: Status }
-  // A system content skill: skills/<name>/SKILL.md, in the Agent Skills format.
-  | { op: 'create-skill'; name: string; description: string }
-  // A prototype system's components: the examples and page one is missing.
-  | { op: 'add-docs'; component: string };
+  | { op: 'meta'; title?: string; status?: Status };
 
 export type FileOpResult = {
   path?: string;
@@ -313,6 +309,19 @@ export async function deletePrototype(p: PrototypeInfo) {
 // Resolves with the server's reply, or throws its message.
 export async function callModule<T>(module: string, route: string, body: object): Promise<T> {
   return requestJson<T>(`/__studio/${module}/${route}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Studio-Tab': TAB_ID },
+    body: JSON.stringify(body),
+  });
+}
+
+// Module mutation receipts follow the same inventory and refresh contract as generic mutations.
+export function callModuleMutation<T extends { manifest: Manifest }>(
+  module: string,
+  route: string,
+  body: unknown,
+): Promise<T> {
+  return requestMutation<T>(`/__studio/${module}/${route}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-Studio-Tab': TAB_ID },
     body: JSON.stringify(body),

@@ -7,9 +7,9 @@ import type { SourceAccess } from '@/platform/core/source/access';
 import { sourceOf } from '../sources';
 import { PLATFORM_ID, PLATFORM_SOURCE } from '../data/systems';
 import { PROTOTYPE_SYSTEMS } from '../data/systems';
-import { systemSourceRequest } from './systemSource';
+import { systemSourceRequest, createComponentDocs } from './systemSource';
 import { shortcutLabel } from '@/platform/app/shell/artifactShortcuts';
-import { canEditSource, useMe, fileOp, systemFiles } from '@/platform/app/data/files';
+import { canEditSource, useMe } from '@/platform/app/data/files';
 import { Button } from '@/platform/systems/studio/components/button';
 import { toast } from '@/platform/systems/studio/components/toast';
 import { Tabs, TabsList, TabsTrigger } from '@/platform/systems/studio/components/tabs';
@@ -44,7 +44,6 @@ export function ComponentEditor({
   onDone: () => void;
 }) {
   const me = useMe();
-  const proto = systemFiles(system);
   const tabs = TABS.filter(t => t.kind !== 'source' || component.files.source);
   const [kind, setKind] = useState<Kind>(() => tabs.find(tab => component.files[tab.kind])?.kind ?? 'doc');
   const [dirty, setDirty] = useState(false);
@@ -92,7 +91,7 @@ export function ComponentEditor({
   async function addFiles() {
     setAdding(true);
     try {
-      await fileOp(proto, { op: 'add-docs', component: component.slug });
+      await createComponentDocs(system, component.slug);
     } catch (e) {
       toast.add({ type: 'error', title: (e as Error).message });
     } finally {

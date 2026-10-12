@@ -1,3 +1,4 @@
+import { createSkill as createSystemSkill } from '@/platform/modules/systems/pages/systemSource';
 import { FileActionItems } from '@/platform/app/shell/FileActionItems';
 // The prototype's files, in its navigation: a filterable tree with expand/collapse all, and a
 // "Edit source" in a file's menu, which opens its text in place of its page (the shared platform SourceEditor).
@@ -502,7 +503,7 @@ export default function FileTree({
   // A new skill: the dialog has checked the name and description; the file layer checks them again
   // and writes the folder. Errors go back to the dialog.
   async function createSkill(name: string, description: string) {
-    const result = await fileOp(proto, { op: 'create-skill', name, description });
+    const result = await createSystemSkill(proto.id, name, description);
     reload();
     setNewSkillOpen(false);
     const item = result.path && itemsOf(result.manifest, proto).find(i => i.path === result.path);
