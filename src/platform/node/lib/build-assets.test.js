@@ -94,3 +94,63 @@ test('asset failures remain retryable and invalid declarations or non-JSON value
   for (const value of [undefined, { field: undefined }, NaN, { fn: () => {} }, new Date(), cycle])
     assert.throws(() => serializeBuildAsset(value), /serializable JSON/);
 });
+
+test('superseded failures follow successful replacement work for every waiting caller', async () => {
+  let reject,
+    calls = 0;
+  const gate = new Promise((_, failure) => {
+    reject = failure;
+  });
+  const store = buildAssetStore(
+    [
+      [
+        'team',
+        { assets: { report: { watch: ['content/**'], load: () => (++calls === 1 ? gate : { generation: calls }) } } },
+      ],
+    ],
+    { root: '/studio', enabled: ['team'] },
+  );
+  const first = store.read('team/report'),
+    shared = store.read('team/report');
+  await Promise.resolve();
+  store.invalidate('/studio/content/fixed.txt');
+  const latest = await store.read('team/report');
+  reject(new Error('obsolete broken source'));
+  assert.equal(await first, latest);
+  assert.equal(await shared, latest);
+  assert.equal(calls, 2);
+});
+
+import { generationCache } from '../../core/generationCache.ts';
+test('current failures reject all waiters and retry only on a subsequent read', async () => {
+  let calls = 0;
+  const cache = generationCache(() => {
+    calls++;
+    if (calls === 1) throw new Error('current failure');
+    return 'recovered';
+  });
+  const results = await Promise.allSettled([cache.read('one'), cache.read('one')]);
+  assert.ok(results.every(result => result.status === 'rejected' && /current failure/.test(result.reason.message)));
+  assert.equal(calls, 1);
+  assert.equal(await cache.read('one'), 'recovered');
+  assert.equal(calls, 2);
+});
+test('global invalidation supersedes in-flight work as well as completed values', async () => {
+  let release,
+    calls = 0;
+  const gate = new Promise(resolve => {
+    release = resolve;
+  });
+  const cache = generationCache(async key => {
+    const generation = ++calls;
+    if (key === 'pending' && generation === 1) await gate;
+    return { key, generation };
+  });
+  const first = cache.read('pending');
+  await Promise.resolve();
+  await cache.read('complete');
+  cache.invalidateAll();
+  release();
+  assert.deepEqual(await first, { key: 'pending', generation: 3 });
+  assert.deepEqual(await cache.read('complete'), { key: 'complete', generation: 4 });
+});

@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { generationCache } from '../../core/generationCache.ts';
 import { serializeJson as serializeBuildAsset } from '../../core/json.ts';
 
 const NAME = /^[a-z][a-z0-9-]*$/;
@@ -29,29 +30,17 @@ export function buildAssetStore(builds, { root, enabled }) {
         asset.watch.some(pattern => !validPattern(pattern))
       )
         throw new Error(`${module}/${name}: declare an asset loader and 1–64 repository-relative watch patterns.`);
-      entries.set(`${module}/${name}`, { asset, revision: 0, cache: null });
+      entries.set(`${module}/${name}`, { asset });
     }
   }
-  const read = async key => {
+  const cache = generationCache(async key => {
     const entry = entries.get(key);
     if (!entry) throw Object.assign(new Error(`Build asset ${key} is unavailable.`), { status: 404 });
-    const revision = entry.revision;
-    if (!entry.cache) {
-      const pending = Promise.resolve()
-        .then(() => entry.asset.load({ root, enabled }))
-        .then(serializeBuildAsset);
-      entry.cache = pending;
-      pending.catch(() => {
-        if (entry.cache === pending) entry.cache = null;
-      });
-    }
-    const data = await entry.cache;
-    // An edit during computation cannot publish an old generation.
-    return revision === entry.revision ? data : read(key);
-  };
+    return serializeBuildAsset(await entry.asset.load({ root, enabled }));
+  });
   return {
     keys: [...entries.keys()],
-    read,
+    read: cache.read,
     watchRoots: [
       ...new Set(
         [...entries.values()].flatMap(({ asset }) =>
@@ -71,8 +60,7 @@ export function buildAssetStore(builds, { root, enabled }) {
       const changed = [];
       for (const [key, entry] of entries)
         if (entry.asset.watch.some(pattern => path.matchesGlob(relative, pattern))) {
-          entry.revision++;
-          entry.cache = null;
+          cache.invalidate(key);
           changed.push(key);
         }
       return changed;
