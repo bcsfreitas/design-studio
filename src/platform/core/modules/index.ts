@@ -43,6 +43,8 @@ export type ModuleSpec = {
   // Explicit host policies; absent/disabled hosts leave retained references unavailable.
   hosts?: readonly HostSurfaceSpec[];
   preferences?: PreferenceSpec;
+  // Startup optimization of declared package roots, without arbitrary Vite hooks.
+  optimizeDependencies?: readonly string[];
   // Where Studio settings lists the module: one of its groups and a place within it, low first. Without one it is listed with the other modules.
   settings?: { group: 'prototyping' | 'systems' | 'team'; order: number };
   // The top-level area the module adds: its address in the app (/examples) and, if it keeps content, the folder
@@ -217,6 +219,16 @@ export function moduleProblems(spec: unknown, folder: string, dir = `${TEAM_MODU
           problems.push(`${where}: dependency ${name} should have a version like "^1.2.3" or "1.2.3".`);
       }
   }
+  if (
+    m.optimizeDependencies !== undefined &&
+    (!Array.isArray(m.optimizeDependencies) ||
+      m.optimizeDependencies.length > 32 ||
+      new Set(m.optimizeDependencies).size !== m.optimizeDependencies.length ||
+      m.optimizeDependencies.some(
+        name => typeof name !== 'string' || !NPM_NAME.test(name) || !Object.hasOwn(m.dependencies ?? {}, name),
+      ))
+  )
+    problems.push(`${where}: optimizeDependencies must list at most 32 unique package roots declared in dependencies.`);
   if (m.upstream !== undefined) {
     const u = m.upstream as Partial<NonNullable<ModuleSpec['upstream']>>;
     if (
@@ -323,3 +335,9 @@ export function compatible(spec: { requires?: string }, platform: string = PLATF
   for (let i = 0; i < 3; i++) if (need[i] !== have[i]) return need[i] < have[i];
   return true;
 }
+
+// Callers supply enabled modules; incompatible declarations never contribute.
+export const optimizedDependencies = (modules: readonly ModuleSpec[]): string[] =>
+  [
+    ...new Set(modules.filter(module => compatible(module)).flatMap(module => module.optimizeDependencies ?? [])),
+  ].sort();

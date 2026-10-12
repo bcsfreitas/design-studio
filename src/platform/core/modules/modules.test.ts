@@ -201,3 +201,23 @@ test('host declarations require ownership, explicit scopes, and one claim per su
     assert.ok(moduleProblems({ ...examples, hosts: [bad] }, 'examples').some(p => p.includes('hosts')));
   assert.ok(listProblems([{ ...examples, hosts: [host, host] }]).some(p => p.includes('declared more than once')));
 });
+
+import { optimizedDependencies } from './index.ts';
+test('module dependency optimization uses enabled compatible declarations and validates roots', () => {
+  const spec = {
+    id: 'probe',
+    label: 'Probe',
+    version: '0.1.0',
+    requires: '0.4.0',
+    optional: true,
+    lib: false,
+    dependencies: { cn: '^0.4.0' },
+    optimizeDependencies: ['cn'],
+  };
+  assert.deepEqual(moduleProblems(spec, 'probe'), []);
+  assert.deepEqual(optimizedDependencies([spec]), ['cn']);
+  assert.deepEqual(optimizedDependencies([]), []);
+  assert.deepEqual(optimizedDependencies([{ ...spec, requires: '99.0.0' }]), []);
+  for (const include of [['cn', 'cn'], ['undeclared'], ['cn/unsafe'], ['../escape']])
+    assert.match(moduleProblems({ ...spec, optimizeDependencies: include }, 'probe').join(' '), /unique package roots/);
+});

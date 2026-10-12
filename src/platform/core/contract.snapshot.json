@@ -22,7 +22,7 @@
       },
       "ModuleSpec": {
         "stability": "stable",
-        "signature": "{ id: string; label: string; version: string; description?: string; requires: string; optional: boolean; hosts?: readonly HostSurfaceSpec[]; preferences?: PreferenceSpec; settings?: { group: \"prototyping\" | \"systems\" | \"team\"; order: number; }; section?: { key: string; folder?: string; items?: \"prototypes\"; policy?: \"maintainers\" | \"open\"; standalone?: boolean; byPerson?: boolean; }; lib: boolean; instructions?: { path: string; when?: string; }[]; dependencies?: Record<string, string>; upstream?: { repo: string; version: string; license: string; }; }"
+        "signature": "{ id: string; label: string; version: string; description?: string; requires: string; optional: boolean; hosts?: readonly HostSurfaceSpec[]; preferences?: PreferenceSpec; optimizeDependencies?: readonly string[]; settings?: { group: \"prototyping\" | \"systems\" | \"team\"; order: number; }; section?: { key: string; folder?: string; items?: \"prototypes\"; policy?: \"maintainers\" | \"open\"; standalone?: boolean; byPerson?: boolean; }; lib: boolean; instructions?: { path: string; when?: string; }[]; dependencies?: Record<string, string>; upstream?: { repo: string; version: string; license: string; }; }"
       },
       "PLATFORM_VERSION": {
         "stability": "stable",
@@ -2103,7 +2103,7 @@
     },
     "ModuleSpec": {
       "stability": "stable",
-      "signature": "{ id: string; label: string; version: string; description?: string; requires: string; optional: boolean; hosts?: readonly HostSurfaceSpec[]; preferences?: PreferenceSpec; settings?: { group: \"prototyping\" | \"systems\" | \"team\"; order: number; }; section?: { key: string; folder?: string; items?: \"prototypes\"; policy?: \"maintainers\" | \"open\"; standalone?: boolean; byPerson?: boolean; }; lib: boolean; instructions?: { path: string; when?: string; }[]; dependencies?: Record<string, string>; upstream?: { repo: string; version: string; license: string; }; }"
+      "signature": "{ id: string; label: string; version: string; description?: string; requires: string; optional: boolean; hosts?: readonly HostSurfaceSpec[]; preferences?: PreferenceSpec; optimizeDependencies?: readonly string[]; settings?: { group: \"prototyping\" | \"systems\" | \"team\"; order: number; }; section?: { key: string; folder?: string; items?: \"prototypes\"; policy?: \"maintainers\" | \"open\"; standalone?: boolean; byPerson?: boolean; }; lib: boolean; instructions?: { path: string; when?: string; }[]; dependencies?: Record<string, string>; upstream?: { repo: string; version: string; license: string; }; }"
     },
     "MoveReferenceContext": {
       "stability": "experimental",

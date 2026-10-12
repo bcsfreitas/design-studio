@@ -173,3 +173,5 @@ Supplied and locally authored modules use the same contract, in different roots.
 You own all repository code. Editing supplied modules or platform internals can create conflicts when merging upstream releases; [Ownership and updates](ownership.md) maps which paths are upstream, generated, seed, or team-owned. Review updates on a branch, reconcile local changes, and run `pnpm build`. The [customization Manual](/documentation/manual/customize) explains the progression from prototype work to platform changes.
 
 Modules can declare primitive preference schemas and defaults; see [Contributor preferences](contributor-preferences.md) for registration, validation, transactions, and reviewed initialization. `#studio/preferences` is Node-only.
+
+`optimizeDependencies` lists at most 32 unique package roots from the module’s `dependencies`. Vite combines enabled, compatible declarations with shared editor dependencies before first use. Disabled or removed modules contribute nothing. Subpaths and arbitrary Vite configuration are unsupported.

@@ -37,7 +37,7 @@ export function artifactFixture(original = process.cwd()) {
   fs.writeFileSync(configFile, JSON.stringify(config, null, 2) + '\n');
   write(
     'src/modules/fixture/module.ts',
-    `export default {id:'fixture',label:'Fixture',version:'0.1.0',requires:'0.4.0',optional:true,lib:false,preferences:{defaults:{ready:false},fields:{ready:'boolean'}},hosts:[{id:'fixture/storyboard',scopes:['prototype'],references:'same-prototype'}]};\n`,
+    `export default {id:'fixture',label:'Fixture',version:'0.1.0',requires:'0.4.0',optional:true,lib:false,dependencies:{cn:'^0.4.0'},optimizeDependencies:['cn'],preferences:{defaults:{ready:false},fields:{ready:'boolean'}},hosts:[{id:'fixture/storyboard',scopes:['prototype'],references:'same-prototype'}]};\n`,
   );
   write(
     'src/modules/fixture/type.ts',
