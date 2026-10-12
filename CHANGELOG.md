@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- `pnpm studio repair-runtime-imports` previews retained utility and empty-view import repairs. Explicit application revalidates a saved plan, current contributor authority, source bytes, and safe paths; custom helpers require manual resolution. Repair stays separate from the updater. The v0.3.0 upgrade fixture verifies preservation before repair and production compilation afterward.
+
 - Views owns the experimental `emptyView` runtime sentinel through `@module/view`. Prototype and file creation share its source template; the old shared sentinel path and duplicate prototype view scaffold are removed. Empty-state presentation remains in the View host.
 
 - Shared class and overlay helpers now use the experimental `#studio/runtime` API. System components, prototype helpers, and hosts share its portal context; the old utility files and saved shadcn aliases are removed. Empty views retain their existing sentinel until the separate View runtime contract.

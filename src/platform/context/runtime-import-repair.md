@@ -1,16 +1,14 @@
 ---
-title: Runtime import repair proposal
-description: Step 4 review draft for a separate command that repairs retained runtime imports without changing updater ownership rules.
+title: Runtime import repair
+description: A separate command repairs retained runtime imports through reviewed plans without changing updater ownership rules.
 toc: true
 ---
-
-**Status: proposed, for architecture review.** The command below is not implemented. Step 4 is complete only after its implementation meets the acceptance criteria below.
 
 The updater remains separate. It preserves existing seed and team files, including unchanged seeds, under [Ownership and updates](ownership.md). Repair is an explicit operation on the resulting studio. It must not run inside update, update continuation, synchronization, development startup, or build.
 
 ## Purpose and scope
 
-Steps 2 and 3 removed shared utility paths and gave their exports explicit owners. A studio upgrading from an older release can retain components and empty views that still import those paths. This command proposes narrow source repairs. It does not replace retained files with newer scaffolds.
+Shared runtime helpers and empty views have explicit API owners. A studio upgrading from an older release can retain components and empty views that still import obsolete paths. This command plans narrow source repairs. It does not replace retained files with newer scaffolds.
 
 | Legacy target | Allowed named exports | Replacement |
 | --- | --- | --- |
@@ -23,7 +21,7 @@ This is the whole initial migration inventory. The command does not add compatib
 
 ## Command contract
 
-The proposed name is `repair-runtime-imports`. Paths are repository-relative files or directories. Omitting paths inspects the supported roots.
+The command is `repair-runtime-imports`. Paths are repository-relative files or directories. Omitting paths inspects the supported roots.
 
 ```sh
 # Preview only: summary, unified diffs, blockers, and manual repairs.
@@ -174,7 +172,7 @@ The view's permanent identity, fidelity declaration, custom comment, and default
 import { cn, teamDensity } from '@/lib/utils';
 ```
 
-Proposed diagnostic: `unsupported-export` at `teamDensity`. No diff is offered for this file. Preserve the custom helper in a team-owned location, update its consumer manually, then preview again. A namespace import or a customized legacy helper receives the same conservative treatment with its own reason code.
+The diagnostic is `unsupported-export` at `teamDensity`. No diff is offered for this file. Preserve the custom helper in a team-owned location, update its consumer manually, then preview again. A namespace import or a customized legacy helper receives the same conservative treatment with its own reason code.
 
 ## Ordered implementation and acceptance criteria
 
@@ -191,15 +189,16 @@ Each step removes duplication or establishes one reusable boundary. Do not proce
 
 For the runtime acceptance fixture, retain a customized component handler and class, not just a comment. Include a modified helper that must be refused, then a separate explicit manual resolution. Verify preservation immediately after update, before performing repair, so repair cannot hide an updater regression. Use the existing upgrade fixture harness instead of adding another updater simulation.
 
-Once implemented, link the available command from the platform README and the ownership recovery guidance. Explain that a merged update with failed checks needs repair and verification on its current branch; `update --continue` applies only to an unresolved merge. Keep these recovery facts in one authoritative contract. Until then, the examples here remain proposals.
+## After an update reports failed verification
 
-## Review decisions
+An update can merge successfully, preserve retained files, and then fail checks or the production build because those files use obsolete imports. Stay on the update branch. Preview repair, resolve manual cases, preserve those edits in a separate commit, and create a fresh plan. Apply the reviewed plan, run `pnpm check` and `pnpm build`, then review and commit the repair separately. Review the update branch before merging it into the team's branch.
 
-The separation from the updater is approved. Review the remaining proposed boundaries:
+`update --continue` finishes an unresolved merge. It does not resume verification after a committed update or apply runtime repairs. A successful repair command confirms source writes only; the separate checks and runtime review establish whether the upgraded studio works.
 
-- Apply a saved, revalidated plan rather than replanning implicitly with `--yes`.
-- Require clean tracked repair targets, while allowing unrelated work to remain.
-- Handle customized legacy helpers and ambiguous imports manually, with no force option.
-- Keep the first version within the three supported source roots; add other content scopes only with concrete fixtures and authority rules.
+The executable old-source acceptance fixture is:
 
-No visual design decision is required. Implementation acceptance will include runtime browser verification after review of this contract.
+```sh
+node src/platform/node/check/upgrade-test.js --from v0.3.0 --repair-runtime
+```
+
+During platform development, add `--working` to test local candidate changes. Add `--keep` to retain the isolated studio for development and production browser verification. The fixture reports its `runtime-browser.json` with permanent prototype and artifact addresses.

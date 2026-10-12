@@ -68,6 +68,8 @@ The update:
 
 It never pushes and never changes the branch it started from. It runs before the studio runtime loads, so a studio whose settings don't validate can still update.
 
+If the merge commits but verification fails on retained obsolete imports, use the separate [Runtime import repair](runtime-import-repair.md#after-an-update-reports-failed-verification) workflow. The updater does not rewrite contributor-owned imports or apply a repair plan.
+
 Workspace commands warn about stale dependencies instead of automatically installing before they run. This lets `pnpm studio update --continue` reach the updater while the merged manifests and lockfile still differ. After conflicts are resolved, the updater regenerates dependencies before its checks. Explicit frozen installs in CI and release acceptance still reject a mismatched lockfile.
 
 The update's base is Git's merge base with the release. New studios clone a tagged release with the starter's history, keep the starter as `upstream`, and start a local `main` branch. The default [installation guide](installing.md) uses this release clone directly. The separate plugin installer also records the tag's version and commit in `studio.lock.json` and commits that record on top of the release.

@@ -9,6 +9,7 @@ import semver from 'semver';
 import { loadOwnership, tierOf, trackedFiles } from '../lib/ownership.js';
 import { readLock, writeLock, sha256 } from '../lib/lock.js';
 import { parseConfigFile, serializeConfig, withSettings } from '../../core/config-file.ts';
+import { createResourceId } from '../../core/resourceIdentity.ts';
 
 const ROOT = path.resolve(import.meta.dirname, '../../../..');
 const args = process.argv.slice(2);
@@ -16,8 +17,10 @@ const fromAt = args.indexOf('--from');
 const from = fromAt >= 0 ? args[fromAt + 1] : null;
 const options = fromAt >= 0 ? args.filter((_, index) => index !== fromAt && index !== fromAt + 1) : args;
 if (fromAt >= 0 && (!from || from.startsWith('--'))) throw new Error('--from requires a public release tag.');
-if (options.some(option => !['--working', '--keep'].includes(option)))
-  throw new Error('Usage: upgrade-test.js [--working] [--from <public-tag>] [--keep]');
+if (options.some(option => !['--working', '--keep', '--repair-runtime'].includes(option)))
+  throw new Error('Usage: upgrade-test.js [--working] [--from <public-tag>] [--keep] [--repair-runtime]');
+const repairRuntime = options.includes('--repair-runtime');
+if (repairRuntime && from !== 'v0.3.0') throw new Error('--repair-runtime requires --from v0.3.0.');
 const box = fs.mkdtempSync(path.join(os.tmpdir(), 'studio-update-cli-'));
 const upstream = path.join(box, 'upstream'),
   studio = path.join(box, 'studio');
@@ -106,6 +109,39 @@ const entry = (cwd, file) => {
     bytes: stat.isSymbolicLink() ? Buffer.from(fs.readlinkSync(target)) : fs.readFileSync(target),
   };
 };
+const repairBase = 'src/prototypes/fixture/fixture-prototype';
+const tooltipFile = 'src/systems/product/components/tooltip/tooltip.tsx';
+const runRepair = (...args) => run(studio, 'pnpm', ['studio', 'repair-runtime-imports', ...args]);
+const repair = () => {
+  const planFile = path.join(box, `repair-${Date.now()}.json`);
+  runRepair('--out', planFile, '--json');
+  const plan = JSON.parse(fs.readFileSync(planFile));
+  if (!plan.applicable || !plan.changes.length) throw new Error('Expected a complete explicit runtime repair plan.');
+  const head = git(studio, 'rev-parse', 'HEAD');
+  const before = inventory(studio);
+  runRepair('--apply', planFile, '--yes', '--json');
+  if (git(studio, 'rev-parse', 'HEAD') !== head || git(studio, 'diff', '--cached'))
+    throw new Error('Repair changed Git state.');
+  const planned = new Map(plan.changes.map(change => [change.path, change]));
+  const changed = [];
+  for (const [file, digest] of before) {
+    const value = entry(studio, file);
+    const after = sha256(Buffer.concat([Buffer.from(`${value.kind}:${value.executable}\0`), value.bytes]));
+    if (after !== digest) {
+      const expected = planned.get(file);
+      if (!expected || sha256(value.bytes) !== expected.afterHash)
+        throw new Error(`Repair changed unreviewed bytes: ${file}`);
+      changed.push(file);
+    }
+  }
+  if (changed.length !== plan.changes.length) throw new Error('Reviewed repairs were not all applied.');
+  const empty = JSON.parse(read(studio, 'pnpm', ['studio', 'repair-runtime-imports', '--json']));
+  if (empty.changes.length || !empty.applicable) throw new Error('Second preview is not empty.');
+  const emptyFile = path.join(box, `empty-${Date.now()}.json`);
+  fs.writeFileSync(emptyFile, JSON.stringify(empty));
+  runRepair('--apply', emptyFile, '--yes', '--json');
+  return plan;
+};
 const inventory = cwd =>
   new Map(
     trackedFiles(cwd).map(file => {
@@ -182,6 +218,45 @@ try {
   run(studio, 'pnpm', ['--filter', system, 'add', 'clsx@2.1.1']);
   run(studio, 'pnpm', ['add', '-w', 'clsx@2.1.1']);
   run(studio, 'pnpm', ['new', 'Fixture Prototype']);
+  if (repairRuntime) {
+    // Retain a customized handler and class beside the untouched seed dialog.
+    edit(studio, tooltipFile, text =>
+      text.replace(
+        'data-slot="tooltip-trigger" {...props}',
+        'data-slot="tooltip-trigger" className="fixture-tooltip-custom" onPointerEnter={(event) => { event.currentTarget.dataset.fixtureHover = "retained"; }} {...props}',
+      ),
+    );
+    const emptyId = createResourceId(),
+      implementedId = createResourceId();
+    write(
+      studio,
+      `${repairBase}/retained-empty.tsx`,
+      `/** @studio-id ${emptyId} */\n/** @lofi */\nimport {emptyView as pending} from '@/lib/emptyView';\n// Preserve our planned review screen.\nexport default pending;\n`,
+    );
+    write(
+      studio,
+      `${repairBase}/implemented.tsx`,
+      `/** @studio-id ${implementedId} */
+import { Dialog, DialogTrigger, DialogContent, DialogTitle } from '@/systems/product/components/dialog';
+import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/systems/product/components/tooltip';
+export default function RepairDemo() { return <main><h1>Retained implemented view</h1>
+<Dialog><DialogTrigger>Open repaired dialog</DialogTrigger><DialogContent><DialogTitle>Repaired dialog</DialogTitle><p>Retained dialog content</p></DialogContent></Dialog>
+<TooltipProvider><Tooltip><TooltipTrigger>Repaired tooltip trigger</TooltipTrigger><TooltipContent>Retained tooltip content</TooltipContent></Tooltip></TooltipProvider>
+</main>; }
+`,
+    );
+    write(
+      studio,
+      `${repairBase}/_custom.ts`,
+      "import { cn } from '@/lib/utils';\nexport const teamDensity = () => cn('team-density');\n",
+    );
+    write(
+      studio,
+      `${repairBase}/_ambiguous.ts`,
+      "import * as utils from '@/lib/utils';\nexport const classes = utils.cn;\n",
+    );
+    write(box, 'runtime-browser.json', JSON.stringify({ studio, base: repairBase, emptyId, implementedId }));
+  }
   run(studio, 'pnpm', ['studio', 'create-module', 'fixture-notes', '--label', 'Fixture notes', '--yes']);
   edit(studio, 'studio.config.json', text =>
     serializeConfig({ ...parseConfigFile(text).value, name: 'Fixture Studio' }),
@@ -238,7 +313,8 @@ try {
   assertInventory(studio, before);
 
   step('Apply the actual update command and verify complete ownership and receipt preservation');
-  cli(targetVersion);
+  if (repairRuntime) requireFailure(attempt(targetVersion), /is committed.*pnpm (?:check|build) failed/);
+  else cli(targetVersion);
   const verify = () => {
     if (git(studio, 'rev-parse', originalBranch) !== customized)
       throw new Error('The update changed the original branch.');
@@ -280,57 +356,112 @@ try {
     if (git(studio, 'status', '--porcelain')) throw new Error('The updated studio is not clean.');
   };
   verify();
+  if (repairRuntime) {
+    step('Refuse ambiguous imports and custom helpers, then perform explicit manual resolution');
+    const blocked = spawnSync('pnpm', ['studio', 'repair-runtime-imports', '--json'], {
+      cwd: studio,
+      env,
+      encoding: 'utf8',
+    });
+    if (blocked.status !== 1 || !JSON.parse(blocked.stdout).diagnostics.some(d => d.code === 'unsupported-import'))
+      throw new Error('Namespace consumer did not block repair.');
+    const customHelper = 'export const cn = (...values: string[]) => values.join(" ") + " team-custom";\n';
+    write(studio, 'src/lib/utils.ts', customHelper);
+    const custom = JSON.parse(
+      read(studio, 'node', [
+        '--input-type=module',
+        '--eval',
+        `import {planRuntimeRepair} from './src/platform/node/lib/runtime-import-repair.js';console.log(JSON.stringify(planRuntimeRepair(process.cwd(),'fixture',['${repairBase}/_custom.ts'])));`,
+      ]),
+    );
+    if (!custom.diagnostics.some(d => d.code === 'custom-helper'))
+      throw new Error('Customized legacy helper was guessed.');
+    // The person explicitly preserves custom behavior in team scope. This is not an automatic repair.
+    write(studio, `${repairBase}/_team-classes.ts`, customHelper);
+    edit(studio, `${repairBase}/_custom.ts`, text => text.replace('@/lib/utils', './_team-classes'));
+    edit(studio, `${repairBase}/_ambiguous.ts`, text =>
+      text
+        .replace("import * as utils from '@/lib/utils';", "import { cn } from '#studio/runtime';")
+        .replace('utils.cn', 'cn'),
+    );
+    fs.unlinkSync(path.join(studio, 'src/lib/utils.ts'));
+    commit(studio, 'Explicit manual helper resolution');
+    const plan = repair();
+    if (
+      !plan.changes.some(c => c.path === tooltipFile) ||
+      !plan.changes.some(c => c.path.endsWith('/retained-empty.tsx')) ||
+      !plan.changes.some(c => c.path === 'src/systems/product/components.json')
+    )
+      throw new Error('Old-source fixture missed required runtime repairs.');
+    const tooltip = fs.readFileSync(path.join(studio, tooltipFile), 'utf8');
+    if (!tooltip.includes('fixture-tooltip-custom') || !tooltip.includes('dataset.fixtureHover = "retained"'))
+      throw new Error('Customized component behavior was lost.');
+    commit(studio, 'Reviewed runtime import repair');
+    const meta = JSON.parse(fs.readFileSync(path.join(studio, repairBase, 'meta.json')));
+    const browserFile = path.join(box, 'runtime-browser.json');
+    fs.writeFileSync(
+      browserFile,
+      JSON.stringify({ ...JSON.parse(fs.readFileSync(browserFile)), prototypeId: meta.studioId }),
+    );
+  }
   run(studio, 'pnpm', ['install', '--frozen-lockfile']);
   run(studio, 'pnpm', ['studio', 'sync', '--check']);
   run(studio, 'pnpm', ['check']);
   run(studio, 'pnpm', ['build']);
-  verify();
+  if (!repairRuntime) verify();
+  if (repairRuntime) {
+    console.log(
+      `\n[upgrade] v0.3.0 preservation, explicit repair, idempotence, frozen install, checks, and production build passed. Browser fixture: ${path.join(box, 'runtime-browser.json')}`,
+    );
+    // The generic harness covers conflict/continue and failed checks separately. This mode keeps the repaired studio for runtime acceptance.
+    process.exitCode = 0;
+  } else {
+    step('Stop on a real upstream conflict and finish through --continue');
+    run(studio, 'git', ['switch', '-q', originalBranch]);
+    edit(studio, stack, text => text.replace('Update fixture choice: base.', 'Update fixture choice: team.'));
+    const conflictStart = commit(studio, 'Team platform edit');
+    run(studio, 'git', ['branch', '-D', `studio-update/v${targetVersion}`]);
+    requireFailure(attempt(targetVersion), /update stopped/);
+    if (
+      git(studio, 'rev-parse', 'MERGE_HEAD') !== targetCommit ||
+      git(studio, 'rev-parse', originalBranch) !== conflictStart
+    )
+      throw new Error('Conflict handling lost the merge or original branch.');
+    requireFailure(attempt('--continue'), /Resolve these files/);
+    edit(studio, stack, text =>
+      text.replace(/<<<<<<<[\s\S]*?>>>>>>>[^\n]*\n/g, 'Update fixture choice: reviewed resolution.\n'),
+    );
+    run(studio, 'git', ['add', stack]);
+    cli('--continue');
+    if (
+      git(studio, 'status', '--porcelain') ||
+      git(studio, 'rev-parse', originalBranch) !== conflictStart ||
+      readLock(studio).platform.commit !== targetCommit
+    )
+      throw new Error('Continue did not finish cleanly with the original branch preserved.');
 
-  step('Stop on a real upstream conflict and finish through --continue');
-  run(studio, 'git', ['switch', '-q', originalBranch]);
-  edit(studio, stack, text => text.replace('Update fixture choice: base.', 'Update fixture choice: team.'));
-  const conflictStart = commit(studio, 'Team platform edit');
-  run(studio, 'git', ['branch', '-D', `studio-update/v${targetVersion}`]);
-  requireFailure(attempt(targetVersion), /update stopped/);
-  if (
-    git(studio, 'rev-parse', 'MERGE_HEAD') !== targetCommit ||
-    git(studio, 'rev-parse', originalBranch) !== conflictStart
-  )
-    throw new Error('Conflict handling lost the merge or original branch.');
-  requireFailure(attempt('--continue'), /Resolve these files/);
-  edit(studio, stack, text =>
-    text.replace(/<<<<<<<[\s\S]*?>>>>>>>[^\n]*\n/g, 'Update fixture choice: reviewed resolution.\n'),
-  );
-  run(studio, 'git', ['add', stack]);
-  cli('--continue');
-  if (
-    git(studio, 'status', '--porcelain') ||
-    git(studio, 'rev-parse', originalBranch) !== conflictStart ||
-    readLock(studio).platform.commit !== targetCommit
-  )
-    throw new Error('Continue did not finish cleanly with the original branch preserved.');
-
-  step('Report an actual failed check without claiming update success');
-  run(studio, 'git', ['switch', '-q', originalBranch]);
-  run(studio, 'git', ['reset', '--hard', customized]);
-  run(studio, 'git', ['branch', '-D', `studio-update/v${targetVersion}`]);
-  write(
-    studio,
-    'src/modules/fixture-notes/check.ts',
-    "export default () => ['Deliberate update acceptance failure.'];\n",
-  );
-  const failedStart = commit(studio, 'Fixture failing module check');
-  const failed = attempt(targetVersion);
-  requireFailure(failed, /is committed.*pnpm check failed/);
-  if (
-    /pnpm check and pnpm build passed/.test(failed.stdout) ||
-    git(studio, 'rev-parse', originalBranch) !== failedStart ||
-    readLock(studio).platform.commit !== targetCommit
-  )
-    throw new Error('Failed-check reporting claimed success or changed the original branch.');
-  console.log(
-    `\n[upgrade] Actual CLI dry-run, preservation, conflict/continue, and failed-check acceptance pass (${baseVersion} -> ${targetVersion}).`,
-  );
+    step('Report an actual failed check without claiming update success');
+    run(studio, 'git', ['switch', '-q', originalBranch]);
+    run(studio, 'git', ['reset', '--hard', customized]);
+    run(studio, 'git', ['branch', '-D', `studio-update/v${targetVersion}`]);
+    write(
+      studio,
+      'src/modules/fixture-notes/check.ts',
+      "export default () => ['Deliberate update acceptance failure.'];\n",
+    );
+    const failedStart = commit(studio, 'Fixture failing module check');
+    const failed = attempt(targetVersion);
+    requireFailure(failed, /is committed.*pnpm check failed/);
+    if (
+      /pnpm check and pnpm build passed/.test(failed.stdout) ||
+      git(studio, 'rev-parse', originalBranch) !== failedStart ||
+      readLock(studio).platform.commit !== targetCommit
+    )
+      throw new Error('Failed-check reporting claimed success or changed the original branch.');
+    console.log(
+      `\n[upgrade] Actual CLI dry-run, preservation, conflict/continue, and failed-check acceptance pass (${baseVersion} -> ${targetVersion}).`,
+    );
+  }
 } finally {
   if (options.includes('--keep')) console.log(`[upgrade] Kept isolated fixtures at ${box}`);
   else fs.rmSync(box, { recursive: true, force: true });

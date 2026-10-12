@@ -34,8 +34,8 @@ All platform knowledge and requirements live together in `context/`:
 | --- | --- |
 | `pnpm studio update [version] [--dry-run]` | Take a newer Design Studio release on a `studio-update/v<version>` branch; `--continue` finishes one after its conflicts are resolved. See [Updating a studio](context/ownership.md#updating-a-studio). |
 | `pnpm release <version> [--dry-run]` | Upstream maintainers only: cut a platform release on `main` and tag it locally. See [Releasing](context/releasing.md). |
+| `pnpm studio repair-runtime-imports [paths]` | Preview narrow repairs to retained runtime imports. Save a plan with `--out`, then explicitly apply it with `--apply <plan> --yes`. See [Runtime import repair](context/runtime-import-repair.md). |
 
-The [runtime import repair proposal](context/runtime-import-repair.md) defines the step 4 command contract, representative diffs, contributor safeguards, and acceptance criteria for review. This command is not implemented yet.
 
 ## Skills
 
