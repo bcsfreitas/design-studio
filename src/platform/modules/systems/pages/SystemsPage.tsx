@@ -35,7 +35,7 @@ import type { ContentData } from '../content/SystemContentPage';
 import SystemContentPage from '../content/SystemContentPage';
 import type { Prototype } from '@/platform/app/data/types';
 import { NavHeader, NavList, NavTitle, SectionNav } from '@/platform/app/shell/nav';
-import { NotFound } from '@/platform/app/shell/App';
+import { NotFound } from '@/platform/app/shell/NotFound';
 import { ColorTokens, PageHeader } from '@/platform/modules/systems/pages/foundations';
 import {
   OtherTokens,

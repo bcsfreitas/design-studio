@@ -7,7 +7,7 @@ export type { PaletteContext } from '../app/modules.ts';
 /** @stable One entry a module adds to a prototype's menu. */
 export type { PrototypeAction } from '../app/modules.ts';
 /** @experimental The shell's not-found page. */
-export { NotFound } from '../app/shell/App.tsx';
+export { NotFound } from '../app/shell/NotFound.tsx';
 /** @experimental A section's side navigation and its parts. */
 export {
   SectionNav,

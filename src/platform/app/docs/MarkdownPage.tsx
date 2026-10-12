@@ -9,7 +9,7 @@ import type { ArtifactContext } from '../data/fileTypeModule';
 import { DocBase, DocArtifact } from '@/platform/app/docs/DocBase';
 import { DocLayout } from '@/platform/app/docs/DocLayout';
 import type { DocFrontmatter } from '@/platform/app/docs/types';
-import { FileError as ViewError } from '#studio/ui';
+import ViewError from '@/platform/app/files/FileError';
 
 // docKey (contributor/prototype/path) resets the error boundary when the document changes,
 // and so does a new Component (the file was fixed, in dev).

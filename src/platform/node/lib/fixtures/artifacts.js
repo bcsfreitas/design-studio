@@ -94,7 +94,7 @@ import { compiledLifecycle, createPrototype, duplicatePrototype, renamePrototype
 import { initialLifecycle, lifecycleAttributes } from '#studio/lifecycle';
 import { useEffect, useState } from 'react';
 import {getSystems,getSystem,defaultSystemKey,systemPath,ThemeScope} from '#studio/systems';
-function PublicSystems(){const key=defaultSystemKey(),system=getSystem(key);return <ThemeScope themeClass={system?.themeClass ?? 'prototype-unstyled'}><p data-public-system>{system?.label ?? 'Missing system'}: {Object.keys(getSystems({role:'prototype'})).length} systems <a href={import.meta.env.BASE_URL.replace(/\/$/,'')+systemPath(key)}>Open system</a></p></ThemeScope>;}
+function PublicSystems(){const key=defaultSystemKey(),system=getSystem(key);return <ThemeScope themeClass={system?.themeClass ?? 'prototype-unstyled'}><p data-public-system>{system?.label ?? 'Missing system'}: {Object.keys(getSystems({role:'prototype'})).length} systems <a href={import.meta.env.BASE_URL.slice(0,-1)+systemPath(key)}>Open system</a></p></ThemeScope>;}
 function PublicAsset(){const [value,setValue]=useState('Pending asset');useEffect(()=>{let live=true;const load=()=>{loadModuleAsset<{message:string}>('fixture','report').then(data=>{if(live)setValue(data.message);}).catch(error=>{if(live)setValue(error.message);});};load();const unsubscribe=subscribeModuleAsset('fixture','report',load);return()=>{live=false;unsubscribe();};},[]);return <p data-public-asset>{value}</p>;}
 function LocalSettings(){const settings=useStudioSettings(['name']);return <p data-public-settings>{settings.snapshot ? settings.snapshot.role : settings.error || 'Loading settings'}</p>;}
 function Mutations(){

@@ -6,7 +6,7 @@ import { Link } from '@tanstack/react-router';
 import { ArrowRight, Image, Smile, Type } from 'lucide-react';
 import { useManifest } from '@/platform/app/data/useManifest';
 import type { DesignSystem } from '@/platform/app/data/types';
-import { NotFound } from '@/platform/app/shell/App';
+import { NotFound } from '@/platform/app/shell/NotFound';
 import { IconsPage, PageHeader } from './foundations';
 import {
   Empty,

@@ -7,7 +7,7 @@ import { test } from 'node:test';
 import { API_ENTRIES, API_POLICY } from '../../core/modules/boundaries.ts';
 import { scopePolicy } from './scope.js';
 import importGuard from '../build/vite-import-guard-plugin.js';
-import { dependencyResolver } from './imports.js';
+import { dependencyResolver, importsOf } from './imports.js';
 
 function fixture(t) {
   const root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'studio-api-environments-')));
@@ -220,4 +220,22 @@ test('Vite uses the same policy for direct edges, build startup and edited trans
   write('src/platform/api/files.ts', "export { value } from '../core/hidden.ts';");
   write('src/platform/core/hidden.ts', 'export const value = window.location;');
   assert.throws(() => guard.buildStart.call(context), /window requires a browser/);
+});
+
+test('public UI building blocks do not eagerly import the shell or application registry', () => {
+  const root = path.resolve(import.meta.dirname, '../../../..'),
+    resolve = dependencyResolver(root),
+    seen = new Set();
+  const visit = file => {
+    if (seen.has(file)) return;
+    seen.add(file);
+    for (const edge of importsOf(fs.readFileSync(file, 'utf8'), file)) {
+      if (edge.typeOnly || !edge.source) continue;
+      const next = resolve(edge.source, file);
+      if (next && next.startsWith(path.join(root, 'src/platform')) && /\.[cm]?[jt]sx?$/.test(next)) visit(next);
+    }
+  };
+  visit(path.join(root, 'src/platform/api/ui.ts'));
+  for (const file of ['src/platform/app/shell/App.tsx', 'src/platform/app/modules.ts'])
+    assert.equal(seen.has(path.join(root, file)), false, `${file} introduces an eager module registration cycle`);
 });

@@ -14,7 +14,7 @@ import SystemContentPage from '@/platform/modules/systems/content/SystemContentP
 import DocumentationHeader from './DocumentationHeader';
 import DocumentationNavItem from './DocumentationNavItem';
 import { markdownPath } from './referenceLinks';
-import { NotFound } from '@/platform/app/shell/App';
+import { NotFound } from '@/platform/app/shell/NotFound';
 
 const guidanceExpansion = new Map<string, boolean>();
 

@@ -16,7 +16,8 @@ import {
 import { useSourceView } from '@/platform/core/source/useSourceView';
 import { shortcutLabel } from '@/platform/app/shell/artifactShortcuts';
 import { Button } from '@/platform/systems/studio/components/button';
-import App, { NotFound } from '@/platform/app/shell/App';
+import App from '@/platform/app/shell/App';
+import { NotFound } from '@/platform/app/shell/NotFound';
 import Home from '@/platform/app/pages/home/Home';
 import PrototypeLayout from '@/platform/modules/prototypes/viewer/PrototypeLayout';
 import { isSectionKey, rootOf, SYSTEM_CONTENT_KEY } from '@/platform/core/roots';
