@@ -11,7 +11,7 @@ export default function socialMetadata({ publicUrl = process.env.STUDIO_PUBLIC_U
     image = new URL('images/design-studio-social.png', url).href;
   }
   const title = 'Design Studio — Design with intent. Build with an agent.';
-  const description = 'A prototype sandbox for you and your team. Your components. Your context. Your ideas.';
+  const description = 'Design Studio is an open source, AI prototype sandbox for designers and product managers who build.';
   const alt = 'Design Studio. Design with intent. Build with an agent. Connected prototype, context, and flow cards.';
   return {
     name: 'studio-social-metadata',

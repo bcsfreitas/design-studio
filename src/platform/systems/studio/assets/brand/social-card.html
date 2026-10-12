@@ -11,8 +11,7 @@
     .brand img { width: 54px; height: 54px; }
     .dark-logo { display: none; }
     h1 { position: absolute; top: 185px; left: 64px; margin: 0; font-size: 61px; line-height: 1.06; font-weight: 560; letter-spacing: -3.5px; }
-    .description { position: absolute; top: 360px; left: 64px; margin: 0; font-size: 25px; line-height: 1.4; color: #65645e; letter-spacing: -.5px; }
-    .footer { position: absolute; bottom: 54px; left: 64px; font-size: 19px; color: #65645e; }
+    .description { position: absolute; top: 360px; left: 64px; width: 600px; margin: 0; font-size: 24px; line-height: 1.4; color: #65645e; letter-spacing: -.5px; }
     .scene { position: absolute; top: 168px; right: 48px; width: 440px; height: 360px; }
     .grid { stroke: #e7e5de; stroke-width: 1; }
     .card { fill: #fcfbf8; stroke: #c9c6bd; stroke-width: 1.5; }
@@ -24,7 +23,7 @@
     @media (prefers-color-scheme: dark) {
       body { background: #171715; color: #f7f6f2; }
       .light-logo { display: none; } .dark-logo { display: block; }
-      .description, .footer { color: #aaa89e; }
+      .description { color: #aaa89e; }
       .grid { stroke: #282823; } .card { fill: #22221e; stroke: #54534b; }
       .line { stroke: #54534b; } .ink { stroke: #aaa89e; } .label { fill: #aaa89e; }
     }
@@ -33,8 +32,7 @@
 <body>
   <div class="brand"><img class="light-logo" src="../../../../../../public/brand/design-studio-light.svg" alt=""><img class="dark-logo" src="../../../../../../public/brand/design-studio-dark.svg" alt="">Design Studio</div>
   <h1>Design with intent.<br>Build with an agent.</h1>
-  <p class="description">A prototype sandbox for<br>you and your team.</p>
-  <div class="footer">Your components. Your context. Your ideas.</div>
+  <p class="description">Design Studio is an open source, AI prototype sandbox for designers and product managers who build.</p>
   <svg class="scene" viewBox="0 0 440 360" aria-label="Connected prototype, context, and flow cards">
     <defs><pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path class="grid" d="M24 0H0V24" fill="none"/></pattern></defs>
     <rect width="440" height="360" fill="url(#grid)"/>
