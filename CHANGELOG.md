@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Proven settings, Mermaid, permanent-address, and compilation-lifecycle helpers are public experimental APIs. Browser compilation tracking stays in `#studio/data`; renderer-neutral lifecycle primitives remain Node-safe. Contributors, Diagrams, Documents, View, and Canvas use covered public entries.
+
 - Module clients throw `ClientError` with a machine-readable code, HTTP status when available, and a display message. Onboarding uses the shared client, preserves its persistence fallback and 422 suppression, and reports malformed successful replies.
 
 - `pnpm studio repair-runtime-imports` previews retained utility and empty-view import repairs. Explicit application revalidates a saved plan, current contributor authority, source bytes, and safe paths; custom helpers require manual resolution. Repair stays separate from the updater. The v0.3.0 upgrade fixture verifies preservation before repair and production compilation afterward.

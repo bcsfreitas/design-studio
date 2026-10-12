@@ -2,12 +2,11 @@
 // boundary: a document that fails to render shows the error, with a button to copy it.
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
-  compiledLifecycle,
   freshness,
   lifecycleAttributes,
   initialLifecycle,
-  type ArtifactFile,
 } from '@/platform/core/artifact-lifecycle/index';
+import { compiledLifecycle, type ArtifactFile } from '@/platform/core/artifact-lifecycle/compiled';
 import type { MDXContent } from 'mdx/types';
 import { ErrorBoundary } from 'react-error-boundary';
 import { DocBase } from '@/platform/app/docs/DocBase';

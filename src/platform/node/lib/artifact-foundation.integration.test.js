@@ -8,6 +8,7 @@ test('a public team file type joins mixed-artifact discovery, validation and pro
   const fixture = artifactFixture();
   try {
     const { root, base, run } = fixture;
+    assert.match(run('src/modules/fixture/node/public-api.js'), /Public identity and settings validators passed/);
     run('src/platform/node/cli/studio.js', 'identify', base, '--yes');
     run('src/platform/node/build/build-manifest.js', '--strict');
     const manifest = JSON.parse(fs.readFileSync(path.join(root, 'public/prototypes/manifest.json')));

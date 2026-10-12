@@ -4,6 +4,8 @@ import type { StudioConfig } from '@/platform/core/config';
 import { waitForRestart } from './waitForRestart';
 import { toast } from '@/platform/systems/studio/components/toast';
 import { beginSettingsTransition, finishSettingsTransition } from './restartTransition';
+import { requestJson } from '../data/client';
+import { ClientError } from '../../core/client-error';
 
 type Snapshot = {
   config: StudioConfig;
@@ -20,6 +22,8 @@ type Snapshot = {
     settings?: { group: string; order: number };
   }[];
   systems: { id: string; label: string; status: 'active' | 'archived' }[];
+  runtimeId: string;
+  restarting: boolean;
 };
 
 export function useStudioSettings(fields: readonly (keyof StudioConfig)[], successTitle = 'Settings saved') {
@@ -40,9 +44,7 @@ export function useStudioSettings(fields: readonly (keyof StudioConfig)[], succe
   async function load() {
     setError('');
     try {
-      const response = await fetch('/__studio/settings');
-      const body = await response.json();
-      if (!response.ok) throw new Error(body.error);
+      const body = await requestJson<Snapshot>('/__studio/settings');
       setSnapshot(body);
       setDraft(body.config);
       setConflict(false);
@@ -97,16 +99,11 @@ export function useStudioSettings(fields: readonly (keyof StudioConfig)[], succe
           .filter(key => JSON.stringify(draft[key]) !== JSON.stringify(snapshot.config[key]))
           .map(key => [key, draft[key]]),
       );
-      const response = await fetch('/__studio/settings', {
+      const body = await requestJson<{ restarting: boolean; runtimeId: string }>('/__studio/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ base: snapshot.version, changes }),
       });
-      const body = await response.json();
-      if (!response.ok) {
-        setConflict(response.status === 409);
-        throw new Error(body.error);
-      }
       setSnapshot({ ...snapshot, config: draft });
       if (body.restarting) {
         setRestartFrom(body.runtimeId);
@@ -117,6 +114,7 @@ export function useStudioSettings(fields: readonly (keyof StudioConfig)[], succe
         toast.add({ title: successTitle });
       }
     } catch (cause) {
+      setConflict(cause instanceof ClientError && cause.status === 409);
       setError(cause instanceof Error ? cause.message : 'Settings could not save.');
     } finally {
       setSaving(false);

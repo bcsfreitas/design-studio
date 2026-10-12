@@ -5,7 +5,7 @@
 // The Studio system lives in src/platform/systems/studio/ and declares role: 'platform'; prototypes
 // never use it (src/platform/modules/systems/sources.ts). Systems are found in two roots, the supplied one first
 // (SYSTEM_ROOTS in src/platform/core/roots.ts). Node scripts and the app share this contract.
-import { resourceId } from '../../core/fileTypes.ts';
+import { resourceId } from '#studio/files';
 import { SUPPLIED_SYSTEMS_ROOT, SYSTEM_ROOTS, TEAM_SYSTEMS_ROOT } from '../../core/roots.ts';
 
 export type ColorMode = 'light' | 'dark';

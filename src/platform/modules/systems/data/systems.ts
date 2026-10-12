@@ -4,7 +4,7 @@
 // (src/platform/modules/systems/node/systems.js finds the same folders for the build.)
 import { platformSystemId, systemRootProblems, type SystemSpec } from '@/platform/modules/systems/spec';
 import { platformSourceOf } from '../sources';
-import { resourceId, systemAddress } from '@/platform/core/fileTypes';
+import { resourceId, systemAddress } from '#studio/files';
 import { CONFIG } from '@/platform/app/data/config';
 import { setSystemFolders } from '@/platform/core/roots';
 

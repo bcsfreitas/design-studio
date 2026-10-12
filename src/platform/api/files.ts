@@ -21,3 +21,13 @@ export { markdownIdentity } from '../core/fileTypes.ts';
 export { artifactSlug } from '../core/fileTypes.ts';
 /** @experimental Whether the format can render with this prototype's system dependency. */
 export { artifactSystemAvailability } from '../core/fileTypes.ts';
+/** @experimental Validates a permanent resource ID, without resolving it to a source path. */
+export { resourceId } from '../core/resourceIdentity.ts';
+/** @experimental A prototype's permanent public address. */
+export { prototypeAddress } from '../core/resourceIdentity.ts';
+/** @experimental A parent-scoped artifact's permanent public address. */
+export { artifactAddress } from '../core/resourceIdentity.ts';
+/** @experimental A system's permanent public address. */
+export { systemAddress } from '../core/resourceIdentity.ts';
+/** @experimental Parses permanent prototype/artifact addresses; mutable content paths are not accepted. */
+export { parsePrototypeAddress } from '../core/resourceIdentity.ts';

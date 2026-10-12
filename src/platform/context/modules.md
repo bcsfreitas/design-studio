@@ -30,15 +30,17 @@ Team modules (`src/modules/<id>/`) and team systems (`src/systems/<id>/`) import
 
 | Entry | Use it for | Executable environment |
 | --- | --- | --- |
-| `#studio/module` | `ModuleSpec`, `ModuleServer`, `ServerRoute`, `ModuleCheck`, `ModuleBuild` (experimental), `PLATFORM_VERSION`. | Application and Node. |
+| `#studio/module` | Module declarations, server/check/build contracts, `PLATFORM_VERSION`, resolved `StudioConfig`, and the shared `adminProblems` validator. | Application and Node. |
 | `#studio/system` | `SystemSpec`, `SystemLibrary`, `SystemIntro`, and the types inside them. | Types anywhere. |
-| `#studio/files` | Declaring a file type in `type.ts`: `defineFileType`, `FileTypeSpec`, capabilities, identity, and the Markdown declaration to extend. | Application and Node. |
+| `#studio/files` | File-type declarations, capabilities, generic identity, Markdown declarations, and permanent resource IDs and prototype/artifact/system addresses. | Application and Node. |
 | `#studio/data` | Reading content in the app: the manifest, `contribution<Data>`, the studio identity (`APP_NAME`, `TAGLINE`, read-only `CONFIG`), a prototype's files, the current contributor and edit permissions, `callModule`, structured `ClientError` failures, and what a file type's `loader.ts` and `open.tsx` implement. | Application. |
-| `#studio/ui` | Browser app contributions (`ModuleApp`, `PaletteContext`, `PrototypeAction`) and the shell's building blocks: section navigation, home blocks, collections, documents, and the source editor. | Application. |
+| `#studio/ui` | Browser app contributions, section navigation, home blocks, collections, documents, source editing, shared Mermaid rendering, and the authorized `useStudioSettings` client. | Application. |
 | `#studio/components` | Studio's interface components, such as `Button`, `Dialog`, `Input`, `Tooltip`, menus, and `toast`. | Application. |
 | `#studio/references` | Node source adapters, resolution context types and shared code, Markdown and CSS source grammars. | Node only. |
 | `#studio/lifecycle` | Renderer-neutral source, preparation and displayed revision state, input digests and DOM evidence. | Application and Node. |
 | `#studio/runtime` | `cn`, `PortalContext`, and `usePortalContainer` for shared class names and themed overlays. | Application and runtime. |
+
+Permanent address helpers validate ID-based public addresses; they do not resolve filesystem locations or legacy module-content addresses. `compiledLifecycle` is browser-specific and belongs to `#studio/data`; renderer-neutral revision primitives remain in Node-safe `#studio/lifecycle`.
 
 ### Environment policy
 

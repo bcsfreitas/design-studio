@@ -1,4 +1,4 @@
-import { markdownFileModule } from '@/platform/app/docs/markdownFileModule';
+import { markdownFileModule } from '#studio/data';
 import { documents } from './loader';
 
 export default markdownFileModule(documents);

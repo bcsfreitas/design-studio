@@ -70,6 +70,43 @@ export default [defineReferenceAdapter({
 `,
   );
   write(
+    'src/modules/fixture/app.tsx',
+    `
+import { CodeIcon } from '@hugeicons/core-free-icons';
+import { type ModuleApp, MermaidDiagram, useStudioSettings } from '#studio/ui';
+import { adminProblems, type StudioConfig } from '#studio/module';
+import { compiledLifecycle } from '#studio/data';
+import { initialLifecycle, lifecycleAttributes } from '#studio/lifecycle';
+import { useEffect, useState } from 'react';
+function LocalSettings(){const settings=useStudioSettings(['name']);return <p data-public-settings>{settings.snapshot ? settings.snapshot.role : settings.error || 'Loading settings'}</p>;}
+function Probe(){
+  const [state,setState]=useState(initialLifecycle);
+  useEffect(()=>{const tracker=compiledLifecycle({contributor:'artifact-fixture',prototype:'mixed',path:'main.tsx'},setState);tracker.ready();return ()=>tracker.dispose();},[]);
+  return <section data-public-api-probe {...lifecycleAttributes(state)}><h2>Public API fixture</h2>
+    <MermaidDiagram source={'graph LR\\n A-->B'} />
+    {import.meta.env.DEV && <LocalSettings />}
+  </section>;
+}
+export const validAdmins = (config: Partial<StudioConfig>, people: string[]) => adminProblems(config,people);
+export default {icon:CodeIcon,rail:'none',order:1000,overview:Probe} satisfies ModuleApp;
+`,
+  );
+  write(
+    'src/modules/fixture/node/public-api.js',
+    `
+import assert from 'node:assert/strict';
+import {resourceId, prototypeAddress, artifactAddress, systemAddress, parsePrototypeAddress} from '#studio/files';
+import {adminProblems} from '#studio/module';
+const id=resourceId('0123456789abcdef'), child=resourceId('fedcba9876543210');
+assert.equal(prototypeAddress(id),'/prototypes/'+id);
+assert.equal(systemAddress(id),'/systems/'+id);
+assert.deepEqual(parsePrototypeAddress(artifactAddress(id,child)),{prototypeId:id,artifactId:child});
+assert.equal(parsePrototypeAddress('/prototypes/sam/renamed'),null);
+assert.deepEqual(adminProblems({usage:'team',admins:['sam']},['sam']),[]);
+console.log('Public identity and settings validators passed.');
+`,
+  );
+  write(
     'src/modules/fixture/open.tsx',
     `
 import { CodeIcon } from '@hugeicons/core-free-icons';

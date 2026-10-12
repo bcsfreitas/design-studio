@@ -13,3 +13,7 @@ export type { ModuleCheck } from '../core/modules/index.ts';
 export type { ModuleBuild } from '../core/modules/index.ts';
 /** @stable The platform contract version this copy offers; a module's `requires` names the oldest it works with. */
 export { PLATFORM_VERSION } from '../core/modules/index.ts';
+/** @experimental The resolved studio configuration used by settings clients and validators. */
+export type { StudioConfig } from '../core/config.ts';
+/** @experimental Validates declared Admin assignments against the current contributor inventory. */
+export { adminProblems } from '../core/config.ts';

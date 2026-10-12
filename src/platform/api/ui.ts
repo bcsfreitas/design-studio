@@ -48,3 +48,7 @@ export type { SourceLanguage } from '../core/source/SourceEditor.tsx';
 export { default as ArtifactSource } from '../app/source/ArtifactSource.tsx';
 /** @experimental The Source view toggle state, its shortcut and focus return, for a file page. */
 export { useSourceView } from '../core/source/useSourceView.ts';
+/** @experimental The authorized settings editor with stale-snapshot handling and restart coordination. */
+export { useStudioSettings } from '../app/settings/useStudioSettings.ts';
+/** @experimental Lazy Mermaid rendering shared by document content and standalone diagrams. */
+export { MermaidDiagram } from '../app/diagrams/MermaidDiagram.tsx';

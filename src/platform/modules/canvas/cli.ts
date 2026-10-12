@@ -9,15 +9,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import {
-  artifactSlug,
-  canvasIdentity,
-  type FileTypeSpec,
-  prototypeAddress,
-  artifactAddress,
-  parsePrototypeAddress,
-  resourceId,
-} from '../../core/fileTypes.ts';
+import { artifactSlug, canvasIdentity, type FileTypeSpec } from '../../core/fileTypes.ts';
+import { prototypeAddress, artifactAddress, parsePrototypeAddress, resourceId } from '#studio/files';
 import { addressOf, canonicalPath, parseAddress } from '../../core/roots.ts';
 import { FORMAT_VERSION, stringifyScene } from './slim.ts';
 import { help, run, ToolError, type Ctx, type El, type ArtifactInfo } from './tools.ts';

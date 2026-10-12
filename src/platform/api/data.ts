@@ -74,3 +74,5 @@ export { createLoader } from '../app/data/createLoader.ts';
 export { createMarkdownLoader } from '../app/docs/createMarkdownLoader.ts';
 /** @experimental The open.tsx implementation for a Markdown-based file type. */
 export { markdownFileModule } from '../app/docs/markdownFileModule.tsx';
+/** @experimental Tracks browser compilation and renderer commits; Node-neutral lifecycle primitives remain in #studio/lifecycle. */
+export { compiledLifecycle } from '../core/artifact-lifecycle/compiled.ts';

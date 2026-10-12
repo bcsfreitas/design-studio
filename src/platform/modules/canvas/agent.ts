@@ -17,7 +17,7 @@ import { FILE_TYPES, fileTypeModules } from '@/platform/app/data/fileTypes';
 import { artifactLabel } from '@/platform/app/data/manifest';
 import type { Artifact, Manifest, Prototype } from '@/platform/app/data/types';
 import { appPathOf, isInPrototype, resolveArtifactPath, artifactPath } from '@/platform/app/artifacts/artifactLinks';
-import { prototypeAddress, resourceId } from '@/platform/core/fileTypes';
+import { prototypeAddress, resourceId } from '#studio/files';
 import { boundsOf } from './elements';
 import { help, run, ToolError, type Ctx, type El, type ArtifactInfo } from './tools';
 

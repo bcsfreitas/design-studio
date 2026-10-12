@@ -10,8 +10,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/platform/systems/studio/components/dialog';
-import { adminProblems } from '@/platform/core/config';
-import { useStudioSettings } from '@/platform/app/settings/useStudioSettings';
+import { adminProblems } from '#studio/module';
+import { useStudioSettings } from '#studio/ui';
 
 const fields = ['admins', 'systemMaintainers'] as const;
 

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { MermaidDiagram } from '@/platform/app/diagrams/MermaidDiagram';
-import { readSource } from '@/platform/app/data/files';
-import type { Artifact, Prototype } from '@/platform/app/data/types';
+import { MermaidDiagram } from '#studio/ui';
+import { readSource, type Artifact, type Prototype } from '#studio/data';
 
 export type DiagramProps = { proto: Prototype; item: Artifact; source: string; compact?: boolean };
 
