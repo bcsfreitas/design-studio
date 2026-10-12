@@ -135,6 +135,8 @@ export function apiEnvironmentPolicy({ root, scopeOf, resolve = dependencyResolv
       return `${destination} is Node-only and cannot execute in ${environment}.`;
     if (environment === 'node' && (destination.startsWith('src/platform/app/') || /\.[jt]sx$/.test(destination)))
       return `${destination} is browser code and cannot execute in a Node entry.`;
+    if (environment === 'node' && !/\.(?:[cm]?[jt]s|json|node)$/.test(destination))
+      return `${destination} requires an asset loader and cannot execute in a Node entry.`;
     if (
       environment === 'runtime' &&
       (destination.startsWith('src/platform/app/') || destination.startsWith('src/platform/systems/studio/'))

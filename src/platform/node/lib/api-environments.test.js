@@ -98,11 +98,13 @@ test('public Node graphs reject transitive browser features, JSX, renderers and 
     ["export const value = import.meta['env'];", /import\.meta\.env requires a browser/],
     ["export { value } from './browser.tsx';", /browser\.tsx is browser code/],
     ["export { value } from './relay.ts';", /browser\.tsx is browser code/],
+    ["import './theme.css'; export const value = 1;", /requires an asset loader/],
     ["import React from 'react'; export const value = React;", /renderer dependency/],
     ['const name = "./other"; export const value = import(name);', /Computed imports/],
   ];
   write('src/platform/core/browser.tsx', 'export const value = <div/>;');
   write('src/platform/core/relay.ts', "export { value } from './browser.tsx';");
+  write('src/platform/core/theme.css', 'body {color: red}');
   for (const [code, expected] of cases) {
     write('src/platform/core/helper.ts', code);
     assert.ok(
