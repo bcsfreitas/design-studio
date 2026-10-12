@@ -104,7 +104,12 @@ export type ModuleCheck = (context: { root: string }) => string[] | Promise<stri
  * lists folders (relative to the repo root) whose Markdown changes rebuild the manifest in the dev server.
  * `sourceFiles` lists the repo-relative files of that data the Documentation surface may open for editing.
  */
+export type BuildAsset = {
+  watch: readonly string[];
+  load(context: { root: string; enabled: string[] }): unknown | Promise<unknown>;
+};
 export type ModuleBuild<Data = unknown> = {
+  assets?: Record<string, BuildAsset>;
   manifest?(context: {
     root: string;
     enabled: string[];

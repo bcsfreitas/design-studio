@@ -27,7 +27,7 @@ import previewTheme from './src/platform/node/build/vite-preview-theme-plugin.js
 import files from './src/platform/node/build/vite-files-plugin.js';
 import settings from './src/platform/node/build/vite-settings-plugin.js';
 import markdownRefresh from './src/platform/node/build/vite-markdown-refresh-plugin.js';
-import systemProps from './src/platform/modules/systems/node/props-plugin.js';
+import buildAssets from './src/platform/node/build/vite-build-assets-plugin.js';
 import globs from './src/platform/node/build/vite-globs-plugin.js';
 import css, { scopedUtilities } from './src/platform/node/build/vite-css-plugin.js';
 import { optimizedDependencies } from './src/platform/core/modules/index.ts';
@@ -151,7 +151,7 @@ export default defineConfig({
     manifestWatch(),
     settings(),
     files(),
-    systemProps(),
+    buildAssets(),
     spa404(),
     socialMetadata(),
     deploymentRecovery(),

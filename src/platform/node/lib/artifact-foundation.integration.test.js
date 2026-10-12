@@ -26,6 +26,12 @@ test('a public team file type joins mixed-artifact discovery, validation and pro
     run('src/platform/node/check/check-modules.js');
     run('src/platform/node/check/typecheck.js');
     run('node_modules/vite/bin/vite.js', 'build', '--configLoader', 'native');
+    const assets = fs.readdirSync(path.join(root, 'dist/assets'));
+    const report = assets.find(file => /^fixture-report-.*\.json$/.test(file));
+    assert.ok(report);
+    assert.deepEqual(JSON.parse(fs.readFileSync(path.join(root, 'dist/assets', report))), {
+      message: '__PUBLIC_ASSET_PROOF__',
+    });
     const html = fs.readFileSync(path.join(root, 'dist/index.html'), 'utf8');
     assert.ok(html.includes('/artifact-fixture/assets/'));
     const output = fs

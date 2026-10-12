@@ -17,3 +17,6 @@ export { PLATFORM_VERSION } from '../core/modules/index.ts';
 export type { StudioConfig } from '../core/config.ts';
 /** @experimental Validates declared Admin assignments against the current contributor inventory. */
 export { adminProblems } from '../core/config.ts';
+
+/** @experimental A lazy JSON asset and its repository-relative dependency watches. */
+export type { BuildAsset } from '../core/modules/index.ts';

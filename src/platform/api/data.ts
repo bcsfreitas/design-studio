@@ -114,3 +114,6 @@ export type { ArtifactRequest } from '../app/artifacts/resolveArtifact.ts';
 export type { ArtifactResolution } from '../app/artifacts/resolveArtifact.ts';
 /** @experimental Machine-readable artifact availability reasons. */
 export type { AvailabilityCode } from '../app/artifacts/resolveArtifact.ts';
+
+/** @experimental Loads an enabled module’s named serializable build asset, sharing cached work and surfacing failures. */
+export { loadModuleAsset, subscribeModuleAsset } from '../app/data/buildAssets.ts';

@@ -8,9 +8,13 @@
   },
   "api": {
     "#studio/module": {
+      "BuildAsset": {
+        "stability": "experimental",
+        "signature": "{ watch: readonly string[]; load(context: { root: string; enabled: string[]; }): unknown | Promise<unknown>; }"
+      },
       "ModuleBuild": {
         "stability": "experimental",
-        "signature": "<Data = unknown> { manifest?(context: { root: string; enabled: string[]; out: { log(...args: unknown[]): void; warn(...args: unknown[]): void; error(...args: unknown[]): void; }; }): { data: Data; errors: number; }; watch?: string[]; sourceFiles?(data: Data | undefined, context: { root: string; }): string[]; }"
+        "signature": "<Data = unknown> { assets?: Record<string, BuildAsset>; manifest?(context: { root: string; enabled: string[]; out: { log(...args: unknown[]): void; warn(...args: unknown[]): void; error(...args: unknown[]): void; }; }): { data: Data; errors: number; }; watch?: string[]; sourceFiles?(data: Data | undefined, context: { root: string; }): string[]; }"
       },
       "ModuleCheck": {
         "stability": "stable",
@@ -306,6 +310,10 @@
         "stability": "experimental",
         "signature": "() => Promise<Manifest>"
       },
+      "loadModuleAsset": {
+        "stability": "experimental",
+        "signature": "<T = unknown>(module: string, asset: string) => Promise<T>"
+      },
       "markdownFileModule": {
         "stability": "experimental",
         "signature": "(documents: ReturnType<typeof createLoader<MarkdownModule>>) => FileTypeModule"
@@ -337,6 +345,10 @@
       "setArtifactLofi": {
         "stability": "experimental",
         "signature": "(p: PrototypeInfo, path: string, on: boolean, fidelity: { setLofi(source: string, on: boolean): string; }) => Promise<void>"
+      },
+      "subscribeModuleAsset": {
+        "stability": "experimental",
+        "signature": "(module: string, asset: string, listener: () => void) => () => void"
       },
       "useFileTree": {
         "stability": "experimental",
@@ -1713,6 +1725,10 @@
       "stability": "experimental",
       "signature": "({ className, variant, render, ...props }: useRender.ComponentProps<\"span\"> & VariantProps<typeof badgeVariants>) => import(\"react\").ReactElement<unknown, string | import(\"react\").JSXElementConstructor<any>>"
     },
+    "BuildAsset": {
+      "stability": "experimental",
+      "signature": "{ watch: readonly string[]; load(context: { root: string; enabled: string[]; }): unknown | Promise<unknown>; }"
+    },
     "Button": {
       "stability": "experimental",
       "signature": "({ className, variant, size, ...props }: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) => import(\"react\").JSX.Element"
@@ -2091,7 +2107,7 @@
     },
     "ModuleBuild": {
       "stability": "experimental",
-      "signature": "<Data = unknown> { manifest?(context: { root: string; enabled: string[]; out: { log(...args: unknown[]): void; warn(...args: unknown[]): void; error(...args: unknown[]): void; }; }): { data: Data; errors: number; }; watch?: string[]; sourceFiles?(data: Data | undefined, context: { root: string; }): string[]; }"
+      "signature": "<Data = unknown> { assets?: Record<string, BuildAsset>; manifest?(context: { root: string; enabled: string[]; out: { log(...args: unknown[]): void; warn(...args: unknown[]): void; error(...args: unknown[]): void; }; }): { data: Data; errors: number; }; watch?: string[]; sourceFiles?(data: Data | undefined, context: { root: string; }): string[]; }"
     },
     "ModuleCheck": {
       "stability": "stable",
@@ -2485,6 +2501,10 @@
       "stability": "experimental",
       "signature": "() => Promise<Manifest>"
     },
+    "loadModuleAsset": {
+      "stability": "experimental",
+      "signature": "<T = unknown>(module: string, asset: string) => Promise<T>"
+    },
     "markdownFileModule": {
       "stability": "experimental",
       "signature": "(documents: ReturnType<typeof createLoader<MarkdownModule>>) => FileTypeModule"
@@ -2564,6 +2584,10 @@
     "setArtifactLofi": {
       "stability": "experimental",
       "signature": "(p: PrototypeInfo, path: string, on: boolean, fidelity: { setLofi(source: string, on: boolean): string; }) => Promise<void>"
+    },
+    "subscribeModuleAsset": {
+      "stability": "experimental",
+      "signature": "(module: string, asset: string, listener: () => void) => () => void"
     },
     "systemAddress": {
       "stability": "experimental",

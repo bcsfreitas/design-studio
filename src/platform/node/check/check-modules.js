@@ -1,3 +1,5 @@
+import { moduleBuilds } from '../lib/module-builds.js';
+import { buildAssetStore } from '../lib/build-assets.js';
 import { contributorPreferenceProblems } from '../../core/modules/preferences.ts';
 import { fileTypeDeclarationProblems } from '../lib/file-type-declarations.js';
 import { installedReferenceAdapters } from '../lib/reference-adapters.js';
@@ -55,6 +57,11 @@ import { ownershipFails, printOwnership } from './check-ownership.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
 const problems = declarationProblems();
+try {
+  buildAssetStore(moduleBuilds(), { root: ROOT, enabled: ENABLED_MODULES.map(module => module.id) });
+} catch (error) {
+  problems.push(error.message);
+}
 try {
   installedReferenceAdapters();
 } catch (error) {

@@ -40,6 +40,13 @@ export function artifactFixture(original = process.cwd()) {
     `export default {id:'fixture',label:'Fixture',version:'0.1.0',requires:'0.4.0',optional:true,lib:false,dependencies:{cn:'^0.4.0'},optimizeDependencies:['cn'],preferences:{defaults:{ready:false},fields:{ready:'boolean'}},hosts:[{id:'fixture/storyboard',scopes:['prototype'],references:'same-prototype'}]};\n`,
   );
   write(
+    'src/modules/fixture/build.ts',
+    `import type {ModuleBuild} from '#studio/module';
+import fs from 'node:fs'; import path from 'node:path';
+export default {assets:{report:{watch:['src/modules/fixture/data.json'],load:({root})=>JSON.parse(fs.readFileSync(path.join(root,'src/modules/fixture/data.json'),'utf8'))}}} satisfies ModuleBuild;\n`,
+  );
+  write('src/modules/fixture/data.json', JSON.stringify({ message: '__PUBLIC_ASSET_PROOF__' }));
+  write(
     'src/modules/fixture/type.ts',
     `
     import { defineFileType } from '#studio/files';
@@ -83,9 +90,10 @@ export default [defineReferenceAdapter({
 import { CodeIcon } from '@hugeicons/core-free-icons';
 import { type ModuleApp, MermaidDiagram, useStudioSettings } from '#studio/ui';
 import { adminProblems, type StudioConfig } from '#studio/module';
-import { compiledLifecycle, createPrototype, duplicatePrototype, renamePrototype, deletePrototype, fileOp, useManifest, type PrototypeInfo } from '#studio/data';
+import { compiledLifecycle, createPrototype, duplicatePrototype, renamePrototype, deletePrototype, fileOp, useManifest, type PrototypeInfo, loadModuleAsset } from '#studio/data';
 import { initialLifecycle, lifecycleAttributes } from '#studio/lifecycle';
 import { useEffect, useState } from 'react';
+function PublicAsset(){const [value,setValue]=useState('Pending asset');useEffect(()=>{loadModuleAsset<{message:string}>('fixture','report').then(data=>setValue(data.message)).catch(error=>setValue(error.message));},[]);return <p data-public-asset>{value}</p>;}
 function LocalSettings(){const settings=useStudioSettings(['name']);return <p data-public-settings>{settings.snapshot ? settings.snapshot.role : settings.error || 'Loading settings'}</p>;}
 function Mutations(){
   const inventory=useManifest();
@@ -107,7 +115,7 @@ function Probe(){
   useEffect(()=>{const tracker=compiledLifecycle({contributor:'artifact-fixture',prototype:'mixed',path:'main.tsx'},setState);tracker.ready();return ()=>tracker.dispose();},[]);
   return <section data-public-api-probe {...lifecycleAttributes(state)}><h2>Public API fixture</h2>
     <MermaidDiagram source={'graph LR\\n A-->B'} />
-    {import.meta.env.DEV && <><LocalSettings /><Mutations /></>}
+    <PublicAsset />{import.meta.env.DEV && <><LocalSettings /><Mutations /></>}
   </section>;
 }
 export const validAdmins = (config: Partial<StudioConfig>, people: string[]) => adminProblems(config,people);
@@ -120,6 +128,11 @@ export default {icon:CodeIcon,rail:'none',order:1000,overview:Probe} satisfies M
 import assert from 'node:assert/strict';
 import {resourceId, prototypeAddress, artifactAddress, systemAddress, parsePrototypeAddress} from '#studio/files';
 import {adminProblems} from '#studio/module';
+import {readContributorPreferences,updateContributorPreferences} from '#studio/preferences';
+const preferences=readContributorPreferences(process.cwd(),{actor:'artifact-fixture',module:'fixture'});
+assert.equal(preferences.value.ready,false);
+updateContributorPreferences(process.cwd(),{actor:'artifact-fixture',module:'fixture',base:preferences.version,value:{ready:true}});
+assert.equal(readContributorPreferences(process.cwd(),{actor:'artifact-fixture',module:'fixture'}).value.ready,true);
 const id=resourceId('0123456789abcdef'), child=resourceId('fedcba9876543210');
 assert.equal(prototypeAddress(id),'/prototypes/'+id);
 assert.equal(systemAddress(id),'/systems/'+id);
@@ -196,5 +209,9 @@ export default {
       timeout: 60000,
       maxBuffer: 32 * 1024 * 1024,
     });
+  const preferencePlan = path.join(root, '.fixture-preferences.json');
+  run('src/platform/node/cli/studio.js', 'preferences', '--module', 'fixture', '--plan', preferencePlan);
+  run('src/platform/node/cli/studio.js', 'preferences', '--apply', preferencePlan);
+  fs.rmSync(preferencePlan);
   return { root, base, write, run, env, dispose: () => fs.rmSync(root, { recursive: true, force: true }) };
 }
