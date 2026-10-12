@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Views owns the experimental `emptyView` runtime sentinel through `@module/view`. Prototype and file creation share its source template; the old shared sentinel path and duplicate prototype view scaffold are removed. Empty-state presentation remains in the View host.
+
 - Shared class and overlay helpers now use the experimental `#studio/runtime` API. System components, prototype helpers, and hosts share its portal context; the old utility files and saved shadcn aliases are removed. Empty views retain their existing sentinel until the separate View runtime contract.
 
 - Public API entries now declare their executable environments in one policy shared by checks and the development/build import guard. Transitive imports and re-exports cannot relay application services into Node tooling or prototype runtime, or bypass team code's public boundary. Explicit type-only imports remain erased, and Node-capable entries are exercised in a fresh process.

@@ -56,6 +56,8 @@ Open **Libraries** in a system to see its sources, libraries, versions, and docu
 
 Ask your agent, describing the goal and system. Or select **New prototype**, enter a title, and choose a system. The interface creates starting files; your agent builds the intended experience.
 
+New views show **This view is empty** until a component is implemented. Locally, **Copy prompt** includes the view's source path for your agent. Published views show the explanation without local source controls.
+
 The assigned system appears beneath the prototype title. Browsing another system does not change it. **No system — custom styling** uses local components and styles.
 
 The prototype keeps all its artifacts together, but they do not all use the product system to render. Views use its runtime toolkit. Documents, diagrams and canvas scenes use their own readers; embedded views keep their own system dependency.

@@ -1,4 +1,4 @@
-// What a view shows until something is built in it (its file exports emptyView, src/lib/emptyView.ts): a quiet
+// What a view shows until something is built in it (its file exports emptyView from @module/view): a quiet
 // page that says so, with a prompt to hand your agent. It's the platform's page, so it looks the same
 // whichever design system the prototype uses.
 import { useState } from 'react';

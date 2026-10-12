@@ -32,9 +32,9 @@ export default defineFileType({
   language: 'tsx',
   fidelity: { isLofi, setLofi },
 
-  // It starts as emptyView (src/lib/emptyView.ts), which the platform shows as an empty page, until something is built in it.
+  // View owns the runtime sentinel; the host supplies the empty-state presentation.
   template: () =>
-    `import { emptyView } from '@/lib/emptyView';\n\n// Empty until something is built here: describe it to your agent, who replaces this export with the view.\nexport default emptyView;\n`,
+    `import { emptyView } from '@module/view';\n\n// Empty until something is built here: describe it to your agent, who replaces this export with the view.\nexport default emptyView;\n`,
 
   // The app renders a view's default export.
   check: ({ source }) =>

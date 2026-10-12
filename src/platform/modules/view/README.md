@@ -6,6 +6,16 @@ The loader inventories prototype roots and registered module sections. Capabilit
 
 `references.ts` owns reference maintenance for JavaScript, TypeScript, and supporting CSS. The Node-only adapter API supplies target resolution while this module selects code and stylesheet syntax. Views declare `systemUsage: 'assigned'`; a missing assigned system blocks rendering and embeds while source remains available locally.
 
+## Empty views
+
+The public runtime entry `@module/view` exports only `emptyView` (experimental). It has no renderer, shell, discovery, or system dependencies. New views export this sentinel as their default until a component is implemented. The loader recognizes that exact function; an arbitrary component returning null is not an empty-view declaration.
+
+Prototype creation and file creation both use the View file type's `template`. Creation allocates the artifact identity separately. There is no second prototype view scaffold. Implementing a view replaces the sentinel import and default export while retaining its identity comment.
+
+The View host owns empty-state presentation in the preview document. Development shows the source path and copyable agent prompt; production shows the empty-state explanation without local source controls. Hosts and authored views resolve the same library entry, so sentinel identity survives bundling. The old `src/lib/emptyView.ts` path is removed.
+
+Empty declarations join the existing incomplete-view recovery path in development. A loader update discards those cached descriptors before reloading them. Unrelated mounted views retain their descriptors and state. This lets an implemented component replace the empty state without changing the artifact's identity or resetting the preview document.
+
 ## Preview boundary
 
 Studio loads an artifact descriptor. It does not import or render the prototype component in its document. `ViewFrame` and `ViewEmbed` use `preview/PreviewHost.tsx`; the iframe bootstraps `preview/main.tsx` and loads the real view through `loadView`. `PreviewSurface` owns assigned-system themes, lo-fi mode, navigation scope, portals, and React error containment.

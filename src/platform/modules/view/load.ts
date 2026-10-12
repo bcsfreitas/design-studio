@@ -3,7 +3,7 @@ import type { ArtifactContext } from '@/platform/app/data/fileTypeModule';
 import { artifactSlug } from '@/platform/app/data/manifest';
 import { PROTOTYPE_SYSTEMS } from '@/platform/modules/systems/data/systems';
 import { repoPath } from '@/platform/app/data/files';
-import { emptyView } from '@/lib/emptyView';
+import { emptyView } from './lib/index';
 import { views } from './loader';
 import { artifactSystemAvailability } from '@/platform/core/fileTypes';
 import viewType from './type';
@@ -26,9 +26,11 @@ export async function loadView({ proto, item }: ArtifactContext) {
     mod.default === emptyView ? { path: import.meta.env.DEV ? repoPath(proto, item.path) : null } : undefined;
   // A view file that doesn't export a component yet (say, one you're still writing) shows
   // an error in its place, instead of breaking the page.
-  const repoFile = `src/prototypes/${file.contributor}/${file.prototype}/${file.path}`;
+  const repoFile = repoPath(proto, item.path);
   const valid = typeof mod.default === 'function' || typeof mod.default === 'object';
-  if (!valid) views.incomplete.add(repoFile);
+  // Empty exports are not mounted as React components. Their replacement needs a fresh descriptor,
+  // rather than relying on Fast Refresh to update a component that never rendered.
+  if (empty || !valid) views.incomplete.add(repoFile);
   return {
     prototype: { ...proto, currentArtifactId: item.studioId },
     Component: valid

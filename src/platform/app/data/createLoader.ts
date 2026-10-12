@@ -24,8 +24,8 @@ type State<M> = {
   stamp: number;
   loaded: Map<string, Promise<M>>;
   waiting: (() => void)[];
-  // Files that loaded without what the app needs (a view with no component yet, a document
-  // that doesn't compile). When one changes, the router loads it again.
+  // Files awaiting an implementation (including empty-view sentinels), or without what the app needs.
+  // When the loader updates, discard these descriptors before asking the router to load them again.
   incomplete: Set<string>;
 };
 
@@ -108,6 +108,10 @@ export function createLoader<M>(glob: Glob<M>, hot: ImportMeta['hot']) {
       // A file that was incomplete reaches here once it's fixed: tell the router to load it
       // again (router.tsx).
       if (state.incomplete.size) {
+        for (const file of state.incomplete) {
+          const key = file.startsWith('src/') ? '/' + file.slice(4) : file;
+          state.loaded.delete(key);
+        }
         state.incomplete.clear();
         window.dispatchEvent(new Event('studio:views'));
       }
