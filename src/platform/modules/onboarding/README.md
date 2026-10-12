@@ -30,7 +30,7 @@ The module uses the application's `localOnly` extension, so published viewing si
 - `Welcome.tsx` owns the dialog, steps, dismissal, and text.
 - `ConceptPreview.tsx` owns the interactive system and artifact explanations.
 - `Illustrations.tsx` adapts lightweight line drawings from the creator’s marketing site to Studio theme colors and human-readable labels.
-- `progress.ts` handles the initial display request and browser fallback.
+- `progress.ts` shares one `callModule` claim across effect replay. Structured HTTP 422 failures suppress Welcome. Unavailable persistence and `show: null` use browser completion; malformed successful replies produce a visible error instead of activating a default.
 - `server.ts` exposes the same-origin local display claim; `node/progress.js` records the resolved contributor’s profile flag atomically.
 - [Use onboarding](skills/use-onboarding/SKILL.md) guides an agent helping a person take their first steps.
 

@@ -10,6 +10,7 @@ import { MODULES } from '@/platform/app/data/modules';
 import { canOwn, policyFor, canPerform, pathResource } from '@/platform/core/permissions';
 import type { Status } from '@/platform/core/archive';
 import { toast } from '@/platform/systems/studio/components/toast';
+import { requestJson } from './client';
 
 export type FileNode = { name: string; path: string; dir: boolean; children?: FileNode[] };
 
@@ -291,12 +292,9 @@ export async function deletePrototype(p: PrototypeInfo) {
 // Calls a route a module adds to the dev server (its server.ts, src/platform/core/modules/index.ts): POST /__studio/<module>/<route>.
 // Resolves with the server's reply, or throws its message.
 export async function callModule<T>(module: string, route: string, body: object): Promise<T> {
-  const res = await fetch(`/__studio/${module}/${route}`, {
+  return requestJson<T>(`/__studio/${module}/${route}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-Studio-Tab': TAB_ID },
     body: JSON.stringify(body),
   });
-  const reply = await res.json();
-  if (!res.ok) throw new Error(reply.error ?? 'Something went wrong. Check that the dev server is still running.');
-  return reply as T;
 }

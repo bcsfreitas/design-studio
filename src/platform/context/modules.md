@@ -33,7 +33,7 @@ Team modules (`src/modules/<id>/`) and team systems (`src/systems/<id>/`) import
 | `#studio/module` | `ModuleSpec`, `ModuleServer`, `ServerRoute`, `ModuleCheck`, `ModuleBuild` (experimental), `PLATFORM_VERSION`. | Application and Node. |
 | `#studio/system` | `SystemSpec`, `SystemLibrary`, `SystemIntro`, and the types inside them. | Types anywhere. |
 | `#studio/files` | Declaring a file type in `type.ts`: `defineFileType`, `FileTypeSpec`, capabilities, identity, and the Markdown declaration to extend. | Application and Node. |
-| `#studio/data` | Reading content in the app: the manifest, `contribution<Data>`, the studio identity (`APP_NAME`, `TAGLINE`, read-only `CONFIG`), a prototype's files, the current contributor and edit permissions, `callModule`, and what a file type's `loader.ts` and `open.tsx` implement. | Application. |
+| `#studio/data` | Reading content in the app: the manifest, `contribution<Data>`, the studio identity (`APP_NAME`, `TAGLINE`, read-only `CONFIG`), a prototype's files, the current contributor and edit permissions, `callModule`, structured `ClientError` failures, and what a file type's `loader.ts` and `open.tsx` implement. | Application. |
 | `#studio/ui` | Browser app contributions (`ModuleApp`, `PaletteContext`, `PrototypeAction`) and the shell's building blocks: section navigation, home blocks, collections, documents, and the source editor. | Application. |
 | `#studio/components` | Studio's interface components, such as `Button`, `Dialog`, `Input`, `Tooltip`, menus, and `toast`. | Application. |
 | `#studio/references` | Node source adapters, resolution context types and shared code, Markdown and CSS source grammars. | Node only. |

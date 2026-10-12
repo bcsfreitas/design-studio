@@ -1,13 +1,23 @@
 import assert from 'node:assert/strict';
-import { test } from 'node:test';
-import { complete, isComplete, progressKey } from './progress.ts';
+import { test, after } from 'node:test';
+import { createServer } from 'vite';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { claimWelcome } from './node/progress.js';
 import server from './server.ts';
 import check from './check.ts';
-import { claimIntroduction, recordIntroduction } from './progress.ts';
+// Exercise the browser-only public entry through Vite, rather than loading it in native Node.
+const browser = await createServer({
+  configFile: path.resolve('vite.config.ts'),
+  configLoader: 'native',
+  server: { middlewareMode: true, hmr: false, ws: false, watch: null },
+  optimizeDeps: { noDiscovery: true },
+});
+after(() => browser.close());
+const { complete, isComplete, progressKey, claimIntroduction, recordIntroduction } = await browser.ssrLoadModule(
+  '/platform/modules/onboarding/progress.ts',
+);
 
 test('onboarding completion persists and does not cross base paths', () => {
   const data = new Map<string, string>();
@@ -171,4 +181,20 @@ test('a missing profile declaration cannot activate browser fallback', async t =
     async () => new Response(JSON.stringify({ error: 'Declare welcomeDismissed.' }), { status: 422 }),
   );
   assert.equal(await claimIntroduction(progressKey('/invalid-declaration/', 'newcomer')), false);
+});
+
+test('unavailable persistence uses browser fallback but malformed successful replies fail clearly', async t => {
+  t.mock.method(globalThis, 'fetch', async () => {
+    throw new TypeError('offline');
+  });
+  assert.equal(await claimIntroduction(progressKey('/unavailable/')), true);
+  complete(progressKey('/unavailable-completed/'));
+  assert.equal(await claimIntroduction(progressKey('/unavailable-completed/')), false);
+  for (const [index, body] of ['{}', '{"show":"yes"}', 'not json'].entries()) {
+    t.mock.method(globalThis, 'fetch', async () => new Response(body));
+    await assert.rejects(
+      claimIntroduction(progressKey('/malformed/' + index)),
+      /progress must declare|unreadable reply/,
+    );
+  }
 });

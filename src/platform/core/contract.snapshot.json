@@ -126,6 +126,10 @@
         "stability": "stable",
         "signature": "{ readonly $schema?: string | undefined; readonly formatVersion: number; readonly name: string; readonly usage: \"personal\" | \"team\"; readonly admins?: readonly string[] | undefined; readonly systemMaintainers: { readonly [x: string]: readonly string[]; }; readonly tagline?: string | undefined; readonly modules: { readonly [x: string]: boolean; }; readonly systems: readonly string[]; readonly defaultSystem: string; }"
       },
+      "ClientError": {
+        "stability": "experimental",
+        "signature": "new (code: string, message: string, status?: number, cause?: unknown): ClientError { \"cause\"?: unknown; \"message\": string; \"name\": string; \"stack\"?: string | undefined; readonly \"code\": string; readonly \"status\"?: number | undefined } static {  }"
+      },
       "DocFrontmatter": {
         "stability": "experimental",
         "signature": "{ title?: string; description?: string; toc?: boolean; }"
@@ -1178,6 +1182,10 @@
     "Checkbox": {
       "stability": "experimental",
       "signature": "({ className, ...props }: CheckboxPrimitive.Root.Props) => import(\"react\").JSX.Element"
+    },
+    "ClientError": {
+      "stability": "experimental",
+      "signature": "new (code: string, message: string, status?: number, cause?: unknown): ClientError { \"cause\"?: unknown; \"message\": string; \"name\": string; \"stack\"?: string | undefined; readonly \"code\": string; readonly \"status\"?: number | undefined } static {  }"
     },
     "Collapsible": {
       "stability": "experimental",

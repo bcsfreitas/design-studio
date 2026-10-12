@@ -66,6 +66,8 @@ export { writeSource } from '../app/data/files.ts';
 export { SourceChanged } from '../core/source/access.ts';
 /** @experimental Calls a route of a module's server.ts: POST /__studio/<module>/<route>. */
 export { callModule } from '../app/data/files.ts';
+/** @experimental A client failure with a machine-readable code, optional HTTP status, and display message. */
+export { ClientError } from '../core/client-error.ts';
 /** @experimental Loads a file type's files from its loader.ts glob. */
 export { createLoader } from '../app/data/createLoader.ts';
 /** @experimental Loads Markdown pages from a glob, with frontmatter. */

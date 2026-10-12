@@ -3,6 +3,7 @@
   "groups": {
     "runtime": {
       "tests": [
+        "src/platform/app/data/client.test.ts",
         "src/platform/node/build/files/editor.test.js",
         "src/platform/node/build/rehype-mermaid.test.js",
         "src/platform/node/build/vite-deployment-recovery-plugin.test.js",
