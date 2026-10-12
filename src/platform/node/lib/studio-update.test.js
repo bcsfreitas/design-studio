@@ -83,7 +83,7 @@ test('without an upstream remote the update says how to add one', () => {
   const { studio } = setup({ remote: false });
   const plan = planUpdate(studio.dir);
   assert.match(plan.problems[0], /no "upstream" remote/);
-  assert.deepEqual(plan.help, ['git remote add upstream https://github.com/itspatmorgan/design-studio-starter.git']);
+  assert.deepEqual(plan.help, ['git remote add upstream https://github.com/itspatmorgan/design-studio.git']);
 });
 
 test('a dirty working tree is refused', () => {

@@ -13,7 +13,7 @@ import { readLock, recordPlatform } from './lock.js';
 import { mapProblems, tierOf } from './ownership.js';
 
 export const UPSTREAM_REMOTE = 'upstream';
-export const UPSTREAM_URL = 'https://github.com/itspatmorgan/design-studio-starter.git';
+export const UPSTREAM_URL = 'https://github.com/itspatmorgan/design-studio.git';
 export const TAG_REFS = 'refs/studio/upstream-tags';
 export const BRANCH_PREFIX = 'studio-update/v';
 export const branchFor = version => `${BRANCH_PREFIX}${version}`;
