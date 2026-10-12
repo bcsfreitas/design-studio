@@ -198,8 +198,14 @@ test('local personal setup resumes, then a second clone joins a team without cha
     assert.doesNotMatch(run(dir, 'src/platform/node/cli/setup-contributor.js', ...join), /Warning:/);
     const profile = path.join(dir, 'contributors/sam.json');
     const registered = JSON.parse(fs.readFileSync(profile, 'utf8'));
-    assert.equal(registered.welcomeDismissed, false);
-    fs.writeFileSync(profile, JSON.stringify({ ...registered, welcomeDismissed: true }));
+    assert.equal(registered.preferences.onboarding.welcomeDismissed, false);
+    fs.writeFileSync(
+      profile,
+      JSON.stringify({
+        ...registered,
+        preferences: { ...registered.preferences, onboarding: { welcomeDismissed: true } },
+      }),
+    );
     const contributor = fs.readFileSync(profile, 'utf8');
     assert.match(run(dir, 'src/platform/node/cli/setup-contributor.js', ...join), /already/);
     assert.equal(fs.readFileSync(path.join(dir, 'contributors/sam.json'), 'utf8'), contributor);

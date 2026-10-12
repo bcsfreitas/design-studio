@@ -17,6 +17,7 @@ export const API_POLICY = {
   ui: ['application'],
   components: ['application'],
   references: ['node'],
+  preferences: ['node'],
   lifecycle: ['application', 'node'],
   runtime: ['application', 'runtime'],
 } as const satisfies Record<string, readonly ApiEnvironment[]>;

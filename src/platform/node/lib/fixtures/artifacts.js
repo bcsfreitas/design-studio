@@ -21,7 +21,13 @@ export function artifactFixture(original = process.cwd()) {
   });
   fs.symlinkSync(path.join(original, 'node_modules'), path.join(root, 'node_modules'));
   linkSystemDependencies(original, root);
-  writeProfiles(root, { 'artifact-fixture': { name: 'Artifact Fixture', email: 'artifact@example.test' } });
+  writeProfiles(root, {
+    'artifact-fixture': {
+      name: 'Artifact Fixture',
+      email: 'artifact@example.test',
+      preferences: { onboarding: { welcomeDismissed: true }, fixture: { ready: false } },
+    },
+  });
   const configFile = path.join(root, 'studio.config.json');
   const config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
   const contributor = JSON.parse(fs.readFileSync(path.join(root, 'contributors/artifact-fixture.json')));
@@ -31,7 +37,7 @@ export function artifactFixture(original = process.cwd()) {
   fs.writeFileSync(configFile, JSON.stringify(config, null, 2) + '\n');
   write(
     'src/modules/fixture/module.ts',
-    `export default {id:'fixture',label:'Fixture',version:'0.1.0',requires:'0.4.0',optional:true,lib:false,hosts:[{id:'fixture/storyboard',scopes:['prototype'],references:'same-prototype'}]};\n`,
+    `export default {id:'fixture',label:'Fixture',version:'0.1.0',requires:'0.4.0',optional:true,lib:false,preferences:{defaults:{ready:false},fields:{ready:'boolean'}},hosts:[{id:'fixture/storyboard',scopes:['prototype'],references:'same-prototype'}]};\n`,
   );
   write(
     'src/modules/fixture/type.ts',

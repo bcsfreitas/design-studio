@@ -4,7 +4,7 @@
   "formatVersions": {
     "config": 1,
     "prototype": 1,
-    "contributor": 1
+    "contributor": 2
   },
   "api": {
     "#studio/module": {
@@ -22,7 +22,7 @@
       },
       "ModuleSpec": {
         "stability": "stable",
-        "signature": "{ id: string; label: string; version: string; description?: string; requires: string; optional: boolean; hosts?: readonly HostSurfaceSpec[]; settings?: { group: \"prototyping\" | \"systems\" | \"team\"; order: number; }; section?: { key: string; folder?: string; items?: \"prototypes\"; policy?: \"maintainers\" | \"open\"; standalone?: boolean; byPerson?: boolean; }; lib: boolean; instructions?: { path: string; when?: string; }[]; dependencies?: Record<string, string>; upstream?: { repo: string; version: string; license: string; }; }"
+        "signature": "{ id: string; label: string; version: string; description?: string; requires: string; optional: boolean; hosts?: readonly HostSurfaceSpec[]; preferences?: PreferenceSpec; settings?: { group: \"prototyping\" | \"systems\" | \"team\"; order: number; }; section?: { key: string; folder?: string; items?: \"prototypes\"; policy?: \"maintainers\" | \"open\"; standalone?: boolean; byPerson?: boolean; }; lib: boolean; instructions?: { path: string; when?: string; }[]; dependencies?: Record<string, string>; upstream?: { repo: string; version: string; license: string; }; }"
       },
       "PLATFORM_VERSION": {
         "stability": "stable",
@@ -933,6 +933,16 @@
         "signature": "(text: any, file: any, { appTarget, navigation, importedTarget, link }: { appTarget: any; navigation: any; importedTarget: any; link: any; }) => any"
       }
     },
+    "#studio/preferences": {
+      "readContributorPreferences": {
+        "stability": "experimental",
+        "signature": "(root: any, { actor, contributor, module }: { actor: any; contributor?: any; module: any; }) => { value: any; version: string; }"
+      },
+      "updateContributorPreferences": {
+        "stability": "experimental",
+        "signature": "(root: any, { actor, contributor, module, base, value }: { actor: any; contributor?: any; module: any; base: any; value: any; }) => any"
+      }
+    },
     "#studio/lifecycle": {
       "AgentActivity": {
         "stability": "experimental",
@@ -1430,6 +1440,10 @@
     "#studio/module.ModuleSpec.ArtifactAvailabilityContext": {
       "stability": "experimental",
       "signature": "{ local: boolean; editable: boolean; present: boolean; renderer: boolean; scope: \"prototype\" | \"systemContent\"; systemMissing?: { label: string; }; }"
+    },
+    "#studio/module.ModuleSpec.PreferenceSpec": {
+      "stability": "stable",
+      "signature": "{ defaults: Record<string, string | number | boolean>; fields: Record<string, \"string\" | \"number\" | \"boolean\">; legacy?: Record<string, string>; }"
     },
     "#studio/system.SystemIntro.DesignSystem": {
       "stability": "stable",
@@ -2089,7 +2103,7 @@
     },
     "ModuleSpec": {
       "stability": "stable",
-      "signature": "{ id: string; label: string; version: string; description?: string; requires: string; optional: boolean; hosts?: readonly HostSurfaceSpec[]; settings?: { group: \"prototyping\" | \"systems\" | \"team\"; order: number; }; section?: { key: string; folder?: string; items?: \"prototypes\"; policy?: \"maintainers\" | \"open\"; standalone?: boolean; byPerson?: boolean; }; lib: boolean; instructions?: { path: string; when?: string; }[]; dependencies?: Record<string, string>; upstream?: { repo: string; version: string; license: string; }; }"
+      "signature": "{ id: string; label: string; version: string; description?: string; requires: string; optional: boolean; hosts?: readonly HostSurfaceSpec[]; preferences?: PreferenceSpec; settings?: { group: \"prototyping\" | \"systems\" | \"team\"; order: number; }; section?: { key: string; folder?: string; items?: \"prototypes\"; policy?: \"maintainers\" | \"open\"; standalone?: boolean; byPerson?: boolean; }; lib: boolean; instructions?: { path: string; when?: string; }[]; dependencies?: Record<string, string>; upstream?: { repo: string; version: string; license: string; }; }"
     },
     "MoveReferenceContext": {
       "stability": "experimental",
@@ -2519,6 +2533,10 @@
       "stability": "experimental",
       "signature": "(p: Pick<PrototypeInfo, \"contributorKey\" | \"id\" | \"studioId\">) => { readonly to: \"/$contributor/$prototype\"; readonly params: { readonly contributor: string; readonly prototype: string; }; } | { readonly to: \"/prototypes/$prototype\"; readonly params: { readonly prototype: ResourceId; }; }"
     },
+    "readContributorPreferences": {
+      "stability": "experimental",
+      "signature": "(root: any, { actor, contributor, module }: { actor: any; contributor?: any; module: any; }) => { value: any; version: string; }"
+    },
     "readSource": {
       "stability": "experimental",
       "signature": "(p: PrototypeInfo, path: string) => Promise<{ content: string; version: string; }>"
@@ -2558,6 +2576,10 @@
     "toast": {
       "stability": "experimental",
       "signature": "import(\"@base-ui/react\").ToastManager<any>"
+    },
+    "updateContributorPreferences": {
+      "stability": "experimental",
+      "signature": "(root: any, { actor, contributor, module, base, value }: { actor: any; contributor?: any; module: any; base: any; value: any; }) => any"
     },
     "useFileTree": {
       "stability": "experimental",

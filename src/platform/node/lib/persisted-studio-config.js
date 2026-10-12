@@ -8,14 +8,14 @@ import { resolveStudioReferences } from '../../core/resourceReferences.ts';
 
 // This reader never accepts mutable-key relationship fallbacks. Managed source
 // writers retain `persisted`; existing filesystem APIs consume `config` instead.
-export function readPersistedStudioConfig(root) {
+export function readPersistedStudioConfig(root, options = {}) {
   const file = path.join(root, CONFIG_FILE);
   if (!canonicalDirectory(root, root) || fs.lstatSync(file).isSymbolicLink() || !fs.lstatSync(file).isFile())
     throw new Error(`${CONFIG_FILE} must be an ordinary file.`);
   const source = fs.readFileSync(file, 'utf8');
   const declaration = parseConfigFile(source);
   if ('error' in declaration) throw new Error(declaration.error);
-  const directory = readResourceDirectory(root);
+  const directory = readResourceDirectory(root, options);
   return {
     file,
     source,

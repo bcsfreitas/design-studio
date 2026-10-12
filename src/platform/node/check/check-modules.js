@@ -1,3 +1,4 @@
+import { contributorPreferenceProblems } from '../../core/modules/preferences.ts';
 import { fileTypeDeclarationProblems } from '../lib/file-type-declarations.js';
 import { installedReferenceAdapters } from '../lib/reference-adapters.js';
 import { scopePolicy } from '../lib/scope.js';
@@ -132,6 +133,7 @@ for (const m of specs) {
 }
 
 const { contributors: contributorMap, problems: contributorProblems } = readContributors();
+problems.push(...contributorPreferenceProblems(contributorMap, ENABLED_MODULES));
 const contributors = Object.keys(contributorMap);
 problems.push(...adminProblems(CONFIG, contributors).filter(problem => !problems.includes(problem)));
 problems.push(...contributorProblems);

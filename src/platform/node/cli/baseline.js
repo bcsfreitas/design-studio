@@ -1,3 +1,6 @@
+import { ENABLED_MODULES } from '../lib/modules.js';
+import { preferenceDefaults } from '../../core/modules/preferences.ts';
+import { FORMAT_VERSIONS } from '../../core/formats.ts';
 // Maintainer tool: measures how modular the platform is and how fast it builds, so a refactor can show
 // it changed neither the product nor the speed. Everything runs in a scratch copy under the system
 // temp folder; the repo is only read.
@@ -274,11 +277,11 @@ function fixture(count) {
     fs.writeFileSync(
       path.join(dir, 'contributors', `person${p}.json`),
       JSON.stringify({
-        formatVersion: 1,
+        formatVersion: FORMAT_VERSIONS.contributor,
         name: `Person ${p}`,
         github: `person${p}`,
         email: '',
-        welcomeDismissed: false,
+        preferences: preferenceDefaults(ENABLED_MODULES),
       }),
     );
   for (let i = 0; i < count; i++) {

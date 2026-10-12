@@ -27,8 +27,7 @@ export function keyForGithub(login, contributors = loadContributors()) {
 }
 
 /** Current contributor's key: Git email first, with unambiguous alternatives for unavailable email. */
-export function resolveContributor() {
-  const contributors = loadContributors();
+export function resolveContributor(contributors = loadContributors()) {
   const email = run('git', ['config', 'user.email']).toLowerCase();
   const byEmail = Object.keys(contributors).filter(key => email && contributors[key].email?.toLowerCase() === email);
   if (byEmail.length === 1) return byEmail[0];

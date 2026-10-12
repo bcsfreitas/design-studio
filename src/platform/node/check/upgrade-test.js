@@ -357,6 +357,25 @@ export default function RepairDemo() { return <main><h1>Retained implemented vie
   };
   verify();
   if (repairRuntime) {
+    step('Preview and explicitly initialize retained contributor preference namespaces');
+    const preferencePlan = path.join(box, 'preferences.json');
+    run(studio, 'pnpm', ['studio', 'preferences', '--plan', preferencePlan]);
+    const plan = JSON.parse(fs.readFileSync(preferencePlan));
+    for (const edit of plan.edits) {
+      const before = JSON.parse(edit.before),
+        after = JSON.parse(edit.after);
+      for (const [key, value] of Object.entries(before))
+        if (key !== 'formatVersion' && JSON.stringify(value) !== JSON.stringify(after[key]))
+          throw new Error(`Preference initialization changed retained field ${key}`);
+    }
+    run(studio, 'pnpm', ['studio', 'preferences', '--apply', preferencePlan]);
+    const emptyPlan = path.join(box, 'preferences-repeat.json');
+    run(studio, 'pnpm', ['studio', 'preferences', '--plan', emptyPlan]);
+    if (JSON.parse(fs.readFileSync(emptyPlan)).edits.length)
+      throw new Error('Preference initialization was not idempotent.');
+    if (plan.edits.length) commit(studio, 'Reviewed contributor preference initialization');
+  }
+  if (repairRuntime) {
     step('Refuse ambiguous imports and custom helpers, then perform explicit manual resolution');
     const blocked = spawnSync('pnpm', ['studio', 'repair-runtime-imports', '--json'], {
       cwd: studio,

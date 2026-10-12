@@ -31,7 +31,7 @@ test('profile validation catches missing declarations and ambiguous identities',
   assert.equal(readContributors(root).problems.length, 2);
   fs.writeFileSync(path.join(root, 'contributors/alex.json'), JSON.stringify({ name: '', welcomeDismissed: 'yes' }));
   const { problems } = readContributors(root);
-  for (const field of ['name', 'email', 'github', 'welcomeDismissed']) assert.ok(problems.some(p => p.includes(field)));
+  for (const field of ['name', 'email', 'github', 'preferences']) assert.ok(problems.some(p => p.includes(field)));
 });
 
 test('linked profiles, invalid keys, and non-object profiles are rejected', t => {
@@ -77,7 +77,7 @@ test('a profile without the current formatVersion is a problem that names the fi
   const profile = JSON.parse(fs.readFileSync(file, 'utf8'));
   delete profile.formatVersion;
   fs.writeFileSync(file, JSON.stringify(profile));
-  assert.match(readContributors(root).problems.join('\n'), /contributors\/sam\.json: add "formatVersion": 1/);
-  fs.writeFileSync(file, JSON.stringify({ ...profile, formatVersion: 2 }));
-  assert.match(readContributors(root).problems.join('\n'), /contributors\/sam\.json: formatVersion is 2/);
+  assert.match(readContributors(root).problems.join('\n'), /contributors\/sam\.json: add "formatVersion": 2/);
+  fs.writeFileSync(file, JSON.stringify({ ...profile, formatVersion: 3 }));
+  assert.match(readContributors(root).problems.join('\n'), /contributors\/sam\.json: formatVersion is 3/);
 });

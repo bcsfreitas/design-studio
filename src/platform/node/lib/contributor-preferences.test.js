@@ -47,3 +47,108 @@ test('preference transactions reject foreign actors, stale versions, and symlink
   fs.symlinkSync(current.file + '.original', current.file);
   assert.throws(() => readPreferenceProfile(root, 'sam'), /ordinary/);
 });
+
+import {
+  readContributorPreferences,
+  updateContributorPreferences,
+  planContributorPreferences,
+  applyContributorPreferences,
+} from './contributor-preferences.js';
+function declarations(root) {
+  for (const file of [
+    'src/platform/modules/onboarding/module.ts',
+    'src/platform/systems/studio/system.ts',
+    'src/systems/product/system.ts',
+    'src/systems/marketing/system.ts',
+  ]) {
+    fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
+    fs.copyFileSync(file, path.join(root, file));
+  }
+  const config = JSON.parse(fs.readFileSync('studio.config.json'));
+  config.usage = 'personal';
+  config.admins = ['0123456789abcdef'];
+  fs.writeFileSync(path.join(root, 'studio.config.json'), JSON.stringify(config));
+  const file = path.join(root, 'contributors/sam.json');
+  const profile = JSON.parse(fs.readFileSync(file));
+  fs.writeFileSync(
+    file,
+    JSON.stringify({
+      ...profile,
+      formatVersion: 2,
+      email: '',
+      github: '',
+      preferences: { ...profile.preferences, onboarding: { welcomeDismissed: false } },
+    }),
+  );
+}
+test('public namespace writes validate declarations and cannot change identities or other namespaces', t => {
+  const root = fixture(t);
+  declarations(root);
+  const current = readContributorPreferences(root, { actor: 'sam', module: 'onboarding' });
+  assert.throws(
+    () =>
+      updateContributorPreferences(root, {
+        actor: 'sam',
+        module: 'onboarding',
+        base: current.version,
+        value: { welcomeDismissed: 'yes' },
+      }),
+    error => error.status === 422,
+  );
+  updateContributorPreferences(root, {
+    actor: 'sam',
+    module: 'onboarding',
+    base: current.version,
+    value: { welcomeDismissed: true },
+  });
+  assert.throws(
+    () =>
+      updateContributorPreferences(root, {
+        actor: 'sam',
+        module: 'onboarding',
+        base: current.version,
+        value: { welcomeDismissed: false },
+      }),
+    error => error.status === 409,
+  );
+  const profile = readPreferenceProfile(root, 'sam').profile;
+  assert.equal(profile.studioId, '0123456789abcdef');
+  assert.deepEqual(profile.preferences.research, { keep: 3 });
+});
+test('initialization previews legacy state, revalidates saved plans, and preserves disabled state', t => {
+  const root = fixture(t);
+  declarations(root);
+  const file = path.join(root, 'contributors/sam.json');
+  const profile = JSON.parse(fs.readFileSync(file));
+  delete profile.preferences.onboarding;
+  profile.formatVersion = 1;
+  profile.welcomeDismissed = true;
+  fs.writeFileSync(file, JSON.stringify(profile));
+  const before = fs.readFileSync(file, 'utf8');
+  const plan = planContributorPreferences(root, 'sam');
+  assert.equal(fs.readFileSync(file, 'utf8'), before);
+  fs.appendFileSync(file, '\n');
+  assert.throws(
+    () => applyContributorPreferences(root, 'sam', plan),
+    error => error.status === 409,
+  );
+  applyContributorPreferences(root, 'sam', planContributorPreferences(root, 'sam'));
+  assert.equal(readPreferenceProfile(root, 'sam').profile.preferences.onboarding.welcomeDismissed, true);
+  assert.deepEqual(planContributorPreferences(root, 'sam').edits, []);
+  const configFile = path.join(root, 'studio.config.json');
+  const config = JSON.parse(fs.readFileSync(configFile));
+  config.modules.onboarding = false;
+  fs.writeFileSync(configFile, JSON.stringify(config));
+  assert.throws(() => readContributorPreferences(root, { actor: 'sam', module: 'onboarding' }), /disabled/);
+  assert.deepEqual(planContributorPreferences(root, 'sam', 'onboarding').edits, []);
+  config.modules.onboarding = true;
+  fs.writeFileSync(configFile, JSON.stringify(config));
+  assert.equal(readContributorPreferences(root, { actor: 'sam', module: 'onboarding' }).value.welcomeDismissed, true);
+  config.usage = 'team';
+  config.admins = [];
+  fs.writeFileSync(configFile, JSON.stringify(config));
+  assert.throws(
+    () => planContributorPreferences(root, 'sam'),
+    error => error.status === 403,
+  );
+});

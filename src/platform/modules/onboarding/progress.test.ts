@@ -6,7 +6,11 @@ import os from 'node:os';
 import path from 'node:path';
 import { claimWelcome } from './node/progress.js';
 import server from './server.ts';
-import check from './check.ts';
+import { contributorPreferenceProblems } from '../../core/modules/preferences.ts';
+import { readContributors } from '../../node/lib/contributors.js';
+import onboarding from './module.ts';
+const check = ({ root }: { root: string }) =>
+  contributorPreferenceProblems(readContributors(root).contributors, [onboarding]);
 // Exercise the browser-only public entry through Vite, rather than loading it in native Node.
 const browser = await createServer({
   configFile: path.resolve('vite.config.ts'),
@@ -53,13 +57,27 @@ const fixture = (t: { after: (fn: () => void) => void }) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'studio-welcome-'));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   fs.mkdirSync(path.join(root, 'contributors'));
+  fs.mkdirSync(path.join(root, 'src/platform/modules/onboarding'), { recursive: true });
+  fs.writeFileSync(
+    path.join(root, 'src/platform/modules/onboarding/module.ts'),
+    'export default ' + JSON.stringify(onboarding) + ';',
+  );
+  fs.writeFileSync(
+    path.join(root, 'studio.config.json'),
+    JSON.stringify({ ...JSON.parse(fs.readFileSync('studio.config.json', 'utf8')), modules: { onboarding: true } }),
+  );
   fs.writeFileSync(
     path.join(root, 'contributors/owner.json'),
-    JSON.stringify({ name: 'Owner', extra: 'keep', welcomeDismissed: false }),
+    JSON.stringify({ name: 'Owner', extra: 'keep', preferences: { onboarding: { welcomeDismissed: false } } }),
   );
   fs.writeFileSync(
     path.join(root, 'contributors/newcomer.json'),
-    JSON.stringify({ name: 'Newcomer', email: 'new@example.test', custom: { keep: true }, welcomeDismissed: false }),
+    JSON.stringify({
+      name: 'Newcomer',
+      email: 'new@example.test',
+      custom: { keep: true },
+      preferences: { onboarding: { welcomeDismissed: false } },
+    }),
   );
   return root;
 };
@@ -74,38 +92,44 @@ test('each contributor gets Welcome once and keeps their own progress across res
     name: 'Newcomer',
     email: 'new@example.test',
     custom: { keep: true },
-    welcomeDismissed: true,
+    preferences: { onboarding: { welcomeDismissed: true } },
   });
   const owner = JSON.parse(fs.readFileSync(path.join(root, 'contributors/owner.json'), 'utf8'));
-  assert.deepEqual(owner, { name: 'Owner', extra: 'keep', welcomeDismissed: true });
+  assert.deepEqual(owner, { name: 'Owner', extra: 'keep', preferences: { onboarding: { welcomeDismissed: true } } });
   const other = fixture(t);
   assert.equal(claimWelcome(other, 'owner'), true);
 });
 
 test('unregistered exploration and legacy studio state cannot dismiss a new contributor', t => {
   const root = fixture(t);
-  fs.writeFileSync(path.join(root, 'studio.config.json'), '{ "welcomeDismissed": true }');
+  const configSource = fs.readFileSync(path.join(root, 'studio.config.json'), 'utf8');
   fs.writeFileSync(path.join(root, '.design-studio-welcome-dismissed'), '');
   const before = fs.readFileSync(path.join(root, 'contributors/newcomer.json'), 'utf8');
   assert.equal(claimWelcome(root, null), null);
   assert.equal(fs.readFileSync(path.join(root, 'contributors/newcomer.json'), 'utf8'), before);
   assert.equal(claimWelcome(root, 'newcomer'), true);
-  assert.equal(fs.readFileSync(path.join(root, 'studio.config.json'), 'utf8'), '{ "welcomeDismissed": true }');
+  assert.equal(fs.readFileSync(path.join(root, 'studio.config.json'), 'utf8'), configSource);
 });
 
 test('progress preserves other roster entries and honors explicit false', t => {
   const root = fixture(t);
   const file = path.join(root, 'contributors/colleague.json');
-  fs.writeFileSync(file, JSON.stringify({ name: 'Colleague', welcomeDismissed: true }));
+  fs.writeFileSync(
+    file,
+    JSON.stringify({ name: 'Colleague', preferences: { onboarding: { welcomeDismissed: true } } }),
+  );
   assert.equal(claimWelcome(root, 'owner'), true);
-  assert.deepEqual(JSON.parse(fs.readFileSync(file, 'utf8')), { name: 'Colleague', welcomeDismissed: true });
+  assert.deepEqual(JSON.parse(fs.readFileSync(file, 'utf8')), {
+    name: 'Colleague',
+    preferences: { onboarding: { welcomeDismissed: true } },
+  });
 });
 
 test('invalid, unknown and linked profiles are preserved', t => {
   const root = fixture(t);
   const file = path.join(root, 'contributors/newcomer.json');
-  fs.writeFileSync(file, '{"name":"Newcomer","welcomeDismissed":"yes"}');
-  assert.throws(() => claimWelcome(root, 'newcomer'), /false or true/);
+  fs.writeFileSync(file, '{"name":"Newcomer","preferences":{"onboarding":{"welcomeDismissed":"yes"}}}');
+  assert.throws(() => claimWelcome(root, 'newcomer'), /as boolean/);
   assert.match(fs.readFileSync(file, 'utf8'), /"yes"/);
   assert.throws(() => claimWelcome(root, '../elsewhere'), /Invalid contributor/);
   assert.throws(() => claimWelcome(root, 'unknown'), /not registered/);
@@ -166,10 +190,10 @@ test('missing declarations fail validation and runtime without changing the prof
   const file = path.join(root, 'contributors/newcomer.json');
   const source = '{"name":"Newcomer"}';
   fs.writeFileSync(file, source);
-  assert.match(check({ root }).join(' '), /newcomer.*declare welcomeDismissed explicitly/);
-  assert.throws(() => claimWelcome(root, 'newcomer'), /declare.*explicitly/i);
+  assert.match(check({ root }).join(' '), /newcomer.*declare a preference object/);
+  assert.throws(() => claimWelcome(root, 'newcomer'), /declare a preference object/i);
   assert.equal(fs.readFileSync(file, 'utf8'), source);
-  fs.writeFileSync(file, '{"name":"Newcomer","welcomeDismissed":true}');
+  fs.writeFileSync(file, '{"name":"Newcomer","preferences":{"onboarding":{"welcomeDismissed":true}}}');
   assert.deepEqual(check({ root }), []);
   assert.equal(claimWelcome(root, 'newcomer'), false);
 });

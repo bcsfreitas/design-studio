@@ -13,6 +13,23 @@ import { MODULE_ROOTS, TEAM_MODULES_ROOT } from '../roots.ts';
 export const PLATFORM_VERSION = '0.4.0';
 export const CORE_PAGE_KEYS = ['settings'] as const;
 
+// A bounded schema: every named primitive field is required; module checks may add domain constraints.
+export type PreferenceSpec = {
+  defaults: Record<string, string | number | boolean>;
+  fields: Record<string, 'string' | 'number' | 'boolean'>;
+  // Explicit transition from old top-level fields. Initialization retains those fields for human review.
+  legacy?: Record<string, string>;
+};
+export function preferenceProblems(value: unknown, schema: PreferenceSpec): string[] {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return ['declare a preference object'];
+  const object = value as Record<string, unknown>;
+  return Object.entries(schema.fields).flatMap(([field, type]) =>
+    typeof object[field] !== type || (type === 'number' && !Number.isFinite(object[field]))
+      ? [`declare ${field} as ${type}`]
+      : [],
+  );
+}
+
 export type ModuleSpec = {
   id: string; // the folder's name
   label: string; // "Examples"
@@ -25,6 +42,7 @@ export type ModuleSpec = {
   optional: boolean;
   // Explicit host policies; absent/disabled hosts leave retained references unavailable.
   hosts?: readonly HostSurfaceSpec[];
+  preferences?: PreferenceSpec;
   // Where Studio settings lists the module: one of its groups and a place within it, low first. Without one it is listed with the other modules.
   settings?: { group: 'prototyping' | 'systems' | 'team'; order: number };
   // The top-level area the module adds: its address in the app (/examples) and, if it keeps content, the folder
@@ -132,6 +150,32 @@ export function moduleProblems(spec: unknown, folder: string, dir = `${TEAM_MODU
   )
     problems.push(`${where}: settings must be { group: 'prototyping' | 'systems' | 'team', order: <number> }.`);
   if (typeof m.optional !== 'boolean') problems.push(`${where}: declare optional as true or false.`);
+  if (m.preferences !== undefined) {
+    const p = m.preferences;
+    if (
+      !p ||
+      !p.fields ||
+      typeof p.fields !== 'object' ||
+      Array.isArray(p.fields) ||
+      !Object.keys(p.fields).length ||
+      Object.entries(p.fields).some(
+        ([field, type]) => !/^[a-zA-Z][a-zA-Z0-9]*$/.test(field) || !['boolean', 'string', 'number'].includes(type),
+      ) ||
+      preferenceProblems(p.defaults, p).length ||
+      Object.keys(p.defaults).some(field => !Object.hasOwn(p.fields, field)) ||
+      (p.legacy !== undefined &&
+        (!p.legacy ||
+          typeof p.legacy !== 'object' ||
+          Array.isArray(p.legacy) ||
+          Object.entries(p.legacy).some(
+            ([field, old]) =>
+              !Object.hasOwn(p.fields, field) || typeof old !== 'string' || !/^[a-zA-Z][a-zA-Z0-9]*$/.test(old),
+          )))
+    )
+      problems.push(
+        `${where}: preferences need required primitive fields, matching explicit defaults, and valid legacy mappings.`,
+      );
+  }
   if (m.hosts !== undefined) {
     if (!Array.isArray(m.hosts)) problems.push(`${where}: hosts must be a list of host declarations.`);
     else

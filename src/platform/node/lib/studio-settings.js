@@ -1,3 +1,4 @@
+import { contributorPreferenceProblems } from '../../core/modules/preferences.ts';
 import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
@@ -74,6 +75,12 @@ export function planSettings({
     if (next.modules?.[module.id] === true && current.config.modules?.[module.id] !== true && !compatible(module))
       problems.push(`${module.label} is incompatible with this platform version.`);
   }
+  problems.push(
+    ...contributorPreferenceProblems(
+      contributors,
+      modules.filter(module => next.modules?.[module.id] === true && current.config.modules?.[module.id] !== true),
+    ),
+  );
   if (problems.length) throw new SettingsError(problems.join('\n'));
   const changed = Object.fromEntries(
     Object.entries(changes).filter(
