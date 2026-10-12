@@ -186,10 +186,11 @@ test('private module consumers and symlink scopes are rejected; disabled app and
       `
       import type { ModuleApp } from '#studio/ui';
       import { APP_NAME, contribution, type Manifest } from '#studio/data';
+      import { cn } from '#studio/runtime';
       import { Home01Icon } from '@hugeicons/core-free-icons';
       function Overview({manifest}: {manifest: Manifest}) {
         const data = contribution<{label: string}>(manifest, 'extra');
-        return <div>{APP_NAME}: {data?.label ?? '__PUBLIC_CONTRIBUTION_MISSING__'}</div>;
+        return <div className={cn('runtime-consumer')}>{APP_NAME}: {data?.label ?? '__PUBLIC_CONTRIBUTION_MISSING__'}</div>;
       }
       export default {icon: Home01Icon, rail: 'none', order: 50, overview: Overview} satisfies ModuleApp;
     `,

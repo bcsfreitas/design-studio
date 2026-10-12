@@ -8,7 +8,7 @@ import { MoreHorizontalIcon } from '@hugeicons/core-free-icons';
 import type { PrototypeInfo } from '@/platform/app/data/types';
 import { usePrototypeActions } from '@/platform/modules/prototypes/viewer/usePrototypeActions';
 import { menuGroups } from '@/platform/app/shell/menuGroups';
-import { cn } from '@/lib/utils';
+import { cn } from '#studio/runtime';
 import {
   DropdownMenu,
   DropdownMenuContent,

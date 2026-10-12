@@ -36,6 +36,7 @@ Team modules (`src/modules/<id>/`) and team systems (`src/systems/<id>/`) import
 | `#studio/components` | Studio's interface components, such as `Button`, `Dialog`, `Input`, `Tooltip`, menus, and `toast`. | Application. |
 | `#studio/references` | Node source adapters, resolution context types and shared code, Markdown and CSS source grammars. | Node only. |
 | `#studio/lifecycle` | Renderer-neutral source, preparation and displayed revision state, input digests and DOM evidence. | Application and Node. |
+| `#studio/runtime` | `cn`, `PortalContext`, and `usePortalContainer` for shared class names and themed overlays. | Application and runtime. |
 
 ### Environment policy
 
@@ -43,7 +44,7 @@ Team modules (`src/modules/<id>/`) and team systems (`src/systems/<id>/`) import
 
 - **Application:** Studio's browser contributions and system overviews.
 - **Node:** module declarations, `type.ts`, `server.ts`, `check.ts`, `build.ts`, `references.ts`, `cli.ts`, module `node/` helpers, and system declarations.
-- **Runtime:** prototype code, system components and libraries, shared utilities, and public module libraries. Existing runtime scopes still apply. No public API entry currently grants executable runtime access.
+- **Runtime:** prototype code, system components and libraries, shared utilities, and public module libraries. Existing runtime scopes still apply. `#studio/runtime` is the narrow executable entry for these consumers; application services and Node tooling remain unavailable.
 
 Explicit type-only imports and re-exports from public entries are available in every environment. They do not load the implementation. Private imports remain invalid even when they import only types.
 
@@ -52,6 +53,8 @@ Explicit type-only imports and re-exports from public entries are available in e
 Every public entry's executable graph is checked in each declared environment. Node graphs reject browser globals, renderer imports, JSX, browser application code, and Vite browser features. Application and runtime graphs reject Node built-ins and platform Node tooling. Runtime graphs cannot reach the Studio shell. Erased type dependencies are excluded from this executable graph; existing dependency and module-removal checks still apply to them.
 
 The graph follows repository source, not npm package implementations. Packages remain governed by declared dependencies and runtime scope checks. These checks enforce source contracts, not a security sandbox. A Node import regression also loads every Node-capable public entry in a fresh process.
+
+Artifact hosts and Systems examples provide `PortalContext` with their themed container. System overlays read it through `usePortalContainer()` and pass that element to their portal implementation. Both import `#studio/runtime`, so the provider and consumers use one context instance per document. `cn` remains a shared runtime dependency; prototypes do not gain permission to import its package directly. The runtime entry must remain independent of shell, settings, manifest, routing, and discovery code.
 
 `src/platform/api/*.ts` lists each export with a JSDoc tag:
 

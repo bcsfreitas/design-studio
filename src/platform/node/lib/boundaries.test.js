@@ -47,7 +47,7 @@ test('runtime dependency scopes reject indirect, private, documentation and dott
       ['src/systems/product/components/button.tsx', 'src/systems/studio/components/button.tsx', false],
       ['src/systems/product/components/button.tsx', 'src/prototypes/sam/other/main.tsx', false],
       ['src/systems/product/components/button.tsx', 'src/systems/brand/components/button.tsx', false],
-      ['src/systems/product/components/button.tsx', 'src/lib/portal.ts', true],
+      ['src/systems/product/components/button.tsx', 'src/lib/shared.ts', true],
       ['src/lib/shared.ts', 'src/prototypes/sam/other/main.tsx', false],
       ['src/lib/shared.ts', 'src/systems/product/components/button.tsx', false],
       ['src/lib/shared.ts', 'src/lib/other.ts', true],
@@ -476,7 +476,7 @@ test('team modules and systems reach the platform only through #studio/*; suppli
     );
     // A module's public library, wherever it lives, and anything outside src/platform/ are judged elsewhere.
     assert.equal(platformImportProblem(file, 'src/platform/modules/canvas/lib/index.ts', '@module/canvas'), null, file);
-    assert.equal(platformImportProblem(file, 'src/lib/utils.ts', '@/lib/utils'), null, file);
+    assert.equal(platformImportProblem(file, 'src/lib/shared.ts', '@/lib/shared'), null, file);
     assert.equal(platformImportProblem(file, 'src/modules/other/lib/index.ts', '@module/other'), null, file);
   }
   assert.match(

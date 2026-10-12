@@ -1,5 +1,5 @@
 import { useEffect, useState, type RefObject } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '#studio/runtime';
 
 type Heading = { id: string; text: string; level: 2 | 3 };
 

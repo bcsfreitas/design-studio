@@ -7,7 +7,7 @@
 // A section with more to show (a prototype's title, editable, with its menu) builds its own title
 // row and keeps the rest.
 import type { ReactNode } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '#studio/runtime';
 
 export function NavHeader({ className, children }: { className?: string; children: ReactNode }) {
   return <div className={cn('shrink-0 px-2 pt-3', className)}>{children}</div>;

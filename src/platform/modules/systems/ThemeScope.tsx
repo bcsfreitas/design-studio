@@ -1,7 +1,7 @@
 import { useSyncExternalStore, type ComponentProps } from 'react';
 import { SYSTEM_SPECS } from './data/systems';
 import { systemColorMode } from './spec';
-import { cn } from '@/lib/utils';
+import { cn } from '#studio/runtime';
 
 // One observer serves every mounted view and preview.
 const listeners = new Set<() => void>();

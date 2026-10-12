@@ -1,5 +1,5 @@
 import styles from './theme-docs.module.css';
-import { PortalContext } from '@/lib/portal';
+import { PortalContext } from '#studio/runtime';
 import type { ColorMode } from '../spec';
 import type { DesignSystem } from '@/platform/app/data/types';
 import { useEffect, useRef, useState, type ReactNode, type Ref } from 'react';

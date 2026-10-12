@@ -8,7 +8,7 @@ import { TEAM_MODULES_ROOT, TEAM_SYSTEMS_ROOT } from '../roots.ts';
 export const API_FOLDER = 'src/platform/api';
 export type ApiEnvironment = 'application' | 'node' | 'runtime';
 // The single inventory of public entries and their executable environments. Explicit type-only imports are
-// available in every environment; system has no executable exports. No runtime entry is offered yet.
+// available in every environment; system has no executable exports.
 export const API_POLICY = {
   module: ['application', 'node'],
   system: [],
@@ -18,6 +18,7 @@ export const API_POLICY = {
   components: ['application'],
   references: ['node'],
   lifecycle: ['application', 'node'],
+  runtime: ['application', 'runtime'],
 } as const satisfies Record<string, readonly ApiEnvironment[]>;
 export const API_ENTRIES = Object.keys(API_POLICY) as (keyof typeof API_POLICY)[];
 export const apiSpecifier = (entry: string) => `#studio/${entry}`;

@@ -20,7 +20,7 @@ import { matchesSystem } from '@/platform/app/data/manifest';
 import { PROTOTYPE_SYSTEMS } from '@/platform/modules/systems/data/systems';
 import { newestFirst } from '@/platform/app/data/manifest';
 import type { PrototypeInfo } from '@/platform/app/data/types';
-import { cn } from '@/lib/utils';
+import { cn } from '#studio/runtime';
 import { ArchivedHeading, Collection, ViewToggle } from '@/platform/app/items/Collection';
 import NewPrototypeButton from '@/platform/modules/prototypes/gallery/NewPrototypeDialog';
 import PrototypeCard, { PrototypeRow } from './PrototypeCard';

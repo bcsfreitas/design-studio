@@ -1,5 +1,5 @@
 import { Badge } from '@/systems/product/components/badge';
-import { cn } from '@/lib/utils';
+import { cn } from '#studio/runtime';
 import { PRIORITIES, STATUSES, type Priority, type Status } from './store';
 
 // Status colors come from the theme, so they follow light and dark mode.

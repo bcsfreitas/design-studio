@@ -842,6 +842,20 @@
         "stability": "experimental",
         "signature": "(value: unknown) => value is ArtifactLifecycle"
       }
+    },
+    "#studio/runtime": {
+      "PortalContext": {
+        "stability": "experimental",
+        "signature": "import(\"react\").Context<HTMLElement | null>"
+      },
+      "cn": {
+        "stability": "experimental",
+        "signature": "(...inputs: ClassValue[]) => string"
+      },
+      "usePortalContainer": {
+        "stability": "experimental",
+        "signature": "() => HTMLElement | null"
+      }
     }
   },
   "types": {
@@ -1553,6 +1567,10 @@
       "stability": "stable",
       "signature": "{ manifest: Manifest; current: Prototype | undefined; isOpen: (item: Artifact) => boolean; go: (to: NavigateOptions) => void; }"
     },
+    "PortalContext": {
+      "stability": "experimental",
+      "signature": "import(\"react\").Context<HTMLElement | null>"
+    },
     "Preparation": {
       "stability": "experimental",
       "signature": "{ generation: number; attempt: number; revision: SourceRevision; }"
@@ -1904,6 +1922,10 @@
     "useMe": {
       "stability": "experimental",
       "signature": "() => string | null"
+    },
+    "usePortalContainer": {
+      "stability": "experimental",
+      "signature": "() => HTMLElement | null"
     },
     "useSourceView": {
       "stability": "experimental",

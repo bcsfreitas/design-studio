@@ -2,8 +2,7 @@
 
 import * as React from "react"
 import { Dialog as SheetPrimitive } from "@base-ui/react/dialog"
-import { cn } from "@/lib/utils"
-import { usePortalContainer } from "@/lib/portal"
+import { cn, usePortalContainer } from "#studio/runtime"
 
 import { Button } from "@/systems/product/components/button"
 import { XIcon } from "lucide-react"

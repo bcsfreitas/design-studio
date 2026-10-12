@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Shared class and overlay helpers now use the experimental `#studio/runtime` API. System components, prototype helpers, and hosts share its portal context; the old utility files and saved shadcn aliases are removed. Empty views retain their existing sentinel until the separate View runtime contract.
+
 - Public API entries now declare their executable environments in one policy shared by checks and the development/build import guard. Transitive imports and re-exports cannot relay application services into Node tooling or prototype runtime, or bypass team code's public boundary. Explicit type-only imports remain erased, and Node-capable entries are exercised in a fresh process.
 
 - Restore the ongoing public demo links to the existing custom-domain GitHub Pages deployment. ChatGPT Sites is an optional publishing-workflow demonstration.

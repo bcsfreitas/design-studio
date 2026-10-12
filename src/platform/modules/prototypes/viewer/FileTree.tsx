@@ -82,7 +82,7 @@ import {
   DialogTitle,
 } from '@/platform/systems/studio/components/dialog';
 import { menuGroups } from '@/platform/app/shell/menuGroups';
-import { cn } from '@/lib/utils';
+import { cn } from '#studio/runtime';
 
 const row = navRow;
 const indent = navIndent;

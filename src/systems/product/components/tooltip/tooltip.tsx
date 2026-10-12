@@ -1,6 +1,5 @@
 import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip"
-import { cn } from "@/lib/utils"
-import { usePortalContainer } from "@/lib/portal"
+import { cn, usePortalContainer } from "#studio/runtime"
 
 function TooltipProvider({
   delay = 0,

@@ -8,7 +8,7 @@ import {
   Settings01Icon,
 } from '@hugeicons/core-free-icons';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/platform/systems/studio/components/tooltip';
-import { cn } from '@/lib/utils';
+import { cn } from '#studio/runtime';
 import type { ReactNode } from 'react';
 import { Link, useRouterState, type LinkProps } from '@tanstack/react-router';
 import { useOpenPalette } from '@/platform/app/shell/paletteContext';

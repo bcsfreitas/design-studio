@@ -61,7 +61,7 @@ test('system configuration survives staging and capture without redirecting writ
     fs.writeFileSync(
       path.join(root, 'package.json'),
       JSON.stringify({
-        dependencies: { react: '19', 'react-dom': '19', 'tailwind-merge': '3' },
+        dependencies: { react: '19', 'react-dom': '19', cn: '0.4.0' },
         devDependencies: { tailwindcss: '4', vite: '8' },
       }),
     );
@@ -87,6 +87,13 @@ test('system configuration survives staging and capture without redirecting writ
     assert.equal(staged.style, config.style);
     assert.deepEqual(staged.registries, config.registries);
     assert.equal(staged.aliases.ui, '@/components/ui');
+    assert.equal(staged.aliases.utils, '@/utils');
+    assert.equal(fs.readFileSync(path.join(plan.workspace, 'src/utils.ts'), 'utf8'), 'export { cn } from "cn";\n');
+    assert.ok(!fs.existsSync(path.join(plan.workspace, 'src/lib/utils.ts')));
+    assert.equal(
+      JSON.parse(fs.readFileSync(path.join(plan.workspace, 'package.json'), 'utf8')).dependencies.cn,
+      '0.4.0',
+    );
     assert.equal(staged.tailwind.css, 'src/index.css');
     assert.equal(fs.readFileSync(path.join(plan.workspace, 'DESIGN.md'), 'utf8'), '# Brand\nUse square controls.\n');
     assert.equal(plan.source.designMd.sha256.length, 64);
@@ -114,6 +121,7 @@ test('system configuration survives staging and capture without redirecting writ
     saveShadcnConfig(root, 'example', plan.workspace);
     const saved = JSON.parse(fs.readFileSync(path.join(target, 'components.json'), 'utf8'));
     assert.equal(saved.aliases.ui, '@/systems/example/components');
+    assert.equal(saved.aliases.utils, '#studio/runtime');
     assert.equal(saved.tailwind.css, 'styles/theme.css');
     assert.deepEqual(saved.registries, config.registries);
     assert.equal(saved.style, config.style);

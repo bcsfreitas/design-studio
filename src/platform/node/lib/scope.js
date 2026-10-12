@@ -14,11 +14,13 @@ export const systemDocumentation = (file, dir) =>
 
 // Where a prototype gets what it cannot import by bare name.
 const prototypeImportAdvice = (name, system) =>
-  name === '@tanstack/react-router'
-    ? "Import Link and useNavigate from '@module/prototypes'."
-    : system
-      ? `Import it through a declared library entry of the assigned system (${system}), such as '@/systems/${system}/libraries/<entry>' (icons come from its icons library).`
-      : 'A prototype with no system can import only React and React DOM; assign a system to use its libraries.';
+  name === 'cn'
+    ? "Import cn from '#studio/runtime'."
+    : name === '@tanstack/react-router'
+      ? "Import Link and useNavigate from '@module/prototypes'."
+      : system
+        ? `Import it through a declared library entry of the assigned system (${system}), such as '@/systems/${system}/libraries/<entry>' (icons come from its icons library).`
+        : 'A prototype with no system can import only React and React DOM; assign a system to use its libraries.';
 
 export function scopePolicy({ root, systems, modules, prototypeDirs = [] }) {
   root = realFile(root);
@@ -148,7 +150,7 @@ export function scopePolicy({ root, systems, modules, prototypeDirs = [] }) {
             (scope.kind === 'Module library' && !lib.optional)));
       return allowed
         ? null
-        : `${scope.kind} scope: ${path.relative(src, importer)} imports ${path.relative(src, target)} outside its runtime boundary. Use its own files, permitted shared utilities, assigned system components, or an enabled module's public @module/<id> entry.`;
+        : `${scope.kind} scope: ${path.relative(src, importer)} imports ${path.relative(src, target)} outside its runtime boundary. Use #studio/runtime, its own files, permitted shared utilities, assigned system components, or an enabled module's public @module/<id> entry.`;
     },
   };
 }

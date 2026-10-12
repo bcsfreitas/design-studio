@@ -1,7 +1,7 @@
 // App UI command menu (shadcn's Command, on cmdk + Base UI Dialog). Renders into document.body, in the app UI look.
 import * as React from 'react';
 import { Command as CommandPrimitive } from 'cmdk';
-import { cn } from '@/lib/utils';
+import { cn } from '#studio/runtime';
 
 import {
   Dialog,

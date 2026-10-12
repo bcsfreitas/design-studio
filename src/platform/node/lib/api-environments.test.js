@@ -144,6 +144,37 @@ test('runtime libraries reject application and Node dependencies; public types r
   );
 });
 
+test('runtime API access is granted by the inventory for prototypes, systems and module libraries', t => {
+  const { root, write, options } = fixture(t);
+  const policy = scopePolicy({ ...options, systems: { product: { dir: 'src/systems/product' } } });
+  const target = path.join(root, 'src/platform/api/runtime.ts');
+  for (const rel of [
+    'src/prototypes/sam/probe/main.tsx',
+    'src/systems/product/components/button.tsx',
+    'src/modules/probe/lib/index.ts',
+  ]) {
+    const file = write(rel, "export {value} from '#studio/runtime';");
+    assert.equal(policy.problem('#studio/runtime', file, target), null, rel);
+    assert.deepEqual(policy.apiProblems(file), [], rel);
+    assert.match(policy.problem('@/platform/api/runtime', file, target), /public API|runtime boundary/, rel);
+  }
+  const server = write('src/modules/probe/server.ts', "import '#studio/runtime';");
+  assert.match(policy.apiProblems(server).join('\n'), /cannot execute in node/);
+  assert.match(policy.packageProblem('cn', path.join(root, 'src/prototypes/sam/probe/main.tsx')), /#studio\/runtime/);
+});
+
+test('runtime entry graphs cannot grow dependencies on shell services or Node tooling', t => {
+  const { write, policy } = fixture(t);
+  for (const [source, file, expected] of [
+    ['../app/service.ts', 'src/platform/app/service.ts', /Studio application/],
+    ['../node/service.js', 'src/platform/node/service.js', /Node-only/],
+  ]) {
+    write(file, 'export const value = 1;');
+    write('src/platform/api/runtime.ts', `export {value} from '${source}';`);
+    assert.ok(policy.apiEntryProblems(['runtime']).some(problem => expected.test(problem)));
+  }
+});
+
 test('application consumers reject Node APIs behind local helpers and retain permitted browser imports', t => {
   const { write, policy } = fixture(t);
   const app = write('src/modules/probe/app.tsx', "import './helper';");

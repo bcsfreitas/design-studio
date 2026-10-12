@@ -7,7 +7,7 @@ import { FileNotFoundIcon } from '@hugeicons/core-free-icons';
 import { FILE_TYPES, fileTypeModules } from '@/platform/app/data/fileTypes';
 import { artifactLabel, artifactLink } from '@/platform/app/data/manifest';
 import type { Artifact, Prototype } from '@/platform/app/data/types';
-import { cn } from '@/lib/utils';
+import { cn } from '#studio/runtime';
 import { artifactSystemAvailability } from '@/platform/core/fileTypes';
 
 export const ITEM_CARD_HEIGHT = 88;

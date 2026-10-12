@@ -18,6 +18,7 @@ import rehypeFileEmbeds from './src/platform/node/build/rehype-file-embeds.js';
 import { documentCodeTheme } from './src/platform/systems/studio/styles/contentPalette.js';
 import tailwindcss from '@tailwindcss/vite';
 import importGuard from './src/platform/node/build/vite-import-guard-plugin.js';
+import publicApi from './src/platform/node/build/vite-public-api-plugin.js';
 import manifestWatch from './src/platform/node/build/vite-manifest-watch-plugin.js';
 import spa404 from './src/platform/node/build/vite-spa-404-plugin.js';
 import socialMetadata from './src/platform/node/build/vite-social-metadata-plugin.js';
@@ -128,6 +129,7 @@ export default defineConfig({
     react({ include: /\.[jt]sx$/ }),
     markdownRefresh(),
     importGuard(),
+    publicApi(),
     // Resolve public libraries after the guard sees the original @module import.
     // Vite aliases run earlier and would hide that explicit public entrypoint.
     {

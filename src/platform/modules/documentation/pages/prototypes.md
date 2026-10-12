@@ -46,6 +46,8 @@ A system supplies the shared foundation for multiple prototypes.
 
 Keep reusable knowledge in the system's **Context**. Keep an exploration's brief, decisions, and open questions with its prototype. Ask the agent to update existing guidance rather than duplicate it.
 
+System pop-ups stay inside their themed container, including when a view is embedded. Shared runtime helpers connect system overlays to their host.
+
 Product and Marketing are starter examples. **Studio**, marked **Platform**, powers the application itself and is unavailable for prototypes.
 
 Open **Libraries** in a system to see its sources, libraries, versions, and documentation. Ask your agent to add a library when needed. It can use more of that library's capabilities without importing every component first. Adding a library to one system does not make it available to another.

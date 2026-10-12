@@ -4,7 +4,7 @@
 // failures and no icon otherwise; it doesn't use description.
 import * as React from 'react';
 import { Toast as ToastPrimitive } from '@base-ui/react/toast';
-import { cn } from '@/lib/utils';
+import { cn } from '#studio/runtime';
 
 import { Button } from '@/platform/systems/studio/components/button';
 import { HugeiconsIcon } from '@hugeicons/react';

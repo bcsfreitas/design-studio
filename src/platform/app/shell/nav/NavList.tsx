@@ -6,7 +6,7 @@
 //       <Link className={navLinkClass} …>Introduction</Link>
 //     <NavGroup heading="Theme">…
 import type { CSSProperties, ReactNode } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '#studio/runtime';
 import { navIndent, navRow, navRowState } from '@/platform/app/shell/nav/navRow';
 
 // The scrolling body under the header.

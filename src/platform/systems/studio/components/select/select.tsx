@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Select as SelectPrimitive } from '@base-ui/react/select';
-import { cn } from '@/lib/utils';
+import { cn } from '#studio/runtime';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowDown01Icon, ArrowUp01Icon, Tick02Icon } from '@hugeicons/core-free-icons';
 

@@ -1,5 +1,5 @@
 import { Tooltip as TooltipPrimitive } from '@base-ui/react/tooltip';
-import { cn } from '@/lib/utils';
+import { cn } from '#studio/runtime';
 
 // App UI tooltip. Renders into document.body, outside .product-theme, on purpose.
 function TooltipProvider({ delay = 0, ...props }: TooltipPrimitive.Provider.Props) {

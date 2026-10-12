@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { MessageSquareText } from '@/systems/product/libraries/icons';
 import { Avatar, AvatarFallback } from '@/systems/product/components/avatar';
 import { Button } from '@/systems/product/components/button';
-import { cn } from '@/lib/utils';
+import { cn } from '#studio/runtime';
 import { Link } from '@module/prototypes';
 import { useIsOn } from './nav';
 import { NO_FILTER, resetData, showFiltered } from './store';

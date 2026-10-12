@@ -20,7 +20,7 @@ A system lives in a folder named for its id, in one of two system roots, and con
 | `package.json` | Prototype-system dependency ownership and shared React peer requirements. |
 | `libraries/` | Declared external library entries available to assigned prototypes. |
 
-A team system's `system.ts` and `intro.tsx` import their declaration types, `SystemSpec` and `SystemIntro`, from `#studio/system`. Team systems import platform code only through the [public API](../../context/modules.md#public-api); runtime components import none.
+A team system's `system.ts` and `intro.tsx` import their declaration types, `SystemSpec` and `SystemIntro`, from `#studio/system`. Team systems import platform code only through the [public API](../../context/modules.md#public-api); runtime components use the narrow `#studio/runtime` entry for shared class names and themed portals.
 
 `system.ts`, introductions, examples, and Markdown are documentation adapters. Runtime components and prototypes cannot import these adapters.
 
@@ -44,11 +44,11 @@ The starter Product system and new system scaffolds declare both modes. New scaf
 
 ## Runtime boundaries
 
-System runtime code may depend on its own runtime files, independent shared utilities, its declared package dependencies, shared React runtime, and enabled public module libraries through `@module/<id>`. Other systems, prototype files, private platform implementation, and documentation adapters are outside its runtime boundary. Indirect and type-only dependencies follow the same requirements. Dynamic imports use literal paths. [System libraries and dependencies](context/libraries.md) owns package manifests, public library declarations, installation, and access rules.
+System runtime code may depend on its own runtime files, independent shared utilities, `#studio/runtime`, its declared package dependencies, shared React runtime, and enabled public module libraries through `@module/<id>`. Other systems, prototype files, private platform implementation, and documentation adapters are outside its runtime boundary. Indirect and type-only dependencies follow the same requirements. Dynamic imports use literal paths. [System libraries and dependencies](context/libraries.md) owns package manifests, public library declarations, installation, and access rules.
 
 Theme selectors and imported stylesheets stay under the system's unique theme class or its descendants. Keyframe names use the theme class followed by a dash. Font-face registration is permitted and follows the [static asset convention](../../context/assets.md#scope-and-fonts).
 
-Pop-ups render within the themed container. Starter Base UI portals pass `usePortalContainer()` as their `container`. This preserves system styling and local color-mode behavior.
+Pop-ups render within the themed container. Starter Base UI portals import `usePortalContainer` from `#studio/runtime` and pass its result as their `container`. Hosts provide the same entry's `PortalContext`. This preserves system styling and local color-mode behavior.
 
 ## Permanent identity and routes
 

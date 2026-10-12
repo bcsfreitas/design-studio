@@ -95,11 +95,11 @@ Remove the comment for normal appearance. A folder named `lofi` has no special b
 
 ## Dependency boundaries
 
-Prototype runtime code may depend on its own files, its assigned system's runtime components, assets, and declared library entries, independent shared utilities, React and React DOM (the only packages Studio supplies to every prototype), and enabled public module libraries. Icons and other libraries come from the assigned system's declared library entries, and navigation from `@module/prototypes`. A direct import of `lucide-react`, `@tanstack/react-router`, or any other package is an error in `pnpm check` and the development and build import guard. System documentation adapters are outside runtime code.
+Prototype runtime code may depend on its own files, its assigned system's runtime components, assets, and declared library entries, `#studio/runtime`, independent shared utilities, React and React DOM (the only packages Studio supplies to every prototype), and enabled public module libraries. Icons and other libraries come from the assigned system's declared library entries, and navigation from `@module/prototypes`. A direct import of `lucide-react`, `@tanstack/react-router`, or any other package is an error in `pnpm check` and the development and build import guard. System documentation adapters are outside runtime code.
 
 Public module libraries are accessed through `@module/<id>` only. Private platform implementation, another prototype, and another system are outside this boundary. An enabled module must declare a public library before it can be reused this way.
 
-These requirements apply to indirect and type-only dependencies. Dynamic imports use literal paths so checks can resolve them. Shared utilities cannot depend on prototypes, systems, or platform code. External package access follows [System libraries and dependencies](../systems/context/libraries.md); installed root packages are not automatically available.
+These requirements apply to indirect and type-only dependencies. Dynamic imports use literal paths so checks can resolve them. Shared utilities cannot depend on prototypes, systems, or private platform code. Shared runtime helpers use `#studio/runtime`; `@/lib/utils` and `@/lib/portal` are obsolete. External package access follows [System libraries and dependencies](../systems/context/libraries.md); installed root packages are not automatically available.
 
 Prototype styles use Tailwind classes or CSS Modules with local selectors. Plain CSS imports, `:global`, and CSS `@import` are not supported in prototype code. Assigned system tokens follow the [system styling contract](../systems/README.md#theme).
 
