@@ -36,18 +36,20 @@ export function artifactFixture(original = process.cwd()) {
   write(
     'src/modules/fixture/type.ts',
     `
-import { defineFileType, type ResourceId } from '#studio/files';
+    import { defineFileType } from '#studio/files';
+    import { fixtureIdentity } from './identity.ts';
 export default defineFileType({
   label: 'Fixture', extensions: ['.fixture'], language: 'json',
   systemUsage: 'independent', inPrototype: true, inSystemContent: false, fallback: false,
   capabilities: {source:true,create:true,fidelity:false,embeds:['document','canvas'],actions:[]},
-  identity: {
-    read(source) { return (JSON.parse(source).studioId ?? null) as ResourceId | null; },
-    write(source, id) { return JSON.stringify({...JSON.parse(source), studioId:id}, null, 2)+'\\n'; },
-  },
+  identity: fixtureIdentity,
   template: () => JSON.stringify({title:'Fixture', links:[]}),
 });
 `,
+  );
+  write(
+    'src/modules/fixture/identity.ts',
+    "import { jsonIdentityMetadata } from '#studio/files';\nexport const fixtureIdentity = jsonIdentityMetadata;\n",
   );
   write(
     'src/modules/fixture/loader.ts',

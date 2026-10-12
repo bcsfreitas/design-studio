@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { readPersistedStudioConfig } from './persisted-studio-config.js';
 import { canonicalDirectory } from './safe-paths.js';
-import { resourceId, jsonIdentity, createResourceId, canvasIdentity } from '../../core/resourceIdentity.ts';
+import { resourceId, jsonIdentity, createResourceId, jsonIdentityMetadata } from '../../core/resourceIdentity.ts';
 import { canPerform } from '../../core/permissions.ts';
 import { prototypeAssignment } from './prototype-assignment.js';
 import { readDeclaration } from '../../core/declarations.ts';
@@ -156,7 +156,7 @@ function planPrototypeIdentities(root, types, { ids, generate, select }) {
         after:
           resource.kind === 'artifact'
             ? types[resource.fileType].identity.write(before, id)
-            : canvasIdentity.write(before, id),
+            : jsonIdentityMetadata.write(before, id),
       });
     }
     resources.push({ ...resource, studioId: id });

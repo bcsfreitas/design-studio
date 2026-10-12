@@ -31,3 +31,9 @@ export { artifactAddress } from '../core/resourceIdentity.ts';
 export { systemAddress } from '../core/resourceIdentity.ts';
 /** @experimental Parses permanent prototype/artifact addresses; mutable content paths are not accepted. */
 export { parsePrototypeAddress } from '../core/resourceIdentity.ts';
+/** @experimental Reads a single unambiguous JSON metadata identity. */
+export { jsonIdentity } from '../core/resourceIdentity.ts';
+/** @experimental Generic JSON metadata identity adapter; format ownership remains in each module. */
+export { jsonIdentityMetadata } from '../core/resourceIdentity.ts';
+/** @experimental Validates zero or one identity declarations, rejecting duplicates. */
+export { identityFromDeclarations } from '../core/resourceIdentity.ts';

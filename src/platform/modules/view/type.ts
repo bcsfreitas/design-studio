@@ -1,5 +1,6 @@
+import { viewIdentity } from './identity.ts';
 // A view: a React component in a .tsx or .jsx file, opened as a page in the prototype.
-import { defineFileType, viewIdentity } from '../../core/fileTypes.ts';
+import { defineFileType } from '#studio/files';
 
 // Lofi is a comment at the top of the view, above any code: /** @lofi */
 const HEADER = /^\uFEFF?(?:\s|\/\*[\s\S]*?\*\/|\/\/[^\n]*)*/;

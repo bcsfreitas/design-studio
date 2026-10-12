@@ -8,6 +8,8 @@ The loader inventories prototype roots and registered module sections. Capabilit
 
 ## Empty views
 
+`identity.ts` owns the leading-comment identity grammar used by `type.ts`. The platform's generic identity tooling consumes that declaration; it does not name View's adapter.
+
 The public runtime entry `@module/view` exports only `emptyView` (experimental). It has no renderer, shell, discovery, or system dependencies. New views export this sentinel as their default until a component is implemented. The loader recognizes that exact function; an arbitrary component returning null is not an empty-view declaration.
 
 Prototype creation and file creation both use the View file type's `template`. Creation allocates the artifact identity separately. There is no second prototype view scaffold. Implementing a view replaces the sentinel import and default export while retaining its identity comment.

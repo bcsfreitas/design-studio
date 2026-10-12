@@ -1,3 +1,4 @@
+import { viewIdentity } from '../../modules/view/identity.ts';
 import { linkSystemDependencies } from './fixtures/workspace-dependencies.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -6,7 +7,6 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { parseConfigFile, serializeConfig, withSettings } from '../../core/config-file.ts';
-import { viewIdentity } from '../../core/resourceIdentity.ts';
 
 // Public authoring commands must preserve identities, permissions and permanent links.
 test('public CLI assigns a newly authored prototype and strict readers resolve its retained identity', () => {

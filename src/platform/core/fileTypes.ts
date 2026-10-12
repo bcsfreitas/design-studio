@@ -13,12 +13,9 @@
 import { markdownIdentity } from './resourceIdentity.ts';
 import type { IdentityMetadata } from './resourceIdentity.ts';
 export {
-  canvasIdentity,
   createResourceId,
-  diagramIdentity,
   markdownIdentity,
   resourceId,
-  viewIdentity,
   parsePrototypeAddress,
   prototypeAddress,
   artifactAddress,

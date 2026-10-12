@@ -35,7 +35,7 @@ The `identity` adapter for prototype file types reads and writes permanent proto
 | `loader.ts` | Production file globs and its own HMR acceptance. |
 | `references.ts` | Optional Node-only source adapters for moves and copied permanent links. |
 
-`type.ts` imports only the file type declarations, because Node loads it directly: `#studio/files` in a team module, `../../core/fileTypes.ts` in a supplied one.
+`type.ts` imports `#studio/files` and Node-safe helpers within its own module. Checks validate the complete executable dependency graph in Node. A local adapter cannot relay browser code or private platform imports into a team declaration. View, Diagrams, and Canvas own their identity grammars; the platform supplies generic ID, Markdown, and JSON primitives.
 
 `inPrototype`, `inSystemContent`, and `fallback` are required booleans. `inPrototype: true` permits prototype artifacts; `inSystemContent: true` permits system knowledge files. Omission fails validation. A `fallback` type opens other system context text files without claiming extensions.
 

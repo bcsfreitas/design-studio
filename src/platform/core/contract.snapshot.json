@@ -108,6 +108,18 @@
         "stability": "experimental",
         "signature": "(spec: FileTypeSpec) => FileTypeSpec"
       },
+      "identityFromDeclarations": {
+        "stability": "experimental",
+        "signature": "(values: readonly string[]) => ResourceId | null"
+      },
+      "jsonIdentity": {
+        "stability": "experimental",
+        "signature": "(source: string) => ResourceId | null"
+      },
+      "jsonIdentityMetadata": {
+        "stability": "experimental",
+        "signature": "{ read(source: string): ResourceId | null; write(source: string, id: ResourceId): string; }"
+      },
       "markdownFileType": {
         "stability": "experimental",
         "signature": "{ label: string; systemUsage: \"assigned\" | \"independent\"; identity?: IdentityMetadata; extensions: readonly string[]; language?: \"tsx\" | \"markdown\" | \"json\" | \"mermaid\" | \"text\"; capabilities: ArtifactCapabilities; inSystemContent: boolean; inPrototype: boolean; fallback: boolean; fidelity?: { isLofi(source: string): boolean; setLofi(source: string, on: boolean): string; }; template?: (name: string) => string; check?: (file: { source: string; frontmatter: Record<string, unknown> | null; prototype?: { contributor: string; id: string; studioId?: string; }; }) => string[]; }"
@@ -1987,9 +1999,21 @@
       "stability": "experimental",
       "signature": "(state: ArtifactLifecycle) => \"current\" | \"stale\" | \"unknown\" | \"empty\""
     },
+    "identityFromDeclarations": {
+      "stability": "experimental",
+      "signature": "(values: readonly string[]) => ResourceId | null"
+    },
     "initialLifecycle": {
       "stability": "experimental",
       "signature": "() => ArtifactLifecycle"
+    },
+    "jsonIdentity": {
+      "stability": "experimental",
+      "signature": "(source: string) => ResourceId | null"
+    },
+    "jsonIdentityMetadata": {
+      "stability": "experimental",
+      "signature": "{ read(source: string): ResourceId | null; write(source: string, id: ResourceId): string; }"
     },
     "lifecycleAttributes": {
       "stability": "experimental",

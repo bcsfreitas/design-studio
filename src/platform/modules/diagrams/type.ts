@@ -1,4 +1,5 @@
-import { defineFileType, diagramIdentity } from '../../core/fileTypes.ts';
+import { diagramIdentity } from './identity.ts';
+import { defineFileType } from '#studio/files';
 
 export default defineFileType({
   capabilities: { source: true, create: true, fidelity: false, embeds: ['document', 'canvas'], actions: [] },

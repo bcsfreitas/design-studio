@@ -1,4 +1,4 @@
-import { apiSpecifier } from '../../core/modules/boundaries.ts';
+import { fileTypeDeclarationProblems } from '../lib/file-type-declarations.js';
 import { installedReferenceAdapters } from '../lib/reference-adapters.js';
 import { scopePolicy } from '../lib/scope.js';
 import { dependencyResolver, importsOf, sourceFiles } from '../lib/imports.js';
@@ -16,7 +16,7 @@ import { dependencyResolver, importsOf, sourceFiles } from '../lib/imports.js';
 //   - a team module or system imports platform code only through the public API, #studio/<entry>
 //     (src/platform/core/modules/boundaries.ts)
 //   - a file type (a module with a type.ts, src/platform/context/file-types.md) has an open.tsx, its type.ts imports
-//     only the file type declarations (src/platform/core/fileTypes.ts, or #studio/files in a team module; the build loads it
+//     #studio/files and Node-safe local helpers (the build loads the declaration graph
 //     directly in Node), and its loader.ts lists its files with the
 //     ['/__studio_globs__/*'] placeholder, so a new section and archived files reach it (src/platform/node/build/vite-globs-plugin.js)
 // Usage: node src/platform/node/check/check-modules.js
@@ -214,19 +214,7 @@ for (const id of typeIds) {
   const where = path.relative(ROOT, dir);
   if (!fs.existsSync(path.join(dir, 'open.tsx')))
     problems.push(`${where}/ has a type.ts, so it is a file type, but no open.tsx saying how the app opens it.`);
-  // Real import lines only: a type.ts can hold import text inside a template, like a new view's.
-  for (const [, specifier] of fs
-    .readFileSync(path.join(dir, 'type.ts'), 'utf8')
-    .matchAll(/^import\b[^\n]*?\bfrom\s*['"]([^'"]+)['"]/gm)) {
-    // A supplied type.ts imports ../../core/fileTypes.ts; a team one imports the same declarations as #studio/files.
-    const allowed = MODULE_DIRS[id].startsWith(`${TEAM_MODULES_ROOT}/`)
-      ? apiSpecifier('files')
-      : path.relative(dir, path.join(ROOT, 'src/platform/core/fileTypes.ts')).split(path.sep).join('/');
-    if (specifier !== allowed)
-      problems.push(
-        `${where}/type.ts imports "${specifier}". A type.ts can import only ${allowed}, because the build loads it directly in Node.`,
-      );
-  }
+  problems.push(...fileTypeDeclarationProblems(ROOT, dir, runtimePolicy.scopeOf));
   const loader = path.join(dir, 'loader.ts');
   if (fs.existsSync(loader) && !fs.readFileSync(loader, 'utf8').includes("'/__studio_globs__/*'")) {
     problems.push(

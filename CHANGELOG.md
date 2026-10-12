@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- View, Diagrams, and Canvas now own their identity adapters. Generic identity assignment uses JSON metadata rather than a Canvas adapter. File declarations use `#studio/files` and Node-safe local helpers, with transitive boundary checks.
+
 - Proven settings, Mermaid, permanent-address, and compilation-lifecycle helpers are public experimental APIs. Browser compilation tracking stays in `#studio/data`; renderer-neutral lifecycle primitives remain Node-safe. Contributors, Diagrams, Documents, View, and Canvas use covered public entries.
 
 - Module clients throw `ClientError` with a machine-readable code, HTTP status when available, and a display message. Onboarding uses the shared client, preserves its persistence fallback and 422 suppression, and reports malformed successful replies.
