@@ -21,8 +21,20 @@ export function subscribeModuleAsset(module: string, asset: string, listener: ()
     if (!set.size) listeners.delete(key);
   };
 }
-if (import.meta.hot)
-  import.meta.hot.on('studio:asset', ({ key }: { key: string }) => {
+if (import.meta.hot) {
+  const changed = ({ key }: { key: string }) => {
     cache.invalidate(key);
     listeners.get(key)?.forEach(notify => notify());
+  };
+  const connected = () => {
+    // Custom watch events are not replayed after a disconnected socket.
+    cache.invalidateAll();
+    listeners.forEach(subscribers => subscribers.forEach(notify => notify()));
+  };
+  import.meta.hot.on('studio:asset', changed);
+  import.meta.hot.on('vite:ws:connect', connected);
+  import.meta.hot.dispose(() => {
+    import.meta.hot?.off('studio:asset', changed);
+    import.meta.hot?.off('vite:ws:connect', connected);
   });
+}
