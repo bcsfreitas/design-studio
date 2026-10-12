@@ -58,6 +58,8 @@ Use existing commands for repeatable mechanics and skills for decisions and outc
 
 ## Implementation
 
+The [artifact services proposal](context/artifact-services-proposal.md) is the architecture review for steps 9–11: Systems routes, shared reference resolution, and one presentation host. These changes are not implemented yet.
+
 `api/` is the public API that team modules and systems import as `#studio/*` ([Public API](context/modules.md#public-api)). `core/` holds shared APIs and runtime boundaries. `app/` holds the application shell and shared readers. `systems/` is the supplied system root; it holds [Studio's own interface system](systems/studio/README.md), while the team's systems live in `src/systems/`. `modules/` is the supplied module root; it holds the [modules](modules/README.md) the starter ships, while the team's own live in `src/modules/`. Markdown knowledge lives in Context; task procedures live in Skills.
 
 Each module and system has its own README entry point, context, and relevant skills. A README is technical context at the owner's front door. Skills consult authoritative context rather than copying contracts.
