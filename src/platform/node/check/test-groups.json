@@ -101,7 +101,8 @@
         "src/platform/node/lib/studio-settings.test.js",
         "src/platform/node/lib/system-creation.test.js",
         "src/platform/modules/onboarding/progress.test.ts",
-        "src/platform/modules/systems/node/prepare-shadcn.test.js"
+        "src/platform/modules/systems/node/prepare-shadcn.test.js",
+        "src/platform/node/lib/contributor-preferences.test.js"
       ],
       "dependencies": [
         "src/platform/modules/onboarding/**",
