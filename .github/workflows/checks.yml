@@ -121,6 +121,7 @@ jobs:
       - run: pnpm build
         env:
           STUDIO_BASE_PATH: ${{ github.repository_id == '1401250166' && '/design-studio-demo/' || '/' }}
+          STUDIO_PUBLIC_URL: ${{ github.repository_id == '1401250166' && 'https://itspatmorgan.com/design-studio-demo/' || '' }}
       - run: pnpm build:inspect
   # Rehearse preservation, conflict recovery, and failed-check reporting through the actual updater.
   upgrade:

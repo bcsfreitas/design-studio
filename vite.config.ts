@@ -20,6 +20,7 @@ import tailwindcss from '@tailwindcss/vite';
 import importGuard from './src/platform/node/build/vite-import-guard-plugin.js';
 import manifestWatch from './src/platform/node/build/vite-manifest-watch-plugin.js';
 import spa404 from './src/platform/node/build/vite-spa-404-plugin.js';
+import socialMetadata from './src/platform/node/build/vite-social-metadata-plugin.js';
 import deploymentRecovery from './src/platform/node/build/vite-deployment-recovery-plugin.js';
 import previewTheme from './src/platform/node/build/vite-preview-theme-plugin.js';
 import files from './src/platform/node/build/vite-files-plugin.js';
@@ -150,6 +151,7 @@ export default defineConfig({
     files(),
     systemProps(),
     spa404(),
+    socialMetadata(),
     deploymentRecovery(),
     previewTheme(),
   ],

@@ -9,6 +9,7 @@
         "src/platform/node/build/vite-module-entries-plugin.test.js",
         "src/platform/node/build/vite-preview-theme-plugin.test.js",
         "src/platform/node/build/vite-resource-directory-plugin.test.js",
+        "src/platform/node/build/vite-social-metadata-plugin.test.js",
         "src/platform/node/check/inspect-build.test.js",
         "src/platform/node/check/merge-gate.test.js",
         "src/platform/node/check/navigation.test.js",

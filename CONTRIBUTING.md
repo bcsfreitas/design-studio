@@ -39,14 +39,14 @@ The [Checks workflow](.github/workflows/checks.yml) preserves the required `scop
 
 After a successful upstream push to `main`, [Publish demo](.github/workflows/demo.yml) triggers the website's `deploy.yml` workflow. Set the `WEBSITE_DEPLOY_TOKEN` Actions secret here to a fine-grained GitHub token with **Actions: Read and write** access to **only** `itspatmorgan/itspatmorgan.github.io`. A missing token fails the publishing notification with a setup message; it does not bypass Studio checks. Pull requests and forks cannot trigger publication.
 
-The website resolves the source repository by permanent ID and checks out the latest successful `main` push from `checks.yml` at its exact commit. It builds Studio with its declared mise toolchain and `STUDIO_BASE_PATH=/design-studio-demo/`, copies the output into the website's `dist/design-studio-demo/`, and uploads the combined Pages artifact. Studio code remains in this repository. Failed Studio checks leave the prior passing version available for website builds.
+The website resolves the source repository by permanent ID and checks out the latest successful `main` push from `checks.yml` at its exact commit. It builds Studio with its declared mise toolchain and `STUDIO_BASE_PATH=/design-studio-demo/`, copies the output into the website's `dist/design-studio-demo/`, and uploads the combined Pages artifact. Set `STUDIO_PUBLIC_URL=https://itspatmorgan.com/design-studio-demo/` in that build to emit absolute social image URLs. Studio code remains in this repository. Failed Studio checks leave the prior passing version available for website builds.
 
 The website's root `404.html` loads the demo's entry document only for demo application routes, preserving direct links and reloads. It also redirects the former `/design-studio-starter/` path while preserving the route, query, and fragment. These are browser redirects and Pages fallback responses retain HTTP 404 status. Disable this repository's old Pages site when switching to the combined deployment; otherwise it can claim `/design-studio/` after the rename.
 
 To preview the demo's subpath locally:
 
 ```sh
-STUDIO_BASE_PATH=/design-studio-demo/ pnpm build
+STUDIO_PUBLIC_URL=https://itspatmorgan.com/design-studio-demo/ STUDIO_BASE_PATH=/design-studio-demo/ pnpm build
 STUDIO_BASE_PATH=/design-studio-demo/ pnpm preview
 ```
 

@@ -1,6 +1,6 @@
 // The app's mark, shown at the top of the rail. It is filled with the current text colour, so it is dark
 // in light mode and light in dark mode with nothing to switch. To use your own, replace the paths below
-// (and public/favicon.svg, which carries the same shapes for the browser tab).
+// (and the boxed SVGs in public/brand/ and public/favicon.svg). Keep this rail mark unboxed.
 import type { SVGProps } from 'react';
 
 export function Logo(props: SVGProps<SVGSVGElement>) {

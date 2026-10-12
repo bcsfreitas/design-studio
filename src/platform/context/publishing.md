@@ -39,6 +39,18 @@ Choose a host that can serve the static files in `dist/`. Your team configures h
 
 Ask your agent to help configure the chosen host when you are ready. Supply the destination and access requirements. Keep credentials in the host's or CI service's secret settings.
 
+## Social link previews
+
+The initial HTML includes Open Graph and Twitter large-image metadata. The default artwork is `public/images/design-studio-social.png` (1200 × 630). It represents the studio as a whole; individual prototype links use the same artwork. Asset variants and editable artwork are listed in the [Studio system README](../systems/studio/README.md#platform-brand-assets).
+
+Set `STUDIO_PUBLIC_URL` to the complete published studio root, including any path prefix, when building. This writes absolute image URLs for social crawlers. Match its path to `STUDIO_BASE_PATH`:
+
+```sh
+STUDIO_PUBLIC_URL=https://example.com/my-studio/ STUDIO_BASE_PATH=/my-studio/ pnpm build
+```
+
+Without `STUDIO_PUBLIC_URL`, image URLs use the local base path. This supports local previews but does not guarantee a card on external services. Public previews require the page and image to be accessible to the service's crawler. After publishing, verify the image URL and refresh the service's cached preview when updating the artwork.
+
 ## Make direct links work
 
 The app uses browser-history URLs, such as `/prototypes/ccncfpcyaa1hvjts/artifacts/5b9z6sp9580ks01r`. Configure the host to serve `index.html` for app paths that do not identify an asset.
