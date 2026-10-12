@@ -39,7 +39,7 @@ Prefer team and seed paths for studio-specific work. If an upstream path must ch
 | `README.md` | Seed | The starter's README; rewrite it for the team. |
 | `patches/`, `public/` | Upstream | Dependency patches and shared static files. |
 | `package.json`, `pnpm-workspace.yaml`, `biome.json`, `vite.config.ts`, `tsconfig*.json`, `mise.toml`, `.github/`, `.husky/` | Upstream | Root tooling and workflows. |
-| `.studio/ownership.json`, `CHANGELOG.md`, `CONTRIBUTING.md`, `SECURITY.md`, `LICENSE`, `CLAUDE.md`, `.gitignore`, `.git-blame-ignore-revs` | Upstream | The ownership map, project documents, and blame settings. |
+| `.studio/ownership.json`, `CHANGELOG.md`, `CONTRIBUTING.md`, `SECURITY.md`, `LICENSE`, `CLAUDE.md`, `.gitignore` | Upstream | The ownership map and project documents. |
 | `pnpm-lock.yaml` | Generated | `pnpm install` |
 | `AGENTS.md` | Generated | `pnpm studio sync`, from `src/platform/AGENTS.md`, the enabled modules' routing, and `AGENTS.team.md`. |
 | `AGENTS.team.md` | Seed | The team's own guidance for coding agents. `src/platform/AGENTS.md` is upstream. |

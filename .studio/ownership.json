@@ -68,10 +68,9 @@
         "LICENSE",
         "CLAUDE.md",
         ".gitignore",
-        ".git-blame-ignore-revs",
         ".studio/ownership.json"
       ],
-      "note": "Project documents, blame settings, and this map."
+      "note": "Project documents and this map."
     },
     {
       "tier": "generated",
