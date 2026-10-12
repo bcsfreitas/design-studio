@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.3.0 (2026-10-11)
+
 - Public setup uses the v0.3.0 repository guide without a plugin installer, with explicit Codex, Claude Code and Cursor workspace entry points and recovery that preserves interrupted setup. ChatGPT Sites is the primary demo path; teams retain the portable static build for their own hosts. Publishing guidance covers same-Site updates and the provider's missing-asset SPA fallback limitation.
 
 - Removed the pre-release bulk identity/relationship/link conversion commands, legacy ownership and guidance-link readers, obsolete skill-directory repair, the unused curation URL helper, and the unused root `tailwind-merge` dependency. Scoped identity assignment, current permissions, canonical source links, scaffold roots, and team adapter preservation remain supported.
