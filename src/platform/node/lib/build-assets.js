@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { serializeJson as serializeBuildAsset } from '../../core/json.ts';
 
 const NAME = /^[a-z][a-z0-9-]*$/;
 const validPattern = value =>
@@ -8,24 +9,7 @@ const validPattern = value =>
   !value.includes('\\') &&
   !value.split('/').some(part => part === '..' || part === '.') &&
   /^[a-zA-Z0-9_./*?{},@-]+$/.test(value);
-export function serializeBuildAsset(value) {
-  const seen = new Set();
-  function visit(value) {
-    if (value === null || typeof value === 'string' || typeof value === 'boolean') return;
-    if (typeof value === 'number' && Number.isFinite(value)) return;
-    if (
-      typeof value !== 'object' ||
-      seen.has(value) ||
-      (!Array.isArray(value) && ![Object.prototype, null].includes(Object.getPrototypeOf(value)))
-    )
-      throw new Error('Build assets must contain only serializable JSON values.');
-    seen.add(value);
-    for (const child of Array.isArray(value) ? value : Object.values(value)) visit(child);
-    seen.delete(value);
-  }
-  visit(value);
-  return JSON.stringify(value);
-}
+export { serializeJson as serializeBuildAsset } from '../../core/json.ts';
 
 // Construction validates declarations without computing assets. The cache owns in-flight work and failures.
 export function buildAssetStore(builds, { root, enabled }) {

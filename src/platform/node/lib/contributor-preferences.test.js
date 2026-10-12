@@ -12,8 +12,11 @@ function fixture(t) {
   fs.writeFileSync(
     path.join(root, 'contributors/sam.json'),
     JSON.stringify({
+      formatVersion: 2,
       studioId: '0123456789abcdef',
       name: 'Sam',
+      email: '',
+      github: '',
       welcomeDismissed: false,
       preferences: { research: { keep: 3 } },
     }),
@@ -170,4 +173,82 @@ test('valid module IDs that match inherited properties still receive explicit na
   const current = readContributorPreferences(root, { actor: 'sam', module: 'constructor' });
   assert.deepEqual(current.value, { ready: false });
   assert.equal(Object.hasOwn(readPreferenceProfile(root, 'sam').profile.preferences, 'constructor'), true);
+});
+
+test('namespace writes retain omitted custom fields and all other contributor data', t => {
+  const root = fixture(t);
+  declarations(root);
+  const file = path.join(root, 'contributors/sam.json');
+  const profile = JSON.parse(fs.readFileSync(file));
+  profile.custom = { retained: ['owned'] };
+  profile.preferences.onboarding.custom = { retained: ['module-owned'] };
+  fs.writeFileSync(file, JSON.stringify(profile));
+  const current = readContributorPreferences(root, { actor: 'sam', module: 'onboarding' });
+  updateContributorPreferences(root, {
+    actor: 'sam',
+    module: 'onboarding',
+    base: current.version,
+    value: { welcomeDismissed: true },
+  });
+  const after = JSON.parse(fs.readFileSync(file));
+  assert.deepEqual(after, {
+    ...profile,
+    preferences: { ...profile.preferences, onboarding: { ...profile.preferences.onboarding, welcomeDismissed: true } },
+  });
+});
+
+test('ordinary preferences reject unsupported formats and invalid envelopes without changing source', t => {
+  const root = fixture(t);
+  declarations(root);
+  const file = path.join(root, 'contributors/sam.json');
+  const profile = JSON.parse(fs.readFileSync(file));
+  for (const change of [
+    { formatVersion: 1 },
+    { formatVersion: 999 },
+    { formatVersion: undefined },
+    { preferences: [] },
+    { preferences: { ...profile.preferences, other: [] } },
+    { studioId: 'invalid' },
+  ]) {
+    fs.writeFileSync(file, JSON.stringify({ ...profile, ...change }));
+    const source = fs.readFileSync(file, 'utf8');
+    assert.throws(
+      () => readContributorPreferences(root, { actor: 'sam', module: 'onboarding' }),
+      error => error.status === 422,
+    );
+    assert.throws(
+      () =>
+        updateContributorPreferences(root, {
+          actor: 'sam',
+          module: 'onboarding',
+          base: 'unused',
+          value: { welcomeDismissed: true },
+        }),
+      error => error.status === 422,
+    );
+    assert.equal(fs.readFileSync(file, 'utf8'), source);
+  }
+});
+
+test('non-JSON input cannot erase custom namespace fields', t => {
+  const root = fixture(t);
+  declarations(root);
+  const file = path.join(root, 'contributors/sam.json');
+  const profile = JSON.parse(fs.readFileSync(file));
+  profile.preferences.onboarding.custom = 'keep';
+  fs.writeFileSync(file, JSON.stringify(profile));
+  const source = fs.readFileSync(file, 'utf8');
+  const current = readContributorPreferences(root, { actor: 'sam', module: 'onboarding' });
+  for (const custom of [undefined, () => null, new Date(), NaN])
+    assert.throws(
+      () =>
+        updateContributorPreferences(root, {
+          actor: 'sam',
+          module: 'onboarding',
+          base: current.version,
+          value: { welcomeDismissed: true, custom },
+        }),
+      error => error.status === 422,
+    );
+  assert.equal(fs.readFileSync(file, 'utf8'), source);
 });

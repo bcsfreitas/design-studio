@@ -2,10 +2,11 @@ import { parseConfigFile } from '../../core/config-file.ts';
 import { discoverModuleFolders } from './module-folders.js';
 import { readDeclaration } from '../../core/modules/pack.ts';
 import { compatible, moduleProblems, preferenceProblems } from '../../core/modules/index.ts';
+import { serializeJson } from '../../core/json.ts';
 import { FORMAT_VERSIONS } from '../../core/formats.ts';
 import { studioRole, isEnabled } from '../../core/config.ts';
 import { readPersistedStudioConfig } from './persisted-studio-config.js';
-import { readContributors } from './contributors.js';
+import { readContributors, contributorProfileProblems } from './contributors.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
@@ -15,7 +16,7 @@ import { applySetupChanges } from './studio-setup.js';
 const fail = (message, status) => Object.assign(new Error(message), { status });
 
 // Actor comes from the server/CLI identity resolver, never from the request body.
-export function readPreferenceProfile(root, actor, contributor = actor) {
+export function readPreferenceProfile(root, actor, contributor = actor, options = {}) {
   if (!actor || actor !== contributor) throw fail('Only the contributor can change their preferences.', 403);
   if (!KEY.test(contributor)) throw fail('Invalid contributor key.', 400);
   const directory = path.join(root, 'contributors');
@@ -34,12 +35,12 @@ export function readPreferenceProfile(root, actor, contributor = actor) {
   validateFile();
   const source = fs.readFileSync(file, 'utf8');
   const profile = JSON.parse(source);
-  if (!profile || typeof profile !== 'object' || Array.isArray(profile))
-    throw fail('Contributor profile must be an object.', 422);
+  const problems = contributorProfileProblems(profile, source, `contributors/${contributor}.json`, options);
+  if (problems.length) throw fail(problems.join('\n'), 422);
   return { file, source, profile, version: createHash('sha256').update(source).digest('hex'), validateFile };
 }
 
-// Internal transaction primitive. Public callers can only replace their module namespace.
+// Internal transaction primitive. Public callers can only update their module namespace.
 export function transactPreferenceProfile(root, actor, { contributor = actor, base, update }) {
   const current = readPreferenceProfile(root, actor, contributor);
   if (base !== current.version) throw fail('Contributor preferences changed. Read them again before saving.', 409);
@@ -91,12 +92,23 @@ export function readContributorPreferences(root, { actor, contributor = actor, m
 export function updateContributorPreferences(root, { actor, contributor = actor, module, base, value }) {
   const schema = schemaFor(root, module);
   validate(value, schema, module);
+  try {
+    serializeJson(value);
+  } catch (error) {
+    throw fail(error.message, 422);
+  }
   const profile = transactPreferenceProfile(root, actor, {
     contributor,
     base,
     update: profile => {
       validate(profile.preferences?.[module], schema, module);
-      return { ...profile, preferences: { ...profile.preferences, [module]: structuredClone(value) } };
+      return {
+        ...profile,
+        preferences: {
+          ...profile.preferences,
+          [module]: { ...profile.preferences[module], ...structuredClone(value) },
+        },
+      };
     },
   });
   return profile.preferences[module];
@@ -116,7 +128,7 @@ export function planContributorPreferences(root, actor, requestedModule) {
   for (const [contributor, profile] of Object.entries(contributors)) {
     if (![1, FORMAT_VERSIONS.contributor].includes(profile.formatVersion))
       throw fail(`Unsupported profile version for ${contributor}.`, 422);
-    const current = readPreferenceProfile(root, contributor);
+    const current = readPreferenceProfile(root, contributor, contributor, { initializingPreferences: true });
     const next = structuredClone(profile);
     if (next.preferences === undefined) next.preferences = {};
     if (!next.preferences || typeof next.preferences !== 'object' || Array.isArray(next.preferences))
@@ -150,13 +162,13 @@ export function applyContributorPreferences(root, actor, plan) {
   if (JSON.stringify(fresh) !== JSON.stringify(plan))
     throw fail('Preferences or declarations changed. Preview initialization again.', 409);
   const edits = plan.edits.map(edit => {
-    const current = readPreferenceProfile(root, edit.contributor);
+    const current = readPreferenceProfile(root, edit.contributor, edit.contributor, { initializingPreferences: true });
     return { file: current.file, before: edit.before, after: edit.after };
   });
   applySetupChanges(edits, {
     validateFile: file => {
       const contributor = path.basename(file, '.json');
-      readPreferenceProfile(root, contributor).validateFile();
+      readPreferenceProfile(root, contributor, contributor, { initializingPreferences: true }).validateFile();
     },
   });
   return edits.length;
