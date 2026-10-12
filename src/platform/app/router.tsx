@@ -36,6 +36,7 @@ import { FILE_TYPES, fileTypeModules } from '@/platform/app/data/fileTypes';
 import type { Artifact, Manifest, Prototype } from '@/platform/app/data/types';
 import { createRefreshQueue } from '@/platform/app/data/refreshQueue';
 import { TAB_ID } from '@/platform/app/data/files';
+import { onMutation } from '@/platform/app/data/mutations';
 import { moduleApps } from '@/platform/app/modules';
 import { APP_NAME } from '@/platform/app/data/config';
 import { loadReference } from '@/platform/app/docs/loadReference';
@@ -564,6 +565,10 @@ if (import.meta.hot) {
     else refreshAll = true;
     refresh();
   };
+  const stopMutations = onMutation(() => {
+    refreshAll = true;
+    refresh();
+  });
   import.meta.hot.on('studio:moves', (moves: { from: string; to: string; origin?: string }[]) => {
     if (moves[0]?.origin === TAB_ID) return; // FileTree follows its completed reply once.
     const current = router.state.location;
@@ -589,6 +594,7 @@ if (import.meta.hot) {
     refresh();
   });
   import.meta.hot.dispose(() => {
+    stopMutations();
     window.removeEventListener('studio:views', contentChanged);
     window.removeEventListener('studio:markdown', markdownChanged);
   });

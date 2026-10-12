@@ -2,7 +2,6 @@
 // the component itself. Shown in place of the component's page through navigation's Edit source action; the page updates as you save. A file the component doesn't have yet is offered as
 // a template. Dev only: it reads and saves through the file layer (src/platform/node/build/vite-files-plugin.js).
 import { useMemo, useState } from 'react';
-import { useRouter } from '@tanstack/react-router';
 import SourceEditor from '@/platform/core/source/SourceEditor';
 import type { SourceAccess } from '@/platform/core/source/access';
 import { sourceOf } from '../sources';
@@ -11,7 +10,6 @@ import { PROTOTYPE_SYSTEMS } from '../data/systems';
 import { systemSourceRequest } from './systemSource';
 import { shortcutLabel } from '@/platform/app/shell/artifactShortcuts';
 import { canEditSource, useMe, fileOp, systemFiles } from '@/platform/app/data/files';
-import { setManifest } from '@/platform/app/data/manifest';
 import { Button } from '@/platform/systems/studio/components/button';
 import { toast } from '@/platform/systems/studio/components/toast';
 import { Tabs, TabsList, TabsTrigger } from '@/platform/systems/studio/components/tabs';
@@ -46,7 +44,6 @@ export function ComponentEditor({
   onDone: () => void;
 }) {
   const me = useMe();
-  const router = useRouter();
   const proto = systemFiles(system);
   const tabs = TABS.filter(t => t.kind !== 'source' || component.files.source);
   const [kind, setKind] = useState<Kind>(() => tabs.find(tab => component.files[tab.kind])?.kind ?? 'doc');
@@ -95,9 +92,7 @@ export function ComponentEditor({
   async function addFiles() {
     setAdding(true);
     try {
-      const result = await fileOp(proto, { op: 'add-docs', component: component.slug });
-      setManifest(result.manifest);
-      await router.invalidate();
+      await fileOp(proto, { op: 'add-docs', component: component.slug });
     } catch (e) {
       toast.add({ type: 'error', title: (e as Error).message });
     } finally {

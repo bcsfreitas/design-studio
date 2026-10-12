@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Typed prototype and generic file clients own successful application synchronization and return navigation identities. Repeated caller-owned manifest updates are removed. This tab's mutations run in order, other tabs retain live notifications, and source conflicts remain typed structured failures.
+
 - View, Diagrams, and Canvas now own their identity adapters. Generic identity assignment uses JSON metadata rather than a Canvas adapter. File declarations use `#studio/files` and Node-safe local helpers, with transitive boundary checks.
 
 - Proven settings, Mermaid, permanent-address, and compilation-lifecycle helpers are public experimental APIs. Browser compilation tracking stays in `#studio/data`; renderer-neutral lifecycle primitives remain Node-safe. Contributors, Diagrams, Documents, View, and Canvas use covered public entries.

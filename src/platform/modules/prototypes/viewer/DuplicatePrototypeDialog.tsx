@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useNavigate, useRouter } from '@tanstack/react-router';
-import { duplicatePrototype } from '@/platform/app/data/files';
-import { findPrototype, prototypeLink, setManifest } from '@/platform/app/data/manifest';
+import { useNavigate } from '@tanstack/react-router';
+import { duplicatePrototype } from '#studio/data';
+import { findPrototype, prototypeLink } from '@/platform/app/data/manifest';
 import type { PrototypeInfo } from '@/platform/app/data/types';
 import { ACTIVE_PROTOTYPE_SYSTEMS } from '@/platform/modules/systems/data/systems';
 import { Button } from '@/platform/systems/studio/components/button';
@@ -27,7 +27,6 @@ export const systemLabel = (id: string | null) =>
 
 type Props = { proto: PrototypeInfo; open: boolean; onOpenChange: (open: boolean) => void };
 export default function DuplicatePrototypeDialog({ proto, open, onOpenChange }: Props) {
-  const router = useRouter();
   const navigate = useNavigate();
   const [title, setTitle] = useState(`${proto.title} copy`);
   const [system, setSystem] = useState(proto.system ?? '__none');
@@ -46,8 +45,6 @@ export default function DuplicatePrototypeDialog({ proto, open, onOpenChange }: 
     setError(null);
     try {
       const result = await duplicatePrototype(proto, { title, system: target });
-      setManifest(result.manifest);
-      await router.invalidate();
       onOpenChange(false);
       const copied = findPrototype(result.manifest, proto.contributorKey, result.prototype);
       if (!copied) throw new Error('The copy is missing from the inventory.');

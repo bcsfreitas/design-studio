@@ -1,11 +1,7 @@
 // One document, in the app's own style (not its prototype's design system), inside an error
 // boundary: a document that fails to render shows the error, with a button to copy it.
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import {
-  freshness,
-  lifecycleAttributes,
-  initialLifecycle,
-} from '@/platform/core/artifact-lifecycle/index';
+import { freshness, lifecycleAttributes, initialLifecycle } from '@/platform/core/artifact-lifecycle/index';
 import { compiledLifecycle, type ArtifactFile } from '@/platform/core/artifact-lifecycle/compiled';
 import type { MDXContent } from 'mdx/types';
 import { ErrorBoundary } from 'react-error-boundary';

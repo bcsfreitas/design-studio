@@ -77,16 +77,31 @@ export default [defineReferenceAdapter({
 import { CodeIcon } from '@hugeicons/core-free-icons';
 import { type ModuleApp, MermaidDiagram, useStudioSettings } from '#studio/ui';
 import { adminProblems, type StudioConfig } from '#studio/module';
-import { compiledLifecycle } from '#studio/data';
+import { compiledLifecycle, createPrototype, duplicatePrototype, renamePrototype, deletePrototype, fileOp, useManifest, type PrototypeInfo } from '#studio/data';
 import { initialLifecycle, lifecycleAttributes } from '#studio/lifecycle';
 import { useEffect, useState } from 'react';
 function LocalSettings(){const settings=useStudioSettings(['name']);return <p data-public-settings>{settings.snapshot ? settings.snapshot.role : settings.error || 'Loading settings'}</p>;}
+function Mutations(){
+  const inventory=useManifest();
+  const [proto,setProto]=useState<PrototypeInfo|null>(inventory.prototypes.find(p=>p.title==='Public renamed fixture') ?? null),[status,setStatus]=useState('Ready');
+  const run=async(action:string)=>{try{
+    if(action==='create'){const r=await createPrototype('Public mutation fixture',null);setProto(r.manifest.prototypes.find(p=>p.studioId===r.prototypeId)!);setStatus('Created '+r.prototypeId);return;}
+    if(!proto)return;
+    if(action==='rename'){const r=await renamePrototype(proto,{title:'Public renamed fixture'});setProto(r.manifest.prototypes.find(p=>p.studioId===r.prototypeId)!);setStatus('Renamed '+r.prototypeId);return;}
+    if(action==='duplicate'){const r=await duplicatePrototype(proto,{title:'Public copied fixture',system:null});setStatus('Copied '+r.prototypeId);return;}
+    if(action==='relocate'){await fileOp(proto,{op:'create',path:'',name:'nested',dir:true});const r=await fileOp(proto,{op:'move',path:'moved.md',to:'nested'});setStatus('relocated '+r.path+' '+r.artifactId);return;}
+    if(action==='delete'){await deletePrototype(proto);setProto(null);setStatus('Deleted');return;}
+    const r=await fileOp(proto,action==='file'?{op:'create',path:'',name:'public.md'}:action==='move'?{op:'rename',path:'public.md',name:'moved.md'}:{op:'reorder',path:'nested/moved.md',to:'',before:'prototype.tsx'});
+    setStatus(action+' '+r.path+' '+r.artifactId);
+  }catch(e){setStatus(e instanceof Error?e.message:String(e));}};
+  return <section><p data-public-mutation-status>{status}</p>{['create','rename','duplicate','file','move','relocate','reorder','delete'].map(action=><button key={action} onClick={()=>void run(action)}>Public {action}</button>)}</section>;
+}
 function Probe(){
   const [state,setState]=useState(initialLifecycle);
   useEffect(()=>{const tracker=compiledLifecycle({contributor:'artifact-fixture',prototype:'mixed',path:'main.tsx'},setState);tracker.ready();return ()=>tracker.dispose();},[]);
   return <section data-public-api-probe {...lifecycleAttributes(state)}><h2>Public API fixture</h2>
     <MermaidDiagram source={'graph LR\\n A-->B'} />
-    {import.meta.env.DEV && <LocalSettings />}
+    {import.meta.env.DEV && <><LocalSettings /><Mutations /></>}
   </section>;
 }
 export const validAdmins = (config: Partial<StudioConfig>, people: string[]) => adminProblems(config,people);

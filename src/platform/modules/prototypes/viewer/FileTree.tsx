@@ -12,7 +12,7 @@ import { FileActionItems } from '@/platform/app/shell/FileActionItems';
 // is a plain file change, so agents see the same thing. On the deployed site, it lists the
 // prototype's items, from the manifest.
 import { Fragment, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
-import { Link, useNavigate, useRouter } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { dropTargetForElements, monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import { extractInstruction } from '@atlaskit/pragmatic-drag-and-drop-hitbox/list-item';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -29,7 +29,7 @@ import {
   UnfoldLessIcon,
   UnfoldMoreIcon,
 } from '@hugeicons/core-free-icons';
-import { allPrototypes, artifactLabel, artifactLink, prototypeLink, setManifest } from '@/platform/app/data/manifest';
+import { allPrototypes, artifactLabel, artifactLink, prototypeLink } from '@/platform/app/data/manifest';
 import {
   canChangePrototype,
   fileOp,
@@ -307,7 +307,6 @@ export default function FileTree({
   const branchExpanded = externalFilter?.searching || (navigation?.expanded ?? expanded);
   const changeExpanded = navigation?.onExpandedChange ?? setExpanded;
   const me = useMe();
-  const router = useRouter();
   const navigate = useNavigate();
   const live = import.meta.env.DEV && files !== null;
   // Your own prototypes, and the system content (in dev): its files are platform files, changed here for
@@ -446,7 +445,6 @@ export default function FileTree({
         : '';
     try {
       const result = await fileOp(proto, op);
-      setManifest(result.manifest);
       const open = current?.path;
       if (
         open &&
@@ -460,7 +458,6 @@ export default function FileTree({
         const next = moved && itemsOf(result.manifest, proto).find(i => i.path === moved);
         await navigate(next ? artifactLink(proto, next) : prototypeLink(proto));
       }
-      await router.invalidate();
       reload();
       if (result.trashedTo) {
         toast.add({
@@ -506,8 +503,6 @@ export default function FileTree({
   // and writes the folder. Errors go back to the dialog.
   async function createSkill(name: string, description: string) {
     const result = await fileOp(proto, { op: 'create-skill', name, description });
-    setManifest(result.manifest);
-    await router.invalidate();
     reload();
     setNewSkillOpen(false);
     const item = result.path && itemsOf(result.manifest, proto).find(i => i.path === result.path);

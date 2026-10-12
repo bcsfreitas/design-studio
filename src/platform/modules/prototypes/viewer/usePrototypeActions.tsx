@@ -17,7 +17,7 @@ import {
   PencilEdit02Icon,
 } from '@hugeicons/core-free-icons';
 import { fileOp, openInEditor, ownsPrototype, repoPath, revealInFinder, useMe } from '@/platform/app/data/files';
-import { prototypeLink, setManifest } from '@/platform/app/data/manifest';
+import { prototypeLink } from '@/platform/app/data/manifest';
 import type { PrototypeInfo } from '@/platform/app/data/types';
 import { moduleApps } from '@/platform/app/modules';
 import { toast } from '@/platform/systems/studio/components/toast';
@@ -46,9 +46,7 @@ export function usePrototypeActions(proto: PrototypeInfo) {
   // Archiving leaves the whole prototype out of the deployed site. Here it stays, marked, so it can be opened and brought back.
   async function setArchived(archived: boolean) {
     try {
-      const result = await fileOp(proto, { op: 'meta', status: archived ? 'archived' : 'active' });
-      setManifest(result.manifest);
-      await router.invalidate();
+      await fileOp(proto, { op: 'meta', status: archived ? 'archived' : 'active' });
       toast.add({ title: archived ? 'Archived. The deployed site leaves it out.' : 'Restored' });
     } catch (e) {
       toast.add({ type: 'error', title: (e as Error).message });

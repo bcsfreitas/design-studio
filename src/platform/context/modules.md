@@ -42,6 +42,8 @@ Team modules (`src/modules/<id>/`) and team systems (`src/systems/<id>/`) import
 
 Permanent address helpers validate ID-based public addresses; they do not resolve filesystem locations or legacy module-content addresses. `compiledLifecycle` is browser-specific and belongs to `#studio/data`; renderer-neutral revision primitives remain in Node-safe `#studio/lifecycle`.
 
+`#studio/data` also provides typed prototype and generic file mutations, file-tree observation, local editor/reveal commands, and fidelity writes. Mutation clients serialize this tab's writes, apply checked successful manifests, and schedule application refresh. Receipts include identities and source locations for caller-owned navigation. Do not apply returned manifests manually; `setManifest` stays private. Failed replies do not change the inventory. `SourceChanged` remains a distinct client error with code `source_changed` and status 409.
+
 ### Environment policy
 
 `API_POLICY` in `src/platform/core/modules/boundaries.ts` is the single inventory of entries and executable environments:

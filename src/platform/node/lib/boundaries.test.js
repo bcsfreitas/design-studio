@@ -530,7 +530,8 @@ test('a fresh Node process loads the public module version without browser confi
       `
     import assert from 'node:assert/strict';
     import * as api from '#studio/module';
-    assert.deepEqual(Object.keys(api), ['PLATFORM_VERSION']);
+    assert.deepEqual(Object.keys(api), ['PLATFORM_VERSION', 'adminProblems']);
+    assert.deepEqual(api.adminProblems({usage:'team',admins:['sam']},['sam']),[]);
     assert.match(api.PLATFORM_VERSION, /^\\d+\\.\\d+\\.\\d+$/);
     console.log(api.PLATFORM_VERSION);
   `,

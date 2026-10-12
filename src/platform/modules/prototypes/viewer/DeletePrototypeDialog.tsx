@@ -2,8 +2,7 @@
 // (src/platform/node/build/vite-files-plugin.js), and the app goes back to the Prototypes page.
 import { useState } from 'react';
 import { useNavigate, useRouter } from '@tanstack/react-router';
-import { deletePrototype } from '@/platform/app/data/files';
-import { setManifest } from '@/platform/app/data/manifest';
+import { deletePrototype } from '#studio/data';
 import type { PrototypeInfo } from '@/platform/app/data/types';
 import { toast } from '@/platform/systems/studio/components/toast';
 import { Button } from '@/platform/systems/studio/components/button';
@@ -28,12 +27,10 @@ export default function DeletePrototypeDialog({ proto, open, onOpenChange }: Pro
     setDeleting(true);
     setError(null);
     try {
-      const result = await deletePrototype(proto);
-      setManifest(result.manifest);
+      await deletePrototype(proto);
       onOpenChange(false);
       // Keep index filters in place. Leave an open prototype before invalidating it.
       if (router.state.location.pathname !== '/prototypes') await navigate({ to: '/prototypes' as never });
-      await router.invalidate();
       toast.add({ title: `Moved “${proto.title}” to the Trash` });
     } catch (e) {
       setError((e as Error).message);

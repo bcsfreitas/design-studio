@@ -168,7 +168,7 @@
       },
       "ClientError": {
         "stability": "experimental",
-        "signature": "new (code: string, message: string, status?: number, cause?: unknown): ClientError { \"cause\"?: unknown; \"message\": string; \"name\": string; \"stack\"?: string | undefined; readonly \"code\": string; readonly \"status\"?: number | undefined } static {  }"
+        "signature": "new (code: string, message: string, status?: number, cause?: unknown): ClientError { \"cause\"?: unknown; \"message\": string; \"name\": string; \"stack\"?: string | undefined; readonly \"code\": string; readonly \"status\"?: number | undefined } static { \"captureStackTrace\": (targetObject: object, constructorOpt?: Function) => void; \"prepareStackTrace\": (err: Error, stackTraces: NodeJS.CallSite[]) => any; \"stackTraceLimit\": number }"
       },
       "DocFrontmatter": {
         "stability": "experimental",
@@ -177,6 +177,18 @@
       "EmbedProps": {
         "stability": "experimental",
         "signature": "{ proto: Prototype; item: Artifact; width: number; height: number; loadingStartedAt?: number; }"
+      },
+      "FileNode": {
+        "stability": "experimental",
+        "signature": "{ name: string; path: string; dir: boolean; children?: FileNode[]; }"
+      },
+      "FileOp": {
+        "stability": "experimental",
+        "signature": "{ op: \"create\"; path: string; name: string; dir?: boolean; } | { op: \"rename\"; path: string; name: string; } | { op: \"move\"; path: string; to: string; } | { op: \"delete\"; path: string; } | { op: \"reorder\"; path: string; to?: string; before?: string; } | { op: \"meta\"; title?: string; status?: Status; }"
+      },
+      "FileOpResult": {
+        "stability": "experimental",
+        "signature": "{ path?: string; artifactId?: ResourceId; trashedTo?: string; relinkedFiles?: string[]; manifest: Manifest; }"
       },
       "FileTypeModule": {
         "stability": "experimental",
@@ -200,7 +212,7 @@
       },
       "SourceChanged": {
         "stability": "experimental",
-        "signature": "new (message?: string): SourceChanged; new (message?: string, options?: ErrorOptions): SourceChanged { \"cause\"?: unknown; \"message\": string; \"name\": string; \"stack\"?: string | undefined } static {  }"
+        "signature": "new (message?: string): SourceChanged { \"cause\"?: unknown; \"message\": string; \"name\": string; \"stack\"?: string | undefined; readonly \"code\": string; readonly \"status\"?: number | undefined } static { \"captureStackTrace\": (targetObject: object, constructorOpt?: Function) => void; \"prepareStackTrace\": (err: Error, stackTraces: NodeJS.CallSite[]) => any; \"stackTraceLimit\": number }"
       },
       "TAGLINE": {
         "stability": "stable",
@@ -246,6 +258,22 @@
         "stability": "experimental",
         "signature": "<M>(glob: Record<string, () => Promise<M>>, hot: ImportMeta[\"hot\"], reference?: boolean) => (path: string) => Promise<M> | undefined"
       },
+      "createPrototype": {
+        "stability": "experimental",
+        "signature": "(title: string, system?: string | null) => Promise<PrototypeMutationResult>"
+      },
+      "deletePrototype": {
+        "stability": "experimental",
+        "signature": "(p: PrototypeInfo) => Promise<{ trashedTo: string; manifest: Manifest; }>"
+      },
+      "duplicatePrototype": {
+        "stability": "experimental",
+        "signature": "(p: PrototypeInfo, change: { title: string; system: string | null; }) => Promise<PrototypeMutationResult>"
+      },
+      "fileOp": {
+        "stability": "experimental",
+        "signature": "(prototype: PrototypeInfo, operation: FileOp) => Promise<FileOpResult>"
+      },
       "findArtifact": {
         "stability": "experimental",
         "signature": "(p: Prototype, slug: string) => Artifact | undefined"
@@ -258,6 +286,10 @@
         "stability": "experimental",
         "signature": "(documents: ReturnType<typeof createLoader<MarkdownModule>>) => FileTypeModule"
       },
+      "openInEditor": {
+        "stability": "experimental",
+        "signature": "(p: PrototypeInfo, file: string) => Promise<void>"
+      },
       "prototypeLink": {
         "stability": "experimental",
         "signature": "(p: Pick<PrototypeInfo, \"contributorKey\" | \"id\" | \"studioId\">) => { readonly to: \"/$contributor/$prototype\"; readonly params: { readonly contributor: string; readonly prototype: string; }; } | { readonly to: \"/prototypes/$prototype\"; readonly params: { readonly prototype: ResourceId; }; }"
@@ -265,6 +297,22 @@
       "readSource": {
         "stability": "experimental",
         "signature": "(p: PrototypeInfo, path: string) => Promise<{ content: string; version: string; }>"
+      },
+      "renamePrototype": {
+        "stability": "experimental",
+        "signature": "(p: PrototypeInfo, change: { title: string; }) => Promise<PrototypeMutationResult>"
+      },
+      "revealInFinder": {
+        "stability": "experimental",
+        "signature": "(p: PrototypeInfo, file: string) => Promise<void>"
+      },
+      "setArtifactLofi": {
+        "stability": "experimental",
+        "signature": "(p: PrototypeInfo, path: string, on: boolean, fidelity: { setLofi(source: string, on: boolean): string; }) => Promise<void>"
+      },
+      "useFileTree": {
+        "stability": "experimental",
+        "signature": "(proto: PrototypeInfo) => { files: FileNode[] | null; reload: () => void; }"
       },
       "useManifest": {
         "stability": "experimental",
@@ -943,6 +991,46 @@
       "stability": "stable",
       "signature": "<T> T extends (...args: never[]) => unknown ? T : T extends object ? { readonly [K in keyof T]: ReadOnly<T[K]>; } : T"
     },
+    "#studio/data.FileOp.FileOp": {
+      "stability": "experimental",
+      "signature": "{ op: \"create\"; path: string; name: string; dir?: boolean; } | { op: \"rename\"; path: string; name: string; } | { op: \"move\"; path: string; to: string; } | { op: \"delete\"; path: string; } | { op: \"reorder\"; path: string; to?: string; before?: string; } | { op: \"meta\"; title?: string; status?: Status; } | { op: \"create-skill\"; name: string; description: string; } | { op: \"add-docs\"; component: string; }"
+    },
+    "#studio/data.FileOp.STATUSES": {
+      "stability": "experimental",
+      "signature": "readonly [\"active\", \"archived\"]"
+    },
+    "#studio/data.FileOp.Status": {
+      "stability": "experimental",
+      "signature": "\"active\" | \"archived\""
+    },
+    "#studio/data.FileOpResult.PlatformReferenceGroup": {
+      "stability": "experimental",
+      "signature": "{ id: string; label: string; enabled: boolean; references: { source: string; title: string; related?: { title: string; href: string; }[]; }[]; related: { title: string; href: string; }[]; }"
+    },
+    "#studio/data.FileOpResult.PrototypeRef": {
+      "stability": "experimental",
+      "signature": "PrototypeInfo & { artifacts?: Artifact[]; artifactCount?: number; artifactsHash?: string; }"
+    },
+    "#studio/data.FileOpResult.SystemComponent": {
+      "stability": "experimental",
+      "signature": "{ name: string; slug: string; files: { source: string | null; examples: string | null; doc: string | null; }; }"
+    },
+    "#studio/data.FileOpResult.SystemComponentDoc": {
+      "stability": "experimental",
+      "signature": "SystemComponent & { title: string; description: string; category: string | null; docsUrl: string | null; sourceNote?: string; }"
+    },
+    "#studio/data.FileOpResult.SystemContentMap": {
+      "stability": "experimental",
+      "signature": "{ entry: boolean; always: string[]; onDemand: { path: string; when: string; }[]; via: { path: string; from: string; }[]; unrouted: string[]; skills: { folder: string; name: string; description: string; when?: string; }[]; missing: string[]; }"
+    },
+    "#studio/data.FileOpResult.ThemeToken": {
+      "stability": "experimental",
+      "signature": "{ name: string; value: string; group: TokenGroup; subgroup: string | null; dark: boolean; }"
+    },
+    "#studio/data.FileOpResult.TokenGroup": {
+      "stability": "experimental",
+      "signature": "\"colors\" | \"typography\" | \"radius\" | \"shadows\" | \"spacing\" | \"motion\" | \"effects\" | \"other\""
+    },
     "#studio/data.FileTypeModule.ArtifactActionContext": {
       "stability": "experimental",
       "signature": "ArtifactContext & { environment: ArtifactAvailabilityContext; }"
@@ -1051,6 +1139,126 @@
       "stability": "experimental",
       "signature": "(file: ItemFile, { inManifest }?: { inManifest?: boolean | undefined; }) => Promise<M | undefined>"
     },
+    "#studio/data.createPrototype.PlatformReferenceGroup": {
+      "stability": "experimental",
+      "signature": "{ id: string; label: string; enabled: boolean; references: { source: string; title: string; related?: { title: string; href: string; }[]; }[]; related: { title: string; href: string; }[]; }"
+    },
+    "#studio/data.createPrototype.PrototypeMutationResult": {
+      "stability": "experimental",
+      "signature": "{ contributor: string; prototype: string; prototypeId: ResourceId; manifest: Manifest; }"
+    },
+    "#studio/data.createPrototype.PrototypeRef": {
+      "stability": "experimental",
+      "signature": "PrototypeInfo & { artifacts?: Artifact[]; artifactCount?: number; artifactsHash?: string; }"
+    },
+    "#studio/data.createPrototype.SystemComponent": {
+      "stability": "experimental",
+      "signature": "{ name: string; slug: string; files: { source: string | null; examples: string | null; doc: string | null; }; }"
+    },
+    "#studio/data.createPrototype.SystemComponentDoc": {
+      "stability": "experimental",
+      "signature": "SystemComponent & { title: string; description: string; category: string | null; docsUrl: string | null; sourceNote?: string; }"
+    },
+    "#studio/data.createPrototype.SystemContentMap": {
+      "stability": "experimental",
+      "signature": "{ entry: boolean; always: string[]; onDemand: { path: string; when: string; }[]; via: { path: string; from: string; }[]; unrouted: string[]; skills: { folder: string; name: string; description: string; when?: string; }[]; missing: string[]; }"
+    },
+    "#studio/data.createPrototype.ThemeToken": {
+      "stability": "experimental",
+      "signature": "{ name: string; value: string; group: TokenGroup; subgroup: string | null; dark: boolean; }"
+    },
+    "#studio/data.createPrototype.TokenGroup": {
+      "stability": "experimental",
+      "signature": "\"colors\" | \"typography\" | \"radius\" | \"shadows\" | \"spacing\" | \"motion\" | \"effects\" | \"other\""
+    },
+    "#studio/data.deletePrototype.PlatformReferenceGroup": {
+      "stability": "experimental",
+      "signature": "{ id: string; label: string; enabled: boolean; references: { source: string; title: string; related?: { title: string; href: string; }[]; }[]; related: { title: string; href: string; }[]; }"
+    },
+    "#studio/data.deletePrototype.PrototypeRef": {
+      "stability": "experimental",
+      "signature": "PrototypeInfo & { artifacts?: Artifact[]; artifactCount?: number; artifactsHash?: string; }"
+    },
+    "#studio/data.deletePrototype.SystemComponent": {
+      "stability": "experimental",
+      "signature": "{ name: string; slug: string; files: { source: string | null; examples: string | null; doc: string | null; }; }"
+    },
+    "#studio/data.deletePrototype.SystemComponentDoc": {
+      "stability": "experimental",
+      "signature": "SystemComponent & { title: string; description: string; category: string | null; docsUrl: string | null; sourceNote?: string; }"
+    },
+    "#studio/data.deletePrototype.SystemContentMap": {
+      "stability": "experimental",
+      "signature": "{ entry: boolean; always: string[]; onDemand: { path: string; when: string; }[]; via: { path: string; from: string; }[]; unrouted: string[]; skills: { folder: string; name: string; description: string; when?: string; }[]; missing: string[]; }"
+    },
+    "#studio/data.deletePrototype.ThemeToken": {
+      "stability": "experimental",
+      "signature": "{ name: string; value: string; group: TokenGroup; subgroup: string | null; dark: boolean; }"
+    },
+    "#studio/data.deletePrototype.TokenGroup": {
+      "stability": "experimental",
+      "signature": "\"colors\" | \"typography\" | \"radius\" | \"shadows\" | \"spacing\" | \"motion\" | \"effects\" | \"other\""
+    },
+    "#studio/data.duplicatePrototype.PlatformReferenceGroup": {
+      "stability": "experimental",
+      "signature": "{ id: string; label: string; enabled: boolean; references: { source: string; title: string; related?: { title: string; href: string; }[]; }[]; related: { title: string; href: string; }[]; }"
+    },
+    "#studio/data.duplicatePrototype.PrototypeMutationResult": {
+      "stability": "experimental",
+      "signature": "{ contributor: string; prototype: string; prototypeId: ResourceId; manifest: Manifest; }"
+    },
+    "#studio/data.duplicatePrototype.PrototypeRef": {
+      "stability": "experimental",
+      "signature": "PrototypeInfo & { artifacts?: Artifact[]; artifactCount?: number; artifactsHash?: string; }"
+    },
+    "#studio/data.duplicatePrototype.SystemComponent": {
+      "stability": "experimental",
+      "signature": "{ name: string; slug: string; files: { source: string | null; examples: string | null; doc: string | null; }; }"
+    },
+    "#studio/data.duplicatePrototype.SystemComponentDoc": {
+      "stability": "experimental",
+      "signature": "SystemComponent & { title: string; description: string; category: string | null; docsUrl: string | null; sourceNote?: string; }"
+    },
+    "#studio/data.duplicatePrototype.SystemContentMap": {
+      "stability": "experimental",
+      "signature": "{ entry: boolean; always: string[]; onDemand: { path: string; when: string; }[]; via: { path: string; from: string; }[]; unrouted: string[]; skills: { folder: string; name: string; description: string; when?: string; }[]; missing: string[]; }"
+    },
+    "#studio/data.duplicatePrototype.ThemeToken": {
+      "stability": "experimental",
+      "signature": "{ name: string; value: string; group: TokenGroup; subgroup: string | null; dark: boolean; }"
+    },
+    "#studio/data.duplicatePrototype.TokenGroup": {
+      "stability": "experimental",
+      "signature": "\"colors\" | \"typography\" | \"radius\" | \"shadows\" | \"spacing\" | \"motion\" | \"effects\" | \"other\""
+    },
+    "#studio/data.fileOp.PlatformReferenceGroup": {
+      "stability": "experimental",
+      "signature": "{ id: string; label: string; enabled: boolean; references: { source: string; title: string; related?: { title: string; href: string; }[]; }[]; related: { title: string; href: string; }[]; }"
+    },
+    "#studio/data.fileOp.PrototypeRef": {
+      "stability": "experimental",
+      "signature": "PrototypeInfo & { artifacts?: Artifact[]; artifactCount?: number; artifactsHash?: string; }"
+    },
+    "#studio/data.fileOp.SystemComponent": {
+      "stability": "experimental",
+      "signature": "{ name: string; slug: string; files: { source: string | null; examples: string | null; doc: string | null; }; }"
+    },
+    "#studio/data.fileOp.SystemComponentDoc": {
+      "stability": "experimental",
+      "signature": "SystemComponent & { title: string; description: string; category: string | null; docsUrl: string | null; sourceNote?: string; }"
+    },
+    "#studio/data.fileOp.SystemContentMap": {
+      "stability": "experimental",
+      "signature": "{ entry: boolean; always: string[]; onDemand: { path: string; when: string; }[]; via: { path: string; from: string; }[]; unrouted: string[]; skills: { folder: string; name: string; description: string; when?: string; }[]; missing: string[]; }"
+    },
+    "#studio/data.fileOp.ThemeToken": {
+      "stability": "experimental",
+      "signature": "{ name: string; value: string; group: TokenGroup; subgroup: string | null; dark: boolean; }"
+    },
+    "#studio/data.fileOp.TokenGroup": {
+      "stability": "experimental",
+      "signature": "\"colors\" | \"typography\" | \"radius\" | \"shadows\" | \"spacing\" | \"motion\" | \"effects\" | \"other\""
+    },
     "#studio/data.loadManifest.PlatformReferenceGroup": {
       "stability": "experimental",
       "signature": "{ id: string; label: string; enabled: boolean; references: { source: string; title: string; related?: { title: string; href: string; }[]; }[]; related: { title: string; href: string; }[]; }"
@@ -1094,6 +1302,38 @@
     "#studio/data.markdownFileModule.load": {
       "stability": "experimental",
       "signature": "(file: ItemFile, { inManifest }?: { inManifest?: boolean | undefined; }) => Promise<M | undefined>"
+    },
+    "#studio/data.renamePrototype.PlatformReferenceGroup": {
+      "stability": "experimental",
+      "signature": "{ id: string; label: string; enabled: boolean; references: { source: string; title: string; related?: { title: string; href: string; }[]; }[]; related: { title: string; href: string; }[]; }"
+    },
+    "#studio/data.renamePrototype.PrototypeMutationResult": {
+      "stability": "experimental",
+      "signature": "{ contributor: string; prototype: string; prototypeId: ResourceId; manifest: Manifest; }"
+    },
+    "#studio/data.renamePrototype.PrototypeRef": {
+      "stability": "experimental",
+      "signature": "PrototypeInfo & { artifacts?: Artifact[]; artifactCount?: number; artifactsHash?: string; }"
+    },
+    "#studio/data.renamePrototype.SystemComponent": {
+      "stability": "experimental",
+      "signature": "{ name: string; slug: string; files: { source: string | null; examples: string | null; doc: string | null; }; }"
+    },
+    "#studio/data.renamePrototype.SystemComponentDoc": {
+      "stability": "experimental",
+      "signature": "SystemComponent & { title: string; description: string; category: string | null; docsUrl: string | null; sourceNote?: string; }"
+    },
+    "#studio/data.renamePrototype.SystemContentMap": {
+      "stability": "experimental",
+      "signature": "{ entry: boolean; always: string[]; onDemand: { path: string; when: string; }[]; via: { path: string; from: string; }[]; unrouted: string[]; skills: { folder: string; name: string; description: string; when?: string; }[]; missing: string[]; }"
+    },
+    "#studio/data.renamePrototype.ThemeToken": {
+      "stability": "experimental",
+      "signature": "{ name: string; value: string; group: TokenGroup; subgroup: string | null; dark: boolean; }"
+    },
+    "#studio/data.renamePrototype.TokenGroup": {
+      "stability": "experimental",
+      "signature": "\"colors\" | \"typography\" | \"radius\" | \"shadows\" | \"spacing\" | \"motion\" | \"effects\" | \"other\""
     },
     "#studio/files.artifactSystemAvailability.CapabilityAvailability": {
       "stability": "experimental",
@@ -1305,7 +1545,7 @@
     },
     "ClientError": {
       "stability": "experimental",
-      "signature": "new (code: string, message: string, status?: number, cause?: unknown): ClientError { \"cause\"?: unknown; \"message\": string; \"name\": string; \"stack\"?: string | undefined; readonly \"code\": string; readonly \"status\"?: number | undefined } static {  }"
+      "signature": "new (code: string, message: string, status?: number, cause?: unknown): ClientError { \"cause\"?: unknown; \"message\": string; \"name\": string; \"stack\"?: string | undefined; readonly \"code\": string; readonly \"status\"?: number | undefined } static { \"captureStackTrace\": (targetObject: object, constructorOpt?: Function) => void; \"prepareStackTrace\": (err: Error, stackTraces: NodeJS.CallSite[]) => any; \"stackTraceLimit\": number }"
     },
     "Collapsible": {
       "stability": "experimental",
@@ -1583,6 +1823,18 @@
       "stability": "experimental",
       "signature": "({ className, ...props }: React.ComponentProps<\"div\">) => import(\"react\").JSX.Element"
     },
+    "FileNode": {
+      "stability": "experimental",
+      "signature": "{ name: string; path: string; dir: boolean; children?: FileNode[]; }"
+    },
+    "FileOp": {
+      "stability": "experimental",
+      "signature": "{ op: \"create\"; path: string; name: string; dir?: boolean; } | { op: \"rename\"; path: string; name: string; } | { op: \"move\"; path: string; to: string; } | { op: \"delete\"; path: string; } | { op: \"reorder\"; path: string; to?: string; before?: string; } | { op: \"meta\"; title?: string; status?: Status; }"
+    },
+    "FileOpResult": {
+      "stability": "experimental",
+      "signature": "{ path?: string; artifactId?: ResourceId; trashedTo?: string; relinkedFiles?: string[]; manifest: Manifest; }"
+    },
     "FileTypeModule": {
       "stability": "experimental",
       "signature": "<Props extends object = any> { icon: typeof CodeIcon; load(context: ArtifactContext): Promise<Props | undefined>; Page: ComponentType<Props> & { preload?: () => Promise<unknown> | undefined; }; Embed?: ComponentType<EmbedProps>; EmbedPending?: ComponentType<{ loadingStartedAt: number; }>; actions?: readonly ArtifactAction[]; }"
@@ -1785,7 +2037,7 @@
     },
     "SourceChanged": {
       "stability": "experimental",
-      "signature": "new (message?: string): SourceChanged; new (message?: string, options?: ErrorOptions): SourceChanged { \"cause\"?: unknown; \"message\": string; \"name\": string; \"stack\"?: string | undefined } static {  }"
+      "signature": "new (message?: string): SourceChanged { \"cause\"?: unknown; \"message\": string; \"name\": string; \"stack\"?: string | undefined; readonly \"code\": string; readonly \"status\"?: number | undefined } static { \"captureStackTrace\": (targetObject: object, constructorOpt?: Function) => void; \"prepareStackTrace\": (err: Error, stackTraces: NodeJS.CallSite[]) => any; \"stackTraceLimit\": number }"
     },
     "SourceEditor": {
       "stability": "experimental",
@@ -1971,6 +2223,10 @@
       "stability": "experimental",
       "signature": "<M>(glob: Record<string, () => Promise<M>>, hot: ImportMeta[\"hot\"], reference?: boolean) => (path: string) => Promise<M> | undefined"
     },
+    "createPrototype": {
+      "stability": "experimental",
+      "signature": "(title: string, system?: string | null) => Promise<PrototypeMutationResult>"
+    },
     "cssReferences": {
       "stability": "experimental",
       "signature": "(text: any, relativeTarget: any) => any"
@@ -1983,6 +2239,10 @@
       "stability": "experimental",
       "signature": "(adapter: ReferenceAdapter) => ReferenceAdapter"
     },
+    "deletePrototype": {
+      "stability": "experimental",
+      "signature": "(p: PrototypeInfo) => Promise<{ trashedTo: string; manifest: Manifest; }>"
+    },
     "digestInputs": {
       "stability": "experimental",
       "signature": "(sources: [string, string][]) => Promise<string>"
@@ -1990,6 +2250,14 @@
     "digestText": {
       "stability": "experimental",
       "signature": "(text: string) => Promise<string>"
+    },
+    "duplicatePrototype": {
+      "stability": "experimental",
+      "signature": "(p: PrototypeInfo, change: { title: string; system: string | null; }) => Promise<PrototypeMutationResult>"
+    },
+    "fileOp": {
+      "stability": "experimental",
+      "signature": "(prototype: PrototypeInfo, operation: FileOp) => Promise<FileOpResult>"
     },
     "findArtifact": {
       "stability": "experimental",
@@ -2055,6 +2323,10 @@
       "stability": "experimental",
       "signature": "CSSProperties"
     },
+    "openInEditor": {
+      "stability": "experimental",
+      "signature": "(p: PrototypeInfo, file: string) => Promise<void>"
+    },
     "parsePrototypeAddress": {
       "stability": "experimental",
       "signature": "(path: string) => { prototypeId: ResourceId; artifactId?: ResourceId; } | null"
@@ -2071,13 +2343,25 @@
       "stability": "experimental",
       "signature": "(p: PrototypeInfo, path: string) => Promise<{ content: string; version: string; }>"
     },
+    "renamePrototype": {
+      "stability": "experimental",
+      "signature": "(p: PrototypeInfo, change: { title: string; }) => Promise<PrototypeMutationResult>"
+    },
     "resourceId": {
       "stability": "experimental",
       "signature": "(value: unknown) => ResourceId"
     },
+    "revealInFinder": {
+      "stability": "experimental",
+      "signature": "(p: PrototypeInfo, file: string) => Promise<void>"
+    },
     "sameRevision": {
       "stability": "experimental",
       "signature": "(a: SourceRevision | null, b: SourceRevision | null) => boolean"
+    },
+    "setArtifactLofi": {
+      "stability": "experimental",
+      "signature": "(p: PrototypeInfo, path: string, on: boolean, fidelity: { setLofi(source: string, on: boolean): string; }) => Promise<void>"
     },
     "systemAddress": {
       "stability": "experimental",
@@ -2090,6 +2374,10 @@
     "toast": {
       "stability": "experimental",
       "signature": "import(\"@base-ui/react\").ToastManager<any>"
+    },
+    "useFileTree": {
+      "stability": "experimental",
+      "signature": "(proto: PrototypeInfo) => { files: FileNode[] | null; reload: () => void; }"
     },
     "useManifest": {
       "stability": "experimental",
