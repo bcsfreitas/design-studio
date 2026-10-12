@@ -5,8 +5,12 @@ import { buildAssetStore } from '../lib/build-assets.js';
 const ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 const ID = 'virtual:studio-build-assets',
   RESOLVED = '\0' + ID;
-export default function buildAssets() {
-  const store = buildAssetStore(moduleBuilds(), { root: ROOT, enabled: ENABLED_MODULES.map(module => module.id) });
+export default function buildAssets({
+  root = ROOT,
+  builds = moduleBuilds(),
+  enabled = ENABLED_MODULES.map(module => module.id),
+} = {}) {
+  const store = buildAssetStore(builds, { root, enabled });
   let production = false;
   return {
     name: 'studio-build-assets',
@@ -40,7 +44,7 @@ export default function buildAssets() {
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Cache-Control', 'no-store');
         try {
-          res.end(await store.read(decodeURIComponent((req.url ?? '').split('?')[0])));
+          res.end(await store.read(decodeURIComponent((req.url ?? '').split('?')[0]).replace(/^\/+/, '')));
         } catch (error) {
           res.statusCode = error.status ?? 500;
           res.end(JSON.stringify({ code: 'asset_failed', error: error.message }));
