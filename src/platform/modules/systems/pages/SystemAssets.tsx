@@ -1,4 +1,5 @@
-import { systemPath } from '../data/systems';
+import { systemPath } from '#studio/systems';
+
 import { systemFolder } from '@/platform/core/roots';
 import { useEffect, useState } from 'react';
 import { Link } from '@tanstack/react-router';
@@ -14,7 +15,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/platform/systems/studio/components/empty';
-import { ThemeScope } from '../ThemeScope';
+import { ThemeScope } from '#studio/systems';
 import { assetLink, systemAssets, type SystemAsset } from '../data/assets';
 
 function FontPreview({ asset }: { asset: SystemAsset }) {

@@ -69,3 +69,5 @@ The [API environment policy](context/modules.md#environment-policy) separates St
 The Documentation surface offers a curated Manual and a platform and module Context and Skills browser. The browser displays these original files. System context and skills appear within each system’s UI alongside its components and theme. Generated harness entries route agents back to the canonical skills.
 
 [Contributor preferences](context/contributor-preferences.md) defines module-owned schemas and explicit profile initialization.
+
+[Module build assets](context/build-assets.md) owns lazy serializable contributions. [Application system services](context/system-services.md) owns browser queries and themed rendering.

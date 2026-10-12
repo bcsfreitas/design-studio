@@ -1,3 +1,4 @@
+import { getSystemSource } from '#studio/systems';
 import { Suspense, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useSearch, useRouterState, lazyRouteComponent } from '@tanstack/react-router';
 import {
@@ -48,18 +49,14 @@ import { useManifest } from '@/platform/app/data/useManifest';
 import type { DesignSystem, SystemIntro } from '@/platform/app/data/types';
 import type { SystemComponentDoc } from '@/platform/modules/systems/docs';
 import type { ThemeToken, TokenGroup } from '@/platform/modules/systems/themeTokens';
-import { ThemeScope } from '@/platform/modules/systems/ThemeScope';
-import {
-  DEFAULT_SYSTEM,
-  PROTOTYPE_SYSTEMS,
-  SYSTEM_SPECS,
-  systemKeyFromIdentity,
-  systemPath,
-} from '@/platform/modules/systems/data/systems';
+import { ThemeScope } from '#studio/systems';
+import { defaultSystemKey, getSystems, systemKeyFromIdentity, systemPath } from '#studio/systems';
+const DEFAULT_SYSTEM = defaultSystemKey();
+const SYSTEM_SPECS = getSystems();
 import { useSourceView } from '@/platform/core/source/useSourceView';
 import FileNavItem from '@/platform/app/shell/FileNavItem';
-import { sourceOf } from '../sources';
-import { PLATFORM_ID, PLATFORM_SOURCE } from '../data/systems';
+import { platformSystemKey } from '#studio/systems';
+const PLATFORM_ID = platformSystemKey();
 import { systemSourceRequest } from './systemSource';
 import SystemActionToast from './SystemActionToast';
 import SystemMenu from './SystemMenu';
@@ -105,7 +102,7 @@ type SystemId = string;
 
 // Map a rendered Systems page to its actual source files.
 function sourcePath(system: string, page: string | undefined, components: SystemComponentDoc[], componentPage = false) {
-  const source = system === PLATFORM_ID ? PLATFORM_SOURCE : sourceOf(system, PROTOTYPE_SYSTEMS[system]);
+  const source = getSystemSource(system)!;
   if (!componentPage && (page === 'assets' || page === 'fonts' || page === 'images')) return null;
   if (!componentPage && (!page || page === 'icons'))
     return intros['/systems/' + system + '/intro.tsx'] ? source.dir + 'intro.tsx' : source.dir + 'system.ts';
@@ -230,7 +227,7 @@ function SystemNav({
 }) {
   const params = useRouterState({ select: state => state.matches.at(-1)?.params }) as { _splat?: string };
   const manifest = useManifest();
-  const source = system === PLATFORM_ID ? PLATFORM_SOURCE : sourceOf(system, PROTOTYPE_SYSTEMS[system]);
+  const source = getSystemSource(system)!;
   const foundations = TOKEN_PAGES.filter(p => tokens.some(t => t.group === p.group));
   const savedTree = systemTreeState.get(system);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(

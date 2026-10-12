@@ -29,7 +29,8 @@ import { NavHeader } from '@/platform/app/shell/nav';
 import { menuGroups } from '@/platform/app/shell/menuGroups';
 import { Link } from '@tanstack/react-router';
 import PrototypeRebuildNotice from './PrototypeRebuildNotice';
-import { PROTOTYPE_SYSTEMS, systemPath } from '@/platform/modules/systems/data/systems';
+import { getSystems, systemPath } from '#studio/systems';
+const PROTOTYPE_SYSTEMS = getSystems({ role: 'prototype' });
 
 // The title, renamed in place: Enter or leaving the field saves, Escape cancels.
 function TitleInput({ initial, onDone }: { initial: string; onDone: (title: string | null) => void }) {

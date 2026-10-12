@@ -136,3 +136,5 @@ The Prototypes module: the gallery at `/prototypes`, and the viewer every protot
 - `node/create.js`: `pnpm new`, and what the New prototype button runs (Node).
 
 Agent contract: `src/platform/modules/prototypes/skills/build-prototype/SKILL.md`.
+
+Navigation uses the platform `FileTree` with Prototypes-owned creation and permission policy. System selection and paths use the public [application system services](../../context/system-services.md).

@@ -93,6 +93,8 @@ import { adminProblems, type StudioConfig } from '#studio/module';
 import { compiledLifecycle, createPrototype, duplicatePrototype, renamePrototype, deletePrototype, fileOp, useManifest, type PrototypeInfo, loadModuleAsset } from '#studio/data';
 import { initialLifecycle, lifecycleAttributes } from '#studio/lifecycle';
 import { useEffect, useState } from 'react';
+import {getSystems,getSystem,defaultSystemKey,systemPath,ThemeScope} from '#studio/systems';
+function PublicSystems(){const key=defaultSystemKey(),system=getSystem(key);return <ThemeScope themeClass={system?.themeClass ?? 'prototype-unstyled'}><p data-public-system>{system?.label ?? 'Missing system'}: {Object.keys(getSystems({role:'prototype'})).length} systems <a href={systemPath(key)}>Open system</a></p></ThemeScope>;}
 function PublicAsset(){const [value,setValue]=useState('Pending asset');useEffect(()=>{loadModuleAsset<{message:string}>('fixture','report').then(data=>setValue(data.message)).catch(error=>setValue(error.message));},[]);return <p data-public-asset>{value}</p>;}
 function LocalSettings(){const settings=useStudioSettings(['name']);return <p data-public-settings>{settings.snapshot ? settings.snapshot.role : settings.error || 'Loading settings'}</p>;}
 function Mutations(){
@@ -115,7 +117,7 @@ function Probe(){
   useEffect(()=>{const tracker=compiledLifecycle({contributor:'artifact-fixture',prototype:'mixed',path:'main.tsx'},setState);tracker.ready();return ()=>tracker.dispose();},[]);
   return <section data-public-api-probe {...lifecycleAttributes(state)}><h2>Public API fixture</h2>
     <MermaidDiagram source={'graph LR\\n A-->B'} />
-    <PublicAsset />{import.meta.env.DEV && <><LocalSettings /><Mutations /></>}
+    <PublicSystems /><PublicAsset />{import.meta.env.DEV && <><LocalSettings /><Mutations /></>}
   </section>;
 }
 export const validAdmins = (config: Partial<StudioConfig>, people: string[]) => adminProblems(config,people);
@@ -147,7 +149,8 @@ console.log('Public identity and settings validators passed.');
     `
 import { CodeIcon } from '@hugeicons/core-free-icons';
 import { readSource, inspectArtifact, useManifest, type Prototype, type Artifact, type FileTypeModule } from '#studio/data';
-import { ArtifactHost } from '#studio/ui';
+import { ArtifactHost, FileTree, type FileTreePolicy } from '#studio/ui';
+const readOnlyTree: FileTreePolicy = {scope:'prototype',noun:'artifacts',reorder:false,canChange:()=>false,newOptions:()=>[]};
 import { artifactAddress, resourceId } from '#studio/files';
 import { useEffect, useState } from 'react';
 import { createArtifactLifecycle, initialLifecycle, lifecycleAttributes, digestText } from '#studio/lifecycle';
@@ -169,7 +172,7 @@ function SourcePage({source}: {source:string}) {
 function Page({source,proto,item}: {source:string;proto:Prototype;item:Artifact}) {
  const request={reference:artifactAddress(resourceId(proto.studioId),resourceId(item.studioId)),origin:{proto,item},surface:'fixture/storyboard' as const};
  const result=inspectArtifact(request,useManifest());
- return <><SourcePage source={source}/><p data-public-inspection>{result.state}</p><ArtifactHost request={request} width={480} height={240}/></>;
+ return <><aside aria-label="Public file tree"><FileTree proto={proto} current={item} policy={readOnlyTree} embedded /></aside><SourcePage source={source}/><p data-public-inspection>{result.state}</p><ArtifactHost request={request} width={480} height={240}/></>;
 }
 export default {
   icon:CodeIcon,

@@ -6,7 +6,9 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { Add01Icon } from '@hugeicons/core-free-icons';
 import { createPrototype, useMe } from '#studio/data';
 import { findPrototype, prototypeLink } from '@/platform/app/data/manifest';
-import { DEFAULT_SYSTEM, ACTIVE_PROTOTYPE_SYSTEMS } from '@/platform/modules/systems/data/systems';
+import { defaultSystemKey, getSystems } from '#studio/systems';
+const DEFAULT_SYSTEM = defaultSystemKey();
+const ACTIVE_PROTOTYPE_SYSTEMS = getSystems({ role: 'prototype', status: 'active' });
 import { Button } from '@/platform/systems/studio/components/button';
 import { Input } from '@/platform/systems/studio/components/input';
 import {

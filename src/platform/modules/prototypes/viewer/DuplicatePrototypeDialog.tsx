@@ -3,7 +3,8 @@ import { useNavigate } from '@tanstack/react-router';
 import { duplicatePrototype } from '#studio/data';
 import { findPrototype, prototypeLink } from '@/platform/app/data/manifest';
 import type { PrototypeInfo } from '@/platform/app/data/types';
-import { ACTIVE_PROTOTYPE_SYSTEMS } from '@/platform/modules/systems/data/systems';
+import { getSystems } from '#studio/systems';
+const ACTIVE_PROTOTYPE_SYSTEMS = getSystems({ role: 'prototype', status: 'active' });
 import { Button } from '@/platform/systems/studio/components/button';
 import { Input } from '@/platform/systems/studio/components/input';
 import {

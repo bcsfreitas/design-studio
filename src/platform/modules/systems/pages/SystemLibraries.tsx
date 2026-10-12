@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { ExternalLink, Image, Library, Smile, Type } from 'lucide-react';
 import { useManifest } from '@/platform/app/data/useManifest';
 import { PageHeader } from './foundations';
-import { systemPath } from '../data/systems';
+import { systemPath } from '#studio/systems';
 
 export default function SystemLibraries({ system, label }: { system: string; label: string }) {
   const inventory = useManifest().systems[system];

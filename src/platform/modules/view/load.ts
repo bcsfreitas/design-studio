@@ -1,7 +1,8 @@
 // Loads a view for its page (open.tsx) and for embeds (ViewEmbed.tsx).
 import type { ArtifactContext } from '@/platform/app/data/fileTypeModule';
 import { artifactSlug } from '@/platform/app/data/manifest';
-import { PROTOTYPE_SYSTEMS } from '@/platform/modules/systems/data/systems';
+import { getSystems } from '#studio/systems';
+const PROTOTYPE_SYSTEMS = getSystems({ role: 'prototype' });
 import { repoPath } from '@/platform/app/data/files';
 import { emptyView } from './lib/index';
 import { views } from './loader';

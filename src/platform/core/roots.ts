@@ -18,7 +18,7 @@ export const SYSTEM_ROOTS = [SUPPLIED_SYSTEMS_ROOT, TEAM_SYSTEMS_ROOT] as const;
 export const SYSTEM_GLOB_ROOTS = SYSTEM_ROOTS.map(root => root.replace(/^src/, ''));
 
 // Where each discovered system's folder is under src/ ("platform/systems/studio"), by id. The app and the build
-// register it at startup from discovery (src/platform/modules/systems/data/systems.ts and src/platform/modules/systems/node/systems.js),
+// register it at startup from discovery (src/platform/app/data/systemServices.ts and src/platform/modules/systems/node/systems.js),
 // since this file can't read the filesystem. A system that isn't registered is taken to be in the team root.
 let systemFolders: ReadonlyMap<string, string> = new Map();
 export const setSystemFolders = (folders: Iterable<readonly [string, string]>) => {

@@ -1,12 +1,10 @@
+import { getSystemSource } from '#studio/systems';
 // A component's files in the Source editor, one tab each: its page (Markdown), its examples, and
 // the component itself. Shown in place of the component's page through navigation's Edit source action; the page updates as you save. A file the component doesn't have yet is offered as
 // a template. Dev only: it reads and saves through the file layer (src/platform/node/build/vite-files-plugin.js).
 import { useMemo, useState } from 'react';
 import SourceEditor from '@/platform/core/source/SourceEditor';
 import type { SourceAccess } from '@/platform/core/source/access';
-import { sourceOf } from '../sources';
-import { PLATFORM_ID, PLATFORM_SOURCE } from '../data/systems';
-import { PROTOTYPE_SYSTEMS } from '../data/systems';
 import { systemSourceRequest, createComponentDocs } from './systemSource';
 import { shortcutLabel } from '@/platform/app/shell/artifactShortcuts';
 import { canEditSource, useMe } from '@/platform/app/data/files';
@@ -54,7 +52,7 @@ export function ComponentEditor({
 
   const tab = tabs.find(t => t.kind === kind) ?? tabs[0];
   const path = component.files[tab.kind];
-  const spec = system === PLATFORM_ID ? PLATFORM_SOURCE : sourceOf(system, PROTOTYPE_SYSTEMS[system]);
+  const spec = getSystemSource(system)!;
   const fullPath = path ? spec.components + '/' + path : null;
   const editable = canEditSource(fullPath ?? spec.components, me);
   const access = useMemo<SourceAccess | null>(

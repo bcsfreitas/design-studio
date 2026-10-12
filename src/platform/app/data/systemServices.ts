@@ -3,7 +3,7 @@
 // are listed once in src/platform/core/roots.ts; Vite needs the glob patterns literal, so both spell them out.
 // (src/platform/modules/systems/node/systems.js finds the same folders for the build.)
 import { platformSystemId, systemRootProblems, type SystemSpec } from '@/platform/modules/systems/spec';
-import { platformSourceOf } from '../sources';
+import { platformSourceOf, sourceOf } from '../../modules/systems/sources';
 import { resourceId, systemAddress } from '#studio/files';
 import { CONFIG } from '@/platform/app/data/config';
 import { setSystemFolders } from '@/platform/core/roots';
@@ -22,7 +22,7 @@ const rootProblems = systemRootProblems(found);
 if (rootProblems.length) throw new Error(rootProblems.join('\n'));
 setSystemFolders(found.map(({ id, dir }) => [id, dir]));
 
-export const SYSTEM_SPECS: Record<string, SystemSpec & { dir: string }> = Object.fromEntries(
+const SYSTEM_SPECS: Record<string, SystemSpec & { dir: string }> = Object.fromEntries(
   Object.entries(specs)
     // The platform system is always part of the studio; the team's systems are the ones `systems` lists.
     .filter(([path, spec]) => spec.role === 'platform' || CONFIG.systems.includes(idOf(path)))
@@ -30,19 +30,10 @@ export const SYSTEM_SPECS: Record<string, SystemSpec & { dir: string }> = Object
     .sort(([a], [b]) => (a as string).localeCompare(b as string)),
 );
 
-export const PLATFORM_ID = platformSystemId(SYSTEM_SPECS);
-export const PLATFORM_SOURCE = platformSourceOf(PLATFORM_ID, SYSTEM_SPECS[PLATFORM_ID]);
-
-export const PROTOTYPE_SYSTEMS = Object.fromEntries(
-  Object.entries(SYSTEM_SPECS).filter(([, spec]) => spec.role === 'prototype'),
-);
+const PLATFORM_ID = platformSystemId(SYSTEM_SPECS);
 
 // Creation selects this configured system and persists its ID in prototype metadata.
-export const DEFAULT_SYSTEM: string = CONFIG.defaultSystem;
-
-export const ACTIVE_PROTOTYPE_SYSTEMS = Object.fromEntries(
-  Object.entries(PROTOTYPE_SYSTEMS).filter(([, spec]) => spec.status === 'active'),
-);
+const DEFAULT_SYSTEM: string = CONFIG.defaultSystem;
 
 // Source keys locate installed files; browser addresses carry only permanent IDs.
 export function systemKeyFromIdentity(id: string | undefined): string | undefined {
@@ -52,3 +43,27 @@ export function systemKeyFromIdentity(id: string | undefined): string | undefine
   return matches[0]?.[0];
 }
 export const systemPath = (key: string) => systemAddress(resourceId(SYSTEM_SPECS[key]?.studioId));
+
+export type SystemInfo = SystemSpec & { dir: string };
+export function getSystems(
+  filter: { role?: SystemSpec['role']; status?: SystemSpec['status'] } = {},
+): Record<string, SystemInfo> {
+  return Object.fromEntries(
+    Object.entries(SYSTEM_SPECS)
+      .filter(
+        ([, system]) =>
+          (!filter.role || system.role === filter.role) && (!filter.status || system.status === filter.status),
+      )
+      .map(([key, system]) => [key, structuredClone(system)]),
+  );
+}
+export function getSystem(key: string | null | undefined): SystemInfo | undefined {
+  return key && SYSTEM_SPECS[key] ? structuredClone(SYSTEM_SPECS[key]) : undefined;
+}
+export const defaultSystemKey = () => DEFAULT_SYSTEM;
+export const platformSystemKey = () => PLATFORM_ID;
+
+export function getSystemSource(key: string) {
+  const system = getSystem(key);
+  return system ? (system.role === 'platform' ? platformSourceOf(key, system) : sourceOf(key, system)) : undefined;
+}

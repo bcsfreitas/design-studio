@@ -6,7 +6,8 @@ import { artifactSlug } from '@/platform/core/fileTypes';
 import { artifactAddress, parsePrototypeAddress, resourceId } from '@/platform/core/resourceIdentity';
 import { canonicalPath, parseAddress, isSectionKey } from '@/platform/core/roots';
 import type { Artifact, Manifest, Prototype } from '@/platform/app/data/types';
-import { systemKeyFromIdentity } from '@/platform/modules/systems/data/systems';
+import { systemKeyFromIdentity } from '#studio/systems';
+
 import { SYSTEM_CONTENT_KEY, contentParts, contentId } from '@/platform/core/roots';
 import { contentAddress, allPrototypes } from '@/platform/app/data/manifest';
 import { MODULES } from '@/platform/app/data/modules';

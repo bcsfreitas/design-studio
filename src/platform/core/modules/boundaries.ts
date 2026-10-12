@@ -12,6 +12,7 @@ export type ApiEnvironment = 'application' | 'node' | 'runtime';
 export const API_POLICY = {
   module: ['application', 'node'],
   system: [],
+  systems: ['application'],
   files: ['application', 'node'],
   data: ['application'],
   ui: ['application'],

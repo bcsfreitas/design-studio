@@ -1,6 +1,6 @@
 import { useSyncExternalStore, type ComponentProps } from 'react';
-import { SYSTEM_SPECS } from './data/systems';
-import { systemColorMode } from './spec';
+import { getSystems } from '../data/systemServices';
+import { systemColorMode } from '../../modules/systems/spec';
 import { cn } from '#studio/runtime';
 
 // One observer serves every mounted view and preview.
@@ -25,7 +25,7 @@ const snapshot = () => (document.documentElement.classList.contains('dark') ? ('
 // Only rendered system content receives a mode boundary. Studio content keeps its global mode.
 export function ThemeScope({ themeClass, className, style, ...props }: ComponentProps<'div'> & { themeClass: string }) {
   const global = useSyncExternalStore(subscribe, snapshot, () => 'light' as const);
-  const system = Object.values(SYSTEM_SPECS).find(spec => spec.themeClass === themeClass);
+  const system = Object.values(getSystems()).find(spec => spec.themeClass === themeClass);
   const mode = system
     ? systemColorMode(system.colorModes, global)
     : themeClass === 'prototype-unstyled'

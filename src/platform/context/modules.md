@@ -177,3 +177,5 @@ Modules can declare primitive preference schemas and defaults; see [Contributor 
 `optimizeDependencies` lists at most 32 unique package roots from the module’s `dependencies`. Vite combines enabled, compatible declarations with shared editor dependencies before first use. Disabled or removed modules contribute nothing. Subpaths and arbitrary Vite configuration are unsupported.
 
 `ModuleBuild.assets` contributes named lazy JSON assets through the [shared asset protocol](build-assets.md). Browser consumers use `loadModuleAsset` and `subscribeModuleAsset` from `#studio/data`.
+
+`#studio/systems` exposes [application system services](system-services.md). Use these queries and `ThemeScope` for application rendering; the singular `#studio/system` remains declaration types.

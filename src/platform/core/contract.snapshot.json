@@ -75,6 +75,44 @@
         "signature": "{ studioId?: string; role: \"platform\" | \"prototype\"; status: \"active\" | \"archived\"; renameReview?: readonly string[]; label: string; themeClass: string; styling: \"tailwind\" | \"custom\"; colorModes: readonly ColorMode[]; docs: DocsMode; origin: \"shadcn\" | null; libraries: readonly SystemLibrary[]; }"
       }
     },
+    "#studio/systems": {
+      "SystemInfo": {
+        "stability": "experimental",
+        "signature": "SystemSpec & { dir: string; }"
+      },
+      "ThemeScope": {
+        "stability": "experimental",
+        "signature": "({ themeClass, className, style, ...props }: ComponentProps<\"div\"> & { themeClass: string; }) => import(\"react\").JSX.Element"
+      },
+      "defaultSystemKey": {
+        "stability": "experimental",
+        "signature": "() => string"
+      },
+      "getSystem": {
+        "stability": "experimental",
+        "signature": "(key: string | null | undefined) => SystemInfo | undefined"
+      },
+      "getSystemSource": {
+        "stability": "experimental",
+        "signature": "(key: string) => SystemSource | undefined"
+      },
+      "getSystems": {
+        "stability": "experimental",
+        "signature": "(filter?: { role?: SystemSpec[\"role\"]; status?: SystemSpec[\"status\"]; }) => Record<string, SystemInfo>"
+      },
+      "platformSystemKey": {
+        "stability": "experimental",
+        "signature": "() => string"
+      },
+      "systemKeyFromIdentity": {
+        "stability": "experimental",
+        "signature": "(id: string | undefined) => string | undefined"
+      },
+      "systemPath": {
+        "stability": "experimental",
+        "signature": "(key: string) => string"
+      }
+    },
     "#studio/files": {
       "ArtifactCapabilities": {
         "stability": "stable",
@@ -490,7 +528,7 @@
       },
       "SourceLanguage": {
         "stability": "experimental",
-        "signature": "\"tsx\" | \"markdown\" | \"json\" | \"mermaid\" | \"text\""
+        "signature": "\"text\" | \"tsx\" | \"markdown\" | \"json\" | \"mermaid\""
       },
       "ViewToggle": {
         "stability": "experimental",
@@ -1481,6 +1519,10 @@
       "stability": "stable",
       "signature": "{ overview?: SystemOverviewSummary; summary?: string; label: string; dir: string; scopeClass: string; intro?: ReactNode; icons?: { library: string; href: string; snippet: string; grid: ReactNode; }; }"
     },
+    "#studio/systems.getSystemSource.SystemSource": {
+      "stability": "experimental",
+      "signature": "{ label: string; dir: string; components: string; theme: string; scope: { light: string; dark: string; }; docs: DocsMode; origin: \"shadcn\" | null; }"
+    },
     "#studio/ui.ArtifactHost.PlatformReferenceGroup": {
       "stability": "experimental",
       "signature": "{ id: string; label: string; enabled: boolean; references: { source: string; title: string; related?: { title: string; href: string; }[]; }[]; related: { title: string; href: string; }[]; }"
@@ -2379,7 +2421,7 @@
     },
     "SourceLanguage": {
       "stability": "experimental",
-      "signature": "\"tsx\" | \"markdown\" | \"json\" | \"mermaid\" | \"text\""
+      "signature": "\"text\" | \"tsx\" | \"markdown\" | \"json\" | \"mermaid\""
     },
     "SourceRevision": {
       "stability": "experimental",
@@ -2392,6 +2434,10 @@
     "SystemCuration": {
       "stability": "stable",
       "signature": "{ stage: \"direction\" | \"foundations\" | \"components\" | \"prototype\" | \"ready\" | \"assessment\"; summary: string; nextStep: string; sources: { label: string; url: string; }[]; record?: string; prototypeId?: string; }"
+    },
+    "SystemInfo": {
+      "stability": "experimental",
+      "signature": "SystemSpec & { dir: string; }"
     },
     "SystemIntro": {
       "stability": "stable",
@@ -2464,6 +2510,10 @@
     "Textarea": {
       "stability": "experimental",
       "signature": "({ className, ...props }: React.ComponentProps<\"textarea\">) => React.JSX.Element"
+    },
+    "ThemeScope": {
+      "stability": "experimental",
+      "signature": "({ themeClass, className, style, ...props }: ComponentProps<\"div\"> & { themeClass: string; }) => import(\"react\").JSX.Element"
     },
     "Tooltip": {
       "stability": "experimental",
@@ -2569,6 +2619,10 @@
       "stability": "experimental",
       "signature": "(text: any, relativeTarget: any) => any"
     },
+    "defaultSystemKey": {
+      "stability": "experimental",
+      "signature": "() => string"
+    },
     "defineFileType": {
       "stability": "experimental",
       "signature": "(spec: FileTypeSpec) => FileTypeSpec"
@@ -2604,6 +2658,18 @@
     "freshness": {
       "stability": "experimental",
       "signature": "(state: ArtifactLifecycle) => \"current\" | \"stale\" | \"unknown\" | \"empty\""
+    },
+    "getSystem": {
+      "stability": "experimental",
+      "signature": "(key: string | null | undefined) => SystemInfo | undefined"
+    },
+    "getSystemSource": {
+      "stability": "experimental",
+      "signature": "(key: string) => SystemSource | undefined"
+    },
+    "getSystems": {
+      "stability": "experimental",
+      "signature": "(filter?: { role?: SystemSpec[\"role\"]; status?: SystemSpec[\"status\"]; }) => Record<string, SystemInfo>"
     },
     "identityFromDeclarations": {
       "stability": "experimental",
@@ -2677,6 +2743,10 @@
       "stability": "experimental",
       "signature": "(path: string) => { prototypeId: ResourceId; artifactId?: ResourceId; } | null"
     },
+    "platformSystemKey": {
+      "stability": "experimental",
+      "signature": "() => string"
+    },
     "prototypeAddress": {
       "stability": "experimental",
       "signature": "(id: ResourceId) => string"
@@ -2724,6 +2794,14 @@
     "systemAddress": {
       "stability": "experimental",
       "signature": "(id: ResourceId) => string"
+    },
+    "systemKeyFromIdentity": {
+      "stability": "experimental",
+      "signature": "(id: string | undefined) => string | undefined"
+    },
+    "systemPath": {
+      "stability": "experimental",
+      "signature": "(key: string) => string"
     },
     "tabsListVariants": {
       "stability": "experimental",

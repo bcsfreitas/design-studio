@@ -1,4 +1,5 @@
-import { SYSTEM_SPECS } from '@/platform/modules/systems/data/systems';
+import { getSystems } from '#studio/systems';
+const SYSTEM_SPECS = getSystems();
 import { useContext, type ComponentProps } from 'react';
 import { Link } from '@tanstack/react-router';
 import type { MDXComponents } from 'mdx/types';

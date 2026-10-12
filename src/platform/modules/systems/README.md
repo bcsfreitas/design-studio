@@ -181,3 +181,5 @@ Page loading follows the [shared navigation handoff](../../context/source.md#nav
 Systems owns `source`, `skill`, and `component-docs` under `/__studio/systems/`. Requests use the current permanent system identity and relative source paths. Active-system resolution precedes current contributor authorization; Studio remains Admin-only. Platform and module skill owners use their declared knowledge-owner IDs. Source editing uses the shared ordinary-file catalog and version-conflict contract. Creation receipts include the same manifest published to other tabs and use `callModuleMutation` for origin-tab synchronization. The generic file endpoint has no Systems creation cases.
 
 Component props use the shared [build asset protocol](../../context/build-assets.md) as `systems/props`. Systems owns extraction; the platform owns lazy transport, caching, and dependency invalidation.
+
+Application consumers use the public [system services](../../context/system-services.md), including queries, source paths, and `ThemeScope`. Context and Skills use the shared `FileTree` with Systems-owned policy; creation rules and bundle protections stay in `content/fileTreePolicy.tsx`.

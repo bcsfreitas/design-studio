@@ -38,7 +38,9 @@ import {
 } from '@/platform/systems/studio/components/dropdown-menu';
 import { beginSystemDeletion, finishSystemCreation } from './creationTransition';
 import { canPerform } from '@/platform/core/permissions';
-import { DEFAULT_SYSTEM, SYSTEM_SPECS, systemPath } from '../data/systems';
+import { defaultSystemKey, getSystems, systemPath } from '#studio/systems';
+const DEFAULT_SYSTEM = defaultSystemKey();
+const SYSTEM_SPECS = getSystems();
 import { systemFolder } from '@/platform/core/roots';
 
 export const systemRequest = <T,>(action: string, system?: string, extra: object = {}) =>

@@ -1,7 +1,7 @@
 // Child-document renderer. Shared by page previews and inert embeds.
 import { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { ThemeScope } from '@/platform/modules/systems/ThemeScope';
+import { ThemeScope } from '#studio/systems';
 import { PortalContext } from '#studio/runtime';
 import { PrototypeNavigationProvider } from '@/platform/modules/prototypes/lib';
 import { FileError as ViewError } from '#studio/ui';

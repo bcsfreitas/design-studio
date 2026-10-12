@@ -2,7 +2,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useRouter } from '@tanstack/react-router';
 import { ArrowRight, ExternalLink, Library } from 'lucide-react';
 import { useManifest } from '@/platform/app/data/useManifest';
-import { systemPath } from '../data/systems';
+import { systemPath } from '#studio/systems';
+
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowDown01Icon } from '@hugeicons/core-free-icons';
 import { Button } from '@/platform/systems/studio/components/button';

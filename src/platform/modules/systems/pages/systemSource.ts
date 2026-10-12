@@ -1,5 +1,6 @@
 import { SourceChanged, ClientError, callModule, callModuleMutation, type Manifest } from '#studio/data';
-import { SYSTEM_SPECS } from '../data/systems';
+import { getSystems } from '#studio/systems';
+const SYSTEM_SPECS = getSystems();
 import { contentParts } from '@/platform/core/roots';
 
 function target(path: string) {

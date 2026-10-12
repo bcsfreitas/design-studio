@@ -1,4 +1,5 @@
-import { systemPath } from '../data/systems';
+import { systemPath } from '#studio/systems';
+
 import { useEffect } from 'react';
 import { Link, useNavigate, useSearch } from '@tanstack/react-router';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -25,7 +26,9 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/platform/systems/studio/components/empty';
-import { DEFAULT_SYSTEM, SYSTEM_SPECS } from '../data/systems';
+import { defaultSystemKey, getSystems } from '#studio/systems';
+const DEFAULT_SYSTEM = defaultSystemKey();
+const SYSTEM_SPECS = getSystems();
 import { finishSystemDeletion } from './creationTransition';
 import SystemActionToast from './SystemActionToast';
 import SystemMenu from './SystemMenu';

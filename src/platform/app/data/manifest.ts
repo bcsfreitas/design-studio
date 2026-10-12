@@ -1,4 +1,5 @@
-import { systemPath } from '@/platform/modules/systems/data/systems';
+import { systemPath } from '#studio/systems';
+
 import { contentParts } from '@/platform/core/roots';
 import { linkOptions } from '@tanstack/react-router';
 import { artifactSlug } from '@/platform/core/fileTypes';
