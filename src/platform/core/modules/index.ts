@@ -9,7 +9,7 @@ import { MODULE_ROOTS, TEAM_MODULES_ROOT } from '../roots.ts';
 // API (src/platform/api/) a module or system is written against. After the first public baseline, stable changes
 // require a minor increase under the 0.x policy; experimental changes remain recorded. A module names the oldest
 // version it works with in `requires`. See context/checks.md for snapshot and released-baseline verification.
-export const PLATFORM_VERSION = '0.3.0';
+export const PLATFORM_VERSION = '0.4.0';
 export const CORE_PAGE_KEYS = ['settings'] as const;
 
 export type ModuleSpec = {

@@ -6,7 +6,8 @@
 // is satisfied), and this puts the patterns in its place as the file is read: the type's extensions in every folder that holds items, which come from
 // the modules' sections (src/platform/core/modules/globs.ts). In a production build it adds a negated pattern
 // for each archived file, prototype, or system, so those never become chunks. Dev can show archived work;
-// prototypes waiting to replace a deleted system cannot load in either environment. The deployed manifest
+// system-dependent loaders exclude prototypes waiting to replace a deleted system in dev. All loaders
+// exclude those prototypes in production. The deployed manifest
 // leaves the same things out (src/platform/node/build/build-manifest.js --deploy).
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -46,6 +47,7 @@ const MACRO = /\['\/__studio_globs__\/\*'\]/g;
 export default function globs() {
   let isBuild = false;
   let negations = [];
+  let missingNegations = [];
   let replaced = 0;
   let systemNegations = [];
   const root = fileURLToPath(new URL('../../../../', import.meta.url));
@@ -57,9 +59,10 @@ export default function globs() {
     },
     buildStart() {
       replaced = 0;
-      negations = unavailablePrototypeRoots(root).map(
+      missingNegations = unavailablePrototypeRoots(root).map(
         dir => `!/${path.relative(path.join(root, 'src'), dir).split(path.sep).join('/')}/**`,
       );
+      negations = [];
       systemNegations = isBuild ? archivedSystemGlobs(SYSTEM_SPECS) : [];
       if (!isBuild) return;
       const { archived } = buildManifest({ deploy: true, write: false, quiet: true });
@@ -85,7 +88,12 @@ export default function globs() {
       // its loader gets an empty list: it opens nothing.
       const list = JSON.stringify(
         FILE_TYPES[match[1]]
-          ? [...globsFor(match[1], FILE_TYPES, ENABLED_MODULES), ...negations, ...systemNegations]
+          ? [
+              ...globsFor(match[1], FILE_TYPES, ENABLED_MODULES),
+              ...negations,
+              ...(isBuild || FILE_TYPES[match[1]].systemUsage === 'assigned' ? missingNegations : []),
+              ...systemNegations,
+            ]
           : [],
       );
       replaced++;
@@ -93,7 +101,7 @@ export default function globs() {
     },
     // Archived files that no loader was told about would ship in the build, so stop instead.
     buildEnd() {
-      if (negations.length && replaced === 0) {
+      if ((negations.length || missingNegations.length) && replaced === 0) {
         this.error(
           "Archived views and prototypes could not be left out of the build: no file type loader (<module folder>/loader.ts) lists its files with the ['/__studio_globs__/*'] placeholder.",
         );

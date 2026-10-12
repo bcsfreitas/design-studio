@@ -7,7 +7,16 @@ import { TEAM_MODULES_ROOT, TEAM_SYSTEMS_ROOT } from '../roots.ts';
 
 export const API_FOLDER = 'src/platform/api';
 // One file per entry in API_FOLDER; a test keeps this list and the folder the same.
-export const API_ENTRIES = ['module', 'system', 'files', 'data', 'ui', 'components'] as const;
+export const API_ENTRIES = [
+  'module',
+  'system',
+  'files',
+  'data',
+  'ui',
+  'components',
+  'references',
+  'lifecycle',
+] as const;
 export const apiSpecifier = (entry: string) => `#studio/${entry}`;
 
 const TEAM_ROOTS = [TEAM_MODULES_ROOT, TEAM_SYSTEMS_ROOT];

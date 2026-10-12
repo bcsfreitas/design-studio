@@ -49,7 +49,21 @@ export type ArtifactAvailabilityContext = {
   present: boolean;
   renderer: boolean;
   scope: 'prototype' | 'systemContent';
+  systemMissing?: { label: string };
 };
+
+// Container assignment is context; only system-consuming formats require its runtime.
+export function artifactSystemAvailability(
+  spec: FileTypeSpec | undefined,
+  context: { systemMissing?: { label: string } },
+): CapabilityAvailability {
+  return capabilityAvailability(
+    Boolean(spec),
+    spec?.systemUsage === 'assigned' &&
+      context.systemMissing &&
+      `The assigned system ${context.systemMissing.label} is unavailable. Rebuild the system-dependent implementation. Source remains available.`,
+  );
+}
 
 export function capabilityAvailability(
   supported: boolean,
@@ -68,11 +82,13 @@ export function artifactAvailability(spec: FileTypeSpec | undefined, context: Ar
   const local = !context.local && 'This operation is available only in a local studio.';
   const readonly = !context.editable && 'You do not have permission to change this artifact.';
   const renderer = !context.renderer && 'The artifact renderer is unavailable.';
+  const system = artifactSystemAvailability(spec, context);
+  const dependency = system.supported && !system.available && system.reason;
   const scope =
     Boolean(spec && !(context.scope === 'prototype' ? spec.inPrototype : spec.inSystemContent)) &&
     'This artifact type is unavailable in this scope.';
   return {
-    view: capabilityAvailability(Boolean(spec), scope, missing, renderer),
+    view: capabilityAvailability(Boolean(spec), scope, missing, renderer, dependency),
     source: capabilityAvailability(caps?.source === true, scope, missing, local),
     editSource: capabilityAvailability(caps?.source === true, scope, missing, local, readonly),
     create: capabilityAvailability(caps?.create === true, scope, local, readonly, renderer),
@@ -87,7 +103,7 @@ export function artifactAvailability(spec: FileTypeSpec | undefined, context: Ar
     embeds: Object.fromEntries(
       (['document', 'canvas'] as const).map(surface => [
         surface,
-        capabilityAvailability(caps?.embeds.includes(surface) === true, scope, missing, renderer),
+        capabilityAvailability(caps?.embeds.includes(surface) === true, scope, missing, renderer, dependency),
       ]),
     ) as Record<EmbedSurface, CapabilityAvailability>,
   };
@@ -95,6 +111,7 @@ export function artifactAvailability(spec: FileTypeSpec | undefined, context: Ar
 
 export type FileTypeSpec = {
   label: string; // "View", "Document"
+  systemUsage: 'assigned' | 'independent';
   // Prototype source identity travels with the file. System content retains paths.
   // No generation during discovery: creation/explicit assignment supplies it.
   identity?: IdentityMetadata;
@@ -136,6 +153,8 @@ export type FileTypeSpec = {
 export const defineFileType = (spec: FileTypeSpec) => {
   if (!spec || typeof spec !== 'object' || Array.isArray(spec))
     throw new Error('File type: provide a declaration object in type.ts.');
+  if (!['assigned', 'independent'].includes(spec.systemUsage))
+    throw new Error(`File type ${spec.label}: declare systemUsage as assigned or independent.`);
   for (const key of ['inSystemContent', 'inPrototype', 'fallback'] as const) {
     if (typeof spec[key] !== 'boolean') throw new Error(`File type ${spec.label}: declare ${key} as true or false.`);
   }
@@ -249,6 +268,7 @@ const titleOf = (name: string) =>
 
 export const markdownFileType: FileTypeSpec = {
   label: 'Document',
+  systemUsage: 'independent',
   identity: markdownIdentity,
   capabilities: { source: true, create: true, fidelity: false, embeds: [], actions: [] },
   inPrototype: true,

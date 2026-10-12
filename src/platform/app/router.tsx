@@ -299,7 +299,18 @@ async function itemLoader(
     present: Boolean(item),
     renderer: Boolean(type),
     scope: proto?.contributorKey === SYSTEM_CONTENT_KEY ? 'systemContent' : 'prototype',
+    systemMissing: proto?.systemMissing,
   });
+  if (proto && item && title && view.view.supported && !view.view.available)
+    return {
+      fileType: item.fileType,
+      props: null,
+      title,
+      artifactId: item.studioId,
+      artifactPath: item.path,
+      filePath: '/' + rootOf(proto.contributorKey, proto.id) + '/' + item.path,
+      unavailable: view.view.reason,
+    };
   const props = proto && item && type && view.view.available ? await prepareFile(type, { proto, item }) : undefined;
   if (!proto || !item || !props || !title) throw notFound();
   return {
@@ -317,6 +328,7 @@ type ItemData = {
   fileType: string;
   props: object | null;
   source?: { proto: Prototype; item: Artifact };
+  unavailable?: string;
   title: string;
   artifactId?: string;
   artifactPath: string;
@@ -369,6 +381,16 @@ function ItemPage({ data }: { data: ItemData | undefined }) {
         inert={source || undefined}
         className={source ? 'hidden' : 'flex min-h-0 min-w-0 flex-1 outline-none'}
       >
+        {preview?.unavailable && (
+          <div role='status' className='p-8 text-sm'>
+            <p>{preview.unavailable}</p>
+            {import.meta.env.DEV && (
+              <Button className='mt-4' variant='outline' onClick={toggle}>
+                Open source
+              </Button>
+            )}
+          </div>
+        )}
         {Page && preview?.props && (
           <Suspense fallback={null}>
             <Page {...preview.props} />

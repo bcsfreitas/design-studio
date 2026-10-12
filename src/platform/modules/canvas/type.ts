@@ -9,6 +9,7 @@ const KNOWN_VERSION = 1;
 
 export default defineFileType({
   capabilities: { source: true, create: true, fidelity: false, embeds: ['document'], actions: [] },
+  systemUsage: 'independent',
   inPrototype: true,
   inSystemContent: false,
   fallback: false,

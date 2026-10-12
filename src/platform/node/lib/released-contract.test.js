@@ -7,6 +7,8 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { computeContract, SNAPSHOT_FILE } from './contract.js';
 import { releasedBaseline, releasedProblems } from './released-contract.js';
 const base = computeContract();
+// Exercise the first public baseline independently of the candidate version.
+base.platformVersion = '0.3.0';
 const baseline = () => ({ tag: 'v0.3.0', snapshot: structuredClone(base) });
 
 test('the public launch starts without historical pre-release compatibility', () => {
@@ -101,14 +103,21 @@ test('the actual CLI refuses a refreshed patch snapshot against its public tag',
   git('config', 'user.email', 'fixture@example.test');
   git('config', 'commit.gpgsign', 'false');
   fs.writeFileSync(path.join(root, '.git/info/exclude'), 'node_modules\n');
-  execFileSync(process.execPath, ['src/platform/node/check/check-contract.js'], { cwd: root, stdio: 'pipe' });
+  const module = path.join(root, 'src/platform/core/modules/index.ts');
+  fs.writeFileSync(
+    module,
+    fs.readFileSync(module, 'utf8').replace(/PLATFORM_VERSION = '[^']+'/, "PLATFORM_VERSION = '0.3.0'"),
+  );
+  execFileSync(process.execPath, ['src/platform/node/check/check-contract.js', '--update'], {
+    cwd: root,
+    stdio: 'pipe',
+  });
   git('add', '.');
   git('commit', '-q', '--no-verify', '-m', 'Synthetic public baseline');
   git('tag', 'v0.3.0');
   fs.writeFileSync(path.join(root, 'uncommitted.txt'), 'candidate work');
   assert.equal(releasedBaseline(root, '0.3.0').tag, 'v0.3.0', 'dirty source must compare against the tagged HEAD');
   fs.rmSync(path.join(root, 'uncommitted.txt'));
-  const module = path.join(root, 'src/platform/core/modules/index.ts');
   fs.writeFileSync(
     module,
     fs

@@ -1,6 +1,6 @@
 {
   "snapshotVersion": 2,
-  "platformVersion": "0.3.0",
+  "platformVersion": "0.4.0",
   "formatVersions": {
     "config": 1,
     "prototype": 1,
@@ -74,7 +74,7 @@
       },
       "FileTypeSpec": {
         "stability": "stable",
-        "signature": "{ label: string; identity?: IdentityMetadata; extensions: readonly string[]; language?: \"tsx\" | \"markdown\" | \"json\" | \"mermaid\" | \"text\"; capabilities: ArtifactCapabilities; inSystemContent: boolean; inPrototype: boolean; fallback: boolean; fidelity?: { isLofi(source: string): boolean; setLofi(source: string, on: boolean): string; }; template?: (name: string) => string; check?: (file: { source: string; frontmatter: Record<string, unknown> | null; prototype?: { contributor: string; id: string; studioId?: string; }; }) => string[]; }"
+        "signature": "{ label: string; systemUsage: \"assigned\" | \"independent\"; identity?: IdentityMetadata; extensions: readonly string[]; language?: \"tsx\" | \"markdown\" | \"json\" | \"mermaid\" | \"text\"; capabilities: ArtifactCapabilities; inSystemContent: boolean; inPrototype: boolean; fallback: boolean; fidelity?: { isLofi(source: string): boolean; setLofi(source: string, on: boolean): string; }; template?: (name: string) => string; check?: (file: { source: string; frontmatter: Record<string, unknown> | null; prototype?: { contributor: string; id: string; studioId?: string; }; }) => string[]; }"
       },
       "IdentityMetadata": {
         "stability": "stable",
@@ -88,13 +88,17 @@
         "stability": "experimental",
         "signature": "(path: string) => string"
       },
+      "artifactSystemAvailability": {
+        "stability": "experimental",
+        "signature": "(spec: FileTypeSpec | undefined, context: { systemMissing?: { label: string; }; }) => CapabilityAvailability"
+      },
       "defineFileType": {
         "stability": "experimental",
         "signature": "(spec: FileTypeSpec) => FileTypeSpec"
       },
       "markdownFileType": {
         "stability": "experimental",
-        "signature": "{ label: string; identity?: IdentityMetadata; extensions: readonly string[]; language?: \"tsx\" | \"markdown\" | \"json\" | \"mermaid\" | \"text\"; capabilities: ArtifactCapabilities; inSystemContent: boolean; inPrototype: boolean; fallback: boolean; fidelity?: { isLofi(source: string): boolean; setLofi(source: string, on: boolean): string; }; template?: (name: string) => string; check?: (file: { source: string; frontmatter: Record<string, unknown> | null; prototype?: { contributor: string; id: string; studioId?: string; }; }) => string[]; }"
+        "signature": "{ label: string; systemUsage: \"assigned\" | \"independent\"; identity?: IdentityMetadata; extensions: readonly string[]; language?: \"tsx\" | \"markdown\" | \"json\" | \"mermaid\" | \"text\"; capabilities: ArtifactCapabilities; inSystemContent: boolean; inPrototype: boolean; fallback: boolean; fidelity?: { isLofi(source: string): boolean; setLofi(source: string, on: boolean): string; }; template?: (name: string) => string; check?: (file: { source: string; frontmatter: Record<string, unknown> | null; prototype?: { contributor: string; id: string; studioId?: string; }; }) => string[]; }"
       },
       "markdownIdentity": {
         "stability": "experimental",
@@ -754,6 +758,90 @@
         "stability": "experimental",
         "signature": "import(\"@base-ui/react\").ToastManager<any>"
       }
+    },
+    "#studio/references": {
+      "CopyReferenceContext": {
+        "stability": "experimental",
+        "signature": "{ target(value: string): string; sceneUpdate?: { nonce?: (element: Record<string, unknown>, next: string) => number; updated?: number; unresolved?: (value: string) => void; computed?: (value: string) => void; }; }"
+      },
+      "MoveReferenceContext": {
+        "stability": "experimental",
+        "signature": "{ link(value: string): string; appTarget(value: string): string; relativeTarget(value: string, imported?: boolean): string; navigation(value: string, attribute?: boolean): string; importedTarget(value: string): string; renameText?: (source: string) => string; }"
+      },
+      "ReferenceAdapter": {
+        "stability": "experimental",
+        "signature": "{ extensions: readonly string[]; move(source: string, path: string, context: MoveReferenceContext): string; copy(source: string, path: string, context: CopyReferenceContext): string; }"
+      },
+      "copyCode": {
+        "stability": "experimental",
+        "signature": "(text: any, file: any, { target, sceneUpdate }: { target: any; sceneUpdate?: {} | undefined; }) => any"
+      },
+      "cssReferences": {
+        "stability": "experimental",
+        "signature": "(text: any, relativeTarget: any) => any"
+      },
+      "defineReferenceAdapter": {
+        "stability": "experimental",
+        "signature": "(adapter: ReferenceAdapter) => ReferenceAdapter"
+      },
+      "markdownReferences": {
+        "stability": "experimental",
+        "signature": "(text: any, link: any) => any"
+      },
+      "moveCode": {
+        "stability": "experimental",
+        "signature": "(text: any, file: any, { appTarget, navigation, importedTarget, link }: { appTarget: any; navigation: any; importedTarget: any; link: any; }) => any"
+      }
+    },
+    "#studio/lifecycle": {
+      "AgentActivity": {
+        "stability": "experimental",
+        "signature": "{ provider: string; state: \"idle\" | \"working\"; } | null"
+      },
+      "ArtifactLifecycle": {
+        "stability": "experimental",
+        "signature": "{ version: 1; generation: number; attempt: number; source: SourceRevision | null; preparing: SourceRevision | null; displayed: { revision: SourceRevision; commit: number; } | null; phase: \"unknown\" | \"preparing\" | \"ready\" | \"error\" | \"paused\" | \"disposed\"; detail: string; activity: AgentActivity; }"
+      },
+      "Preparation": {
+        "stability": "experimental",
+        "signature": "{ generation: number; attempt: number; revision: SourceRevision; }"
+      },
+      "SourceRevision": {
+        "stability": "experimental",
+        "signature": "{ source: string; inputs: string; }"
+      },
+      "createArtifactLifecycle": {
+        "stability": "experimental",
+        "signature": "(publish?: (state: ArtifactLifecycle) => void) => { readonly state: ArtifactLifecycle; observe(revision: SourceRevision): void; prepare(revision: SourceRevision): Preparation | null; commit(ticket: Preparation): boolean; fail(ticket: Preparation, detail: string, retained: boolean): boolean; error(detail: string, retained: boolean): void; unknown(detail?: string): void; pause(): void; resume(): void; activity(provider: string, value: \"idle\" | \"working\" | null): void; dispose(): void; }"
+      },
+      "digestInputs": {
+        "stability": "experimental",
+        "signature": "(sources: [string, string][]) => Promise<string>"
+      },
+      "digestText": {
+        "stability": "experimental",
+        "signature": "(text: string) => Promise<string>"
+      },
+      "freshness": {
+        "stability": "experimental",
+        "signature": "(state: ArtifactLifecycle) => \"current\" | \"stale\" | \"unknown\" | \"empty\""
+      },
+      "initialLifecycle": {
+        "stability": "experimental",
+        "signature": "() => ArtifactLifecycle"
+      },
+      "lifecycleAttributes": {
+        "stability": "experimental",
+        "signature": "(state: ArtifactLifecycle) => { 'data-artifact-phase': \"ready\" | \"error\" | \"unknown\" | \"preparing\" | \"paused\" | \"disposed\"; 'data-artifact-freshness': \"unknown\" | \"current\" | \"stale\" | \"empty\"; 'data-artifact-source-revision': string | undefined; 'data-artifact-input-revision': string | undefined; 'data-artifact-displayed-revision': string | undefined; 'data-artifact-commit': number | undefined; }"
+      },
+      "sameRevision": {
+        "stability": "experimental",
+        "signature": "(a: SourceRevision | null, b: SourceRevision | null) => boolean"
+      },
+      "validLifecycle": {
+        "stability": "experimental",
+        "signature": "(value: unknown) => value is ArtifactLifecycle"
+      }
     }
   },
   "types": {
@@ -779,7 +867,7 @@
     },
     "#studio/data.ArtifactAction.ArtifactAvailabilityContext": {
       "stability": "experimental",
-      "signature": "{ local: boolean; editable: boolean; present: boolean; renderer: boolean; scope: \"prototype\" | \"systemContent\"; }"
+      "signature": "{ local: boolean; editable: boolean; present: boolean; renderer: boolean; scope: \"prototype\" | \"systemContent\"; systemMissing?: { label: string; }; }"
     },
     "#studio/data.CONFIG.ReadOnly": {
       "stability": "stable",
@@ -795,7 +883,7 @@
     },
     "#studio/data.FileTypeModule.ArtifactAvailabilityContext": {
       "stability": "experimental",
-      "signature": "{ local: boolean; editable: boolean; present: boolean; renderer: boolean; scope: \"prototype\" | \"systemContent\"; }"
+      "signature": "{ local: boolean; editable: boolean; present: boolean; renderer: boolean; scope: \"prototype\" | \"systemContent\"; systemMissing?: { label: string; }; }"
     },
     "#studio/data.Manifest.PlatformReferenceGroup": {
       "stability": "experimental",
@@ -927,7 +1015,7 @@
     },
     "#studio/data.markdownFileModule.ArtifactAvailabilityContext": {
       "stability": "experimental",
-      "signature": "{ local: boolean; editable: boolean; present: boolean; renderer: boolean; scope: \"prototype\" | \"systemContent\"; }"
+      "signature": "{ local: boolean; editable: boolean; present: boolean; renderer: boolean; scope: \"prototype\" | \"systemContent\"; systemMissing?: { label: string; }; }"
     },
     "#studio/data.markdownFileModule.ItemFile": {
       "stability": "experimental",
@@ -936,6 +1024,10 @@
     "#studio/data.markdownFileModule.load": {
       "stability": "experimental",
       "signature": "(file: ItemFile, { inManifest }?: { inManifest?: boolean | undefined; }) => Promise<M | undefined>"
+    },
+    "#studio/files.artifactSystemAvailability.CapabilityAvailability": {
+      "stability": "experimental",
+      "signature": "{ supported: false; available: false; reason: string; } | { supported: true; available: false; reason: string; } | { supported: true; available: true; }"
     },
     "#studio/system.SystemIntro.DesignSystem": {
       "stability": "stable",
@@ -1009,6 +1101,10 @@
       "stability": "stable",
       "signature": "string"
     },
+    "AgentActivity": {
+      "stability": "experimental",
+      "signature": "{ provider: string; state: \"idle\" | \"working\"; } | null"
+    },
     "Alert": {
       "stability": "experimental",
       "signature": "({ className, variant, ...props }: React.ComponentProps<\"div\"> & VariantProps<typeof alertVariants>) => React.JSX.Element"
@@ -1044,6 +1140,10 @@
     "ArtifactContext": {
       "stability": "experimental",
       "signature": "{ proto: Prototype; item: Artifact; }"
+    },
+    "ArtifactLifecycle": {
+      "stability": "experimental",
+      "signature": "{ version: 1; generation: number; attempt: number; source: SourceRevision | null; preparing: SourceRevision | null; displayed: { revision: SourceRevision; commit: number; } | null; phase: \"unknown\" | \"preparing\" | \"ready\" | \"error\" | \"paused\" | \"disposed\"; detail: string; activity: AgentActivity; }"
     },
     "ArtifactSource": {
       "stability": "experimental",
@@ -1188,6 +1288,10 @@
     "ContributorAvatar": {
       "stability": "experimental",
       "signature": "({ name, github, size, }: { name?: string; github?: string; size?: \"sm\" | \"default\" | \"lg\"; }) => import(\"react\").JSX.Element"
+    },
+    "CopyReferenceContext": {
+      "stability": "experimental",
+      "signature": "{ target(value: string): string; sceneUpdate?: { nonce?: (element: Record<string, unknown>, next: string) => number; updated?: number; unresolved?: (value: string) => void; computed?: (value: string) => void; }; }"
     },
     "Dialog": {
       "stability": "experimental",
@@ -1343,7 +1447,7 @@
     },
     "FileTypeSpec": {
       "stability": "stable",
-      "signature": "{ label: string; identity?: IdentityMetadata; extensions: readonly string[]; language?: \"tsx\" | \"markdown\" | \"json\" | \"mermaid\" | \"text\"; capabilities: ArtifactCapabilities; inSystemContent: boolean; inPrototype: boolean; fallback: boolean; fidelity?: { isLofi(source: string): boolean; setLofi(source: string, on: boolean): string; }; template?: (name: string) => string; check?: (file: { source: string; frontmatter: Record<string, unknown> | null; prototype?: { contributor: string; id: string; studioId?: string; }; }) => string[]; }"
+      "signature": "{ label: string; systemUsage: \"assigned\" | \"independent\"; identity?: IdentityMetadata; extensions: readonly string[]; language?: \"tsx\" | \"markdown\" | \"json\" | \"mermaid\" | \"text\"; capabilities: ArtifactCapabilities; inSystemContent: boolean; inPrototype: boolean; fallback: boolean; fidelity?: { isLofi(source: string): boolean; setLofi(source: string, on: boolean): string; }; template?: (name: string) => string; check?: (file: { source: string; frontmatter: Record<string, unknown> | null; prototype?: { contributor: string; id: string; studioId?: string; }; }) => string[]; }"
     },
     "HomeHint": {
       "stability": "experimental",
@@ -1417,6 +1521,10 @@
       "stability": "stable",
       "signature": "{ id: string; label: string; version: string; description?: string; requires: string; optional: boolean; settings?: { group: \"prototyping\" | \"systems\" | \"team\"; order: number; }; section?: { key: string; folder?: string; items?: \"prototypes\"; policy?: \"maintainers\" | \"open\"; standalone?: boolean; byPerson?: boolean; }; lib: boolean; instructions?: { path: string; when?: string; }[]; dependencies?: Record<string, string>; upstream?: { repo: string; version: string; license: string; }; }"
     },
+    "MoveReferenceContext": {
+      "stability": "experimental",
+      "signature": "{ link(value: string): string; appTarget(value: string): string; relativeTarget(value: string, imported?: boolean): string; navigation(value: string, attribute?: boolean): string; importedTarget(value: string): string; renameText?: (source: string) => string; }"
+    },
     "NavGroup": {
       "stability": "experimental",
       "signature": "({ heading, children }: { heading?: string; children: ReactNode; }) => import(\"react\").JSX.Element"
@@ -1445,6 +1553,10 @@
       "stability": "stable",
       "signature": "{ manifest: Manifest; current: Prototype | undefined; isOpen: (item: Artifact) => boolean; go: (to: NavigateOptions) => void; }"
     },
+    "Preparation": {
+      "stability": "experimental",
+      "signature": "{ generation: number; attempt: number; revision: SourceRevision; }"
+    },
     "Prose": {
       "stability": "experimental",
       "signature": "({ children, className }: { children: ReactNode; className?: string; }) => import(\"react\").JSX.Element"
@@ -1460,6 +1572,10 @@
     "PrototypeInfo": {
       "stability": "experimental",
       "signature": "{ studioId?: string; ownerContributorId?: string; id: string; contributorKey: string; title: string; description?: string; contributor: string; contributorSample?: true; contributorGithub?: string; created: string | null; system: string | null; systemId?: string | null; owner?: { id: string; kind: \"platform\" | \"module\" | \"system\"; label: string; root: string; }; systemMissing?: { systemId: string; label: string; }; rebuild?: { targetSystemKey: string | null; targetSystemId: string | null; sourcePrototypeId: string; sourcePath: string; }; status?: \"archived\"; maintainers?: string[]; }"
+    },
+    "ReferenceAdapter": {
+      "stability": "experimental",
+      "signature": "{ extensions: readonly string[]; move(source: string, path: string, context: MoveReferenceContext): string; copy(source: string, path: string, context: CopyReferenceContext): string; }"
     },
     "ResourceId": {
       "stability": "stable",
@@ -1528,6 +1644,10 @@
     "SourceLanguage": {
       "stability": "experimental",
       "signature": "\"tsx\" | \"markdown\" | \"json\" | \"mermaid\" | \"text\""
+    },
+    "SourceRevision": {
+      "stability": "experimental",
+      "signature": "{ source: string; inputs: string; }"
     },
     "SystemCuration": {
       "stability": "stable",
@@ -1641,6 +1761,10 @@
       "stability": "experimental",
       "signature": "(path: string) => string"
     },
+    "artifactSystemAvailability": {
+      "stability": "experimental",
+      "signature": "(spec: FileTypeSpec | undefined, context: { systemMissing?: { label: string; }; }) => CapabilityAvailability"
+    },
     "badgeVariants": {
       "stability": "experimental",
       "signature": "(props?: ({ variant?: \"link\" | \"default\" | \"destructive\" | \"secondary\" | \"outline\" | \"ghost\" | null | undefined; } & import(\"class-variance-authority/types\").ClassProp) | undefined) => string"
@@ -1665,6 +1789,14 @@
       "stability": "experimental",
       "signature": "<T>(m: Manifest, id: string) => T | undefined"
     },
+    "copyCode": {
+      "stability": "experimental",
+      "signature": "(text: any, file: any, { target, sceneUpdate }: { target: any; sceneUpdate?: {} | undefined; }) => any"
+    },
+    "createArtifactLifecycle": {
+      "stability": "experimental",
+      "signature": "(publish?: (state: ArtifactLifecycle) => void) => { readonly state: ArtifactLifecycle; observe(revision: SourceRevision): void; prepare(revision: SourceRevision): Preparation | null; commit(ticket: Preparation): boolean; fail(ticket: Preparation, detail: string, retained: boolean): boolean; error(detail: string, retained: boolean): void; unknown(detail?: string): void; pause(): void; resume(): void; activity(provider: string, value: \"idle\" | \"working\" | null): void; dispose(): void; }"
+    },
     "createLoader": {
       "stability": "experimental",
       "signature": "<M>(glob: Glob<M>, hot: ImportMeta[\"hot\"]) => { load: (file: ItemFile, { inManifest }?: { inManifest?: boolean | undefined; }) => Promise<M | undefined>; incomplete: Set<string>; }"
@@ -1673,13 +1805,41 @@
       "stability": "experimental",
       "signature": "<M>(glob: Record<string, () => Promise<M>>, hot: ImportMeta[\"hot\"], reference?: boolean) => (path: string) => Promise<M> | undefined"
     },
+    "cssReferences": {
+      "stability": "experimental",
+      "signature": "(text: any, relativeTarget: any) => any"
+    },
     "defineFileType": {
       "stability": "experimental",
       "signature": "(spec: FileTypeSpec) => FileTypeSpec"
     },
+    "defineReferenceAdapter": {
+      "stability": "experimental",
+      "signature": "(adapter: ReferenceAdapter) => ReferenceAdapter"
+    },
+    "digestInputs": {
+      "stability": "experimental",
+      "signature": "(sources: [string, string][]) => Promise<string>"
+    },
+    "digestText": {
+      "stability": "experimental",
+      "signature": "(text: string) => Promise<string>"
+    },
     "findArtifact": {
       "stability": "experimental",
       "signature": "(p: Prototype, slug: string) => Artifact | undefined"
+    },
+    "freshness": {
+      "stability": "experimental",
+      "signature": "(state: ArtifactLifecycle) => \"current\" | \"stale\" | \"unknown\" | \"empty\""
+    },
+    "initialLifecycle": {
+      "stability": "experimental",
+      "signature": "() => ArtifactLifecycle"
+    },
+    "lifecycleAttributes": {
+      "stability": "experimental",
+      "signature": "(state: ArtifactLifecycle) => { 'data-artifact-phase': \"ready\" | \"error\" | \"unknown\" | \"preparing\" | \"paused\" | \"disposed\"; 'data-artifact-freshness': \"unknown\" | \"current\" | \"stale\" | \"empty\"; 'data-artifact-source-revision': string | undefined; 'data-artifact-input-revision': string | undefined; 'data-artifact-displayed-revision': string | undefined; 'data-artifact-commit': number | undefined; }"
     },
     "loadManifest": {
       "stability": "experimental",
@@ -1691,15 +1851,23 @@
     },
     "markdownFileType": {
       "stability": "experimental",
-      "signature": "{ label: string; identity?: IdentityMetadata; extensions: readonly string[]; language?: \"tsx\" | \"markdown\" | \"json\" | \"mermaid\" | \"text\"; capabilities: ArtifactCapabilities; inSystemContent: boolean; inPrototype: boolean; fallback: boolean; fidelity?: { isLofi(source: string): boolean; setLofi(source: string, on: boolean): string; }; template?: (name: string) => string; check?: (file: { source: string; frontmatter: Record<string, unknown> | null; prototype?: { contributor: string; id: string; studioId?: string; }; }) => string[]; }"
+      "signature": "{ label: string; systemUsage: \"assigned\" | \"independent\"; identity?: IdentityMetadata; extensions: readonly string[]; language?: \"tsx\" | \"markdown\" | \"json\" | \"mermaid\" | \"text\"; capabilities: ArtifactCapabilities; inSystemContent: boolean; inPrototype: boolean; fallback: boolean; fidelity?: { isLofi(source: string): boolean; setLofi(source: string, on: boolean): string; }; template?: (name: string) => string; check?: (file: { source: string; frontmatter: Record<string, unknown> | null; prototype?: { contributor: string; id: string; studioId?: string; }; }) => string[]; }"
     },
     "markdownIdentity": {
       "stability": "experimental",
       "signature": "{ read(source: string): ResourceId | null; write(source: string, id: ResourceId): string; }"
     },
+    "markdownReferences": {
+      "stability": "experimental",
+      "signature": "(text: any, link: any) => any"
+    },
     "menuGroups": {
       "stability": "experimental",
       "signature": "<T>(groups: (T | false | null | undefined)[][]) => T[][]"
+    },
+    "moveCode": {
+      "stability": "experimental",
+      "signature": "(text: any, file: any, { appTarget, navigation, importedTarget, link }: { appTarget: any; navigation: any; importedTarget: any; link: any; }) => any"
     },
     "navLinkClass": {
       "stability": "experimental",
@@ -1716,6 +1884,10 @@
     "readSource": {
       "stability": "experimental",
       "signature": "(p: PrototypeInfo, path: string) => Promise<{ content: string; version: string; }>"
+    },
+    "sameRevision": {
+      "stability": "experimental",
+      "signature": "(a: SourceRevision | null, b: SourceRevision | null) => boolean"
     },
     "tabsListVariants": {
       "stability": "experimental",
@@ -1736,6 +1908,10 @@
     "useSourceView": {
       "stability": "experimental",
       "signature": "(enabled: boolean, source: boolean) => { toggle: () => void; rendered: import(\"react\").RefObject<HTMLDivElement | null>; }"
+    },
+    "validLifecycle": {
+      "stability": "experimental",
+      "signature": "(value: unknown) => value is ArtifactLifecycle"
     },
     "writeSource": {
       "stability": "experimental",

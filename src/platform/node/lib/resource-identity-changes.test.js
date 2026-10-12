@@ -121,7 +121,9 @@ test('Git inventories inspect their own tree and staged blobs, including retaine
   git(['add', '.']);
   git(['-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'Before']);
   const baseline = git(['rev-parse', 'HEAD']);
-  const types = { document: { inPrototype: true, extensions: ['.md'], identity: markdownIdentity } };
+  const types = {
+    document: { systemUsage: 'independent', inPrototype: true, extensions: ['.md'], identity: markdownIdentity },
+  };
   const before = gitResourceIdentities('HEAD', types, { cwd: root });
   assert.equal(before.resources.length, 3);
   assert.deepEqual(before.problems, []);

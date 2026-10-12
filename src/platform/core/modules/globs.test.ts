@@ -166,6 +166,7 @@ test('extension ownership is unique within each content scope', () => {
   assert.doesNotThrow(() => assertUniqueExtensions(types));
   const type = {
     capabilities: { source: false, create: false, fidelity: false, embeds: [], actions: [] },
+    systemUsage: 'independent' as const,
     inPrototype: true,
     inSystemContent: false,
     fallback: false,
@@ -179,8 +180,8 @@ test('extension ownership is unique within each content scope', () => {
   assert.throws(
     () =>
       assertUniqueExtensions({
-        shared: { ...type, inPrototype: false, inSystemContent: true },
-        other: { ...type, inPrototype: false, inSystemContent: true },
+        shared: { ...type, systemUsage: 'independent' as const, inPrototype: false, inSystemContent: true },
+        other: { ...type, systemUsage: 'independent' as const, inPrototype: false, inSystemContent: true },
       }),
     /both use .md in systemContent/,
   );
@@ -192,6 +193,7 @@ test('file types cannot gain a scope or capabilities by omission', async () => {
     label: 'Fixture',
     extensions: ['.fixture'],
     capabilities: { source: false, create: false, fidelity: false, embeds: [], actions: [] },
+    systemUsage: 'independent' as const,
     inPrototype: false,
     inSystemContent: false,
     fallback: false,

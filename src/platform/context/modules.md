@@ -34,6 +34,8 @@ Team modules (`src/modules/<id>/`) and team systems (`src/systems/<id>/`) import
 | `#studio/data` | Reading content in the app: the manifest, `contribution<Data>`, the studio identity (`APP_NAME`, `TAGLINE`, read-only `CONFIG`), a prototype's files, the current contributor and edit permissions, `callModule`, and what a file type's `loader.ts` and `open.tsx` implement. | Browser. |
 | `#studio/ui` | Browser app contributions (`ModuleApp`, `PaletteContext`, `PrototypeAction`) and the shell's building blocks: section navigation, home blocks, collections, documents, and the source editor. | Browser. |
 | `#studio/components` | Studio's interface components, such as `Button`, `Dialog`, `Input`, `Tooltip`, menus, and `toast`. | Browser. |
+| `#studio/references` | Node source adapters, resolution context types and shared code, Markdown and CSS source grammars. | Node only. |
+| `#studio/lifecycle` | Renderer-neutral source, preparation and displayed revision state, input digests and DOM evidence. | Browser and Node. |
 
 `src/platform/api/*.ts` lists each export with a JSDoc tag:
 
@@ -71,6 +73,7 @@ These source contracts are 0.x. Review release guidance when updating them.
 | `module.ts` | Identity, compatibility, optional status, section, dependencies, library, and agent instruction declarations. |
 | `app.tsx` | Navigation, routes, overview blocks, palette entries, and prototype actions. |
 | `type.ts`, `open.tsx`, `loader.ts` | File-type declaration, rendering, and production loading. |
+| `references.ts` | Optional retained source-maintenance adapters. See [File types](file-types.md#source-reference-adapters). |
 | `server.ts` | Local routes at `POST /__studio/<module>/<route>`. |
 | `check.ts` | Module validation while enabled. |
 | `build.ts` | Optional manifest contribution while enabled: `manifest({ root, enabled, out })` returns `{ data, errors }`, stored as `manifest.contributions[<id>]` (its printed problems count as manifest errors); `watch` lists folders whose Markdown changes rebuild the manifest in development; `sourceFiles(data, { root })` lists repo-relative files the Documentation surface may edit. Experimental. |

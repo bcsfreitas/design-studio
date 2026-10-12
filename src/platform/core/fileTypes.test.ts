@@ -20,6 +20,7 @@ import {
 const fixture = (changes: Partial<FileTypeSpec> = {}): FileTypeSpec => ({
   label: 'Fixture',
   extensions: ['.fixture'],
+  systemUsage: 'independent',
   inPrototype: true,
   inSystemContent: false,
   fallback: false,
@@ -86,6 +87,31 @@ test('source repair does not require a working renderer or write permission', ()
   assert.equal(state.editSource.supported, true);
   assert.equal(state.editSource.available, false);
   assert.match(state.editSource.available ? '' : state.editSource.reason, /permission/);
+});
+
+test('system-consuming renderers are unavailable without blocking independent artifacts or source repair', () => {
+  const missing = { ...environment, systemMissing: { label: 'Product' } };
+  const assigned = fixture({
+    systemUsage: 'assigned',
+    capabilities: { ...fixture().capabilities, embeds: ['canvas'] },
+  });
+  const state = artifactAvailability(assigned, missing);
+  assert.equal(state.view.available, false);
+  assert.match(state.view.reason, /Product/);
+  assert.equal(state.embeds.canvas.available, false);
+  assert.equal(state.source.available, true);
+  assert.equal(state.editSource.available, true);
+  assert.equal(artifactAvailability(fixture(), missing).view.available, true);
+  assert.equal(
+    artifactAvailability(assigned, environment).view.available,
+    true,
+    'an explicit no-system prototype is still valid',
+  );
+  assert.equal(embedFor(assigned, module({ Embed: () => null }), 'canvas', 'prototype', missing), undefined);
+  assert.throws(
+    () => defineFileType({ ...fixture(), systemUsage: undefined } as unknown as FileTypeSpec),
+    /systemUsage/,
+  );
 });
 
 test('availability separates unsupported, unavailable scope, missing files, and publication', () => {

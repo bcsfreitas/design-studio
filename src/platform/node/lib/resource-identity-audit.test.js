@@ -7,8 +7,8 @@ import { auditResourceIdentities } from './resource-identity-audit.js';
 import { markdownIdentity, viewIdentity } from '../../core/resourceIdentity.ts';
 
 const types = {
-  view: { inPrototype: true, extensions: ['.tsx'], identity: viewIdentity },
-  document: { inPrototype: true, extensions: ['.md'], identity: markdownIdentity },
+  view: { systemUsage: 'independent', inPrototype: true, extensions: ['.tsx'], identity: viewIdentity },
+  document: { systemUsage: 'independent', inPrototype: true, extensions: ['.md'], identity: markdownIdentity },
 };
 function fixture(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'studio-identity-audit-'));

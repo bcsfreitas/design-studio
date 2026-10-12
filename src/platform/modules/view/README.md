@@ -4,6 +4,8 @@ The required Views module opens `.tsx` and `.jsx` artifacts as actual React comp
 
 The loader inventories prototype roots and registered module sections. Capabilities follow the shared [file-type contract](../../context/file-types.md). Assignments and source dependencies follow [Prototypes](../prototypes/README.md).
 
+`references.ts` owns reference maintenance for JavaScript, TypeScript, and supporting CSS. The Node-only adapter API supplies target resolution while this module selects code and stylesheet syntax. Views declare `systemUsage: 'assigned'`; a missing assigned system blocks rendering and embeds while source remains available locally.
+
 ## Preview boundary
 
 Studio loads an artifact descriptor. It does not import or render the prototype component in its document. `ViewFrame` and `ViewEmbed` use `preview/PreviewHost.tsx`; the iframe bootstraps `preview/main.tsx` and loads the real view through `loadView`. `PreviewSurface` owns assigned-system themes, lo-fi mode, navigation scope, portals, and React error containment.

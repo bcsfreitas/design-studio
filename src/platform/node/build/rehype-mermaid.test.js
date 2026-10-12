@@ -93,7 +93,12 @@ test('file references resolve nested files and remain within the document protot
 test('file previews respect the Node-readable capability surfaces to bound canvas nesting', async () => {
   const { embedFor } = await import('../../app/data/fileTypeModule.ts');
   const Embed = () => null;
-  const spec = surfaces => ({ inPrototype: true, inSystemContent: false, capabilities: { embeds: surfaces } });
+  const spec = surfaces => ({
+    systemUsage: 'independent',
+    inPrototype: true,
+    inSystemContent: false,
+    capabilities: { embeds: surfaces },
+  });
   assert.equal(embedFor(undefined, { Embed }, 'document', 'prototype'), undefined);
   assert.equal(embedFor(spec([]), { Embed }, 'canvas', 'prototype'), undefined);
   assert.equal(embedFor(spec(['document', 'canvas']), { Embed }, 'canvas', 'prototype'), Embed);

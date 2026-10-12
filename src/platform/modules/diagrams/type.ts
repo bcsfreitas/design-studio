@@ -2,6 +2,7 @@ import { defineFileType, diagramIdentity } from '../../core/fileTypes.ts';
 
 export default defineFileType({
   capabilities: { source: true, create: true, fidelity: false, embeds: ['document', 'canvas'], actions: [] },
+  systemUsage: 'independent',
   inPrototype: true,
   inSystemContent: false,
   fallback: false,

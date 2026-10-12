@@ -8,6 +8,6 @@ export default {
   id: 'view',
   label: 'Views',
   version: '0.1.0',
-  requires: '0.3.0',
+  requires: '0.4.0',
   description: 'A .tsx or .jsx file in a prototype opens as a page.',
 } satisfies ModuleSpec;

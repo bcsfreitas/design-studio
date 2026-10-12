@@ -8,7 +8,9 @@ import { writeFixtureConfig } from './fixtures/identities.js';
 import { markdownIdentity } from '../../core/resourceIdentity.ts';
 import { planPrototypeIdentification, applyPrototypeIdentification } from './prototype-identification.js';
 
-const types = { document: { inPrototype: true, extensions: ['.md'], identity: markdownIdentity } };
+const types = {
+  document: { systemUsage: 'independent', inPrototype: true, extensions: ['.md'], identity: markdownIdentity },
+};
 function fixture(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'studio-identify-'));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));

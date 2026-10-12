@@ -36,7 +36,13 @@ const elsewhere = (link: string | null, current: Prototype) => {
 const embedOf = (manifest: Manifest, link: string | null, current: Prototype) => {
   const target = resolve(manifest, link, current);
   return target
-    ? embedFor(FILE_TYPES[target.item.fileType], fileTypeModules[target.item.fileType], 'canvas', 'prototype')
+    ? embedFor(
+        FILE_TYPES[target.item.fileType],
+        fileTypeModules[target.item.fileType],
+        'canvas',
+        'prototype',
+        target.proto,
+      )
     : undefined;
 };
 
@@ -147,7 +153,14 @@ function CanvasItemInner({ element, manifest, current, offscreen, overview, moun
   const link = element.type === 'embeddable' ? element.link : null;
   const target = resolve(manifest, link, current);
   const Embed =
-    target && embedFor(FILE_TYPES[target.item.fileType], fileTypeModules[target.item.fileType], 'canvas', 'prototype');
+    target &&
+    embedFor(
+      FILE_TYPES[target.item.fileType],
+      fileTypeModules[target.item.fileType],
+      'canvas',
+      'prototype',
+      target.proto,
+    );
   // A card fills the element. A missing one is a card too, and so is one from another prototype.
   if (!target || !Embed)
     return (

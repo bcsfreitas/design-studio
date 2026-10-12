@@ -134,6 +134,7 @@ export function embedFor(
   module: FileTypeModule | undefined,
   surface: EmbedSurface,
   scope: ArtifactAvailabilityContext['scope'],
+  dependencies: Pick<ArtifactAvailabilityContext, 'systemMissing'> = {},
 ) {
   const state = artifactAvailability(spec, {
     local: false,
@@ -141,6 +142,7 @@ export function embedFor(
     present: true,
     renderer: Boolean(module?.Embed),
     scope,
+    ...dependencies,
   });
   return state.embeds[surface].available ? module?.Embed : undefined;
 }

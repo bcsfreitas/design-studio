@@ -1,4 +1,5 @@
 import { apiSpecifier, platformImportProblem } from '../../core/modules/boundaries.ts';
+import { installedReferenceAdapters } from '../lib/reference-adapters.js';
 import { scopePolicy } from '../lib/scope.js';
 import { dependencyResolver, importsOf, sourceFiles } from '../lib/imports.js';
 // Checks the modules in the module roots, src/platform/modules/ and src/modules/ (src/platform/core/roots.ts, src/platform/core/modules/index.ts):
@@ -53,6 +54,11 @@ import { ownershipFails, printOwnership } from './check-ownership.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
 const problems = declarationProblems();
+try {
+  installedReferenceAdapters();
+} catch (error) {
+  problems.push(`Reference adapters: ${error.message}`);
+}
 const specs = Object.values(MODULES).filter(m => m && typeof m === 'object');
 problems.push(
   ...listProblems(specs),
