@@ -1,4 +1,4 @@
-[![Design Studio — Design with intent. Build with an agent. A prototype sandbox for designers and product managers.](public/images/design-studio-readme-share.jpg)](https://itspatmorgan.com/design-studio)
+[![Design Studio — Design with intent. Build with an agent. Design Studio is an open source, AI prototype sandbox for designers and product managers who build.](public/images/design-studio-social.png)](https://itspatmorgan.com/design-studio)
 
 # Design Studio
 

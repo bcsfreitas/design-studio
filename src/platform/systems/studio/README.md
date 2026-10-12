@@ -19,10 +19,10 @@ The navigation uses the unboxed mark in [Logo.tsx](../../app/shell/Logo.tsx). Ex
 | Browser tab | `public/favicon.svg` | Adapts its tile and mark to the browser color scheme |
 | Browser fallback | `public/favicon.ico` | 16, 32, and 48 px |
 | Apple touch icon | `public/apple-touch-icon.png` | 180 × 180 |
-| Open Graph and Twitter card | `public/images/design-studio-social.png` | 1200 × 630 |
+| Open Graph, Twitter, and repository README | `public/images/design-studio-social.png` | 1200 × 630 |
 | Dark sharing placement | `public/images/design-studio-social-dark.png` | 1200 × 630 |
-| Repository README | `public/images/design-studio-readme-share.jpg` | 1200 × 630 |
+| Compressed sharing alternative | `public/images/design-studio-readme-share.jpg` | 1200 × 630 |
 
-The editable sharing artwork is [social-card.html](assets/brand/social-card.html). Open it from the repository with dependencies installed. It uses the local Geist font and the public logo tiles. Render at 1200 × 630, wait for fonts and images, and export the light and dark PNGs using the respective browser color schemes. Export the light render as a compressed JPEG for the README. The default sharing image stays light because link previews do not select artwork by the viewer's theme.
+The editable sharing artwork is [social-card.html](assets/brand/social-card.html). Open it from the repository with dependencies installed. It uses the local Geist font and the public logo tiles. Render at 1200 × 630, wait for fonts and images, and export the light and dark PNGs using the respective browser color schemes. Export the light render as a compressed JPEG when a smaller alternative is needed. The README references the light social PNG directly. The default sharing image stays light because link previews do not select artwork by the viewer's theme.
 
 When changing the mark, update the navigation paths and public tile SVGs together, then regenerate the raster icons and sharing images. See [Publishing](../../context/publishing.md#social-link-previews) for the metadata and public URL setup.
