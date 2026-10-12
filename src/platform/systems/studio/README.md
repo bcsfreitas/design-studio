@@ -10,7 +10,7 @@ Platform operating context and skills belong to the [platform](../../README.md).
 
 ## Platform brand assets
 
-The navigation uses the unboxed mark in [Logo.tsx](../../app/shell/Logo.tsx). External placements use the square tiles below. Both tile variants share a 64-unit square, a 14-unit corner radius, and a centered mark occupying about 56% of the width. Preserve the complete square when resizing; do not crop to the mark.
+The navigation uses the unboxed mark in [Logo.tsx](../../app/shell/Logo.tsx). External placements use the square tiles below. Both tile variants share a 64-unit square, a 14-unit corner radius, and a mark occupying about 56% of the width. The mark is centered vertically and shifted 1 unit right of geometric center to balance its heavier left side. Preserve the complete square and optical offset when resizing; do not crop to the mark.
 
 | Placement | Asset | Size |
 | --- | --- | --- |
