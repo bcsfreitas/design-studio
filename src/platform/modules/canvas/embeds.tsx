@@ -5,16 +5,16 @@
 // link points at nothing). This file knows nothing about any file type: it asks the registry.
 import { memo } from 'react';
 import { inspectArtifact } from '#studio/data';
+import { ArtifactHost } from '#studio/ui';
 import { CaptureUpdateAction, newElementWith } from '@excalidraw/excalidraw';
 import type { ExcalidrawElement } from '@excalidraw/excalidraw/element/types';
 import type { AppState, ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types';
-import { fileTypeModules } from '@/platform/app/data/fileTypes';
 import { artifactLabel } from '@/platform/app/data/manifest';
-import type { Manifest, Prototype } from '@/platform/app/data/types';
-import ArtifactCard, { ITEM_CARD_HEIGHT } from '@/platform/app/artifacts/ArtifactCard';
+import type { Artifact, Manifest, Prototype } from '@/platform/app/data/types';
+import { ITEM_CARD_HEIGHT } from '@/platform/app/artifacts/ArtifactCard';
 import { appPathOf } from '@/platform/app/artifacts/artifactLinks';
 
-import EmbedFrame, { EMBED_HEADER_HEIGHT as HEADER_HEIGHT } from '@/platform/app/artifacts/EmbedFrame';
+import { EMBED_HEADER_HEIGHT as HEADER_HEIGHT } from '@/platform/app/artifacts/EmbedFrame';
 const BORDER = 2; // 1px each side
 const DEFAULT_WIDTH = 480;
 const DEFAULT_BODY_HEIGHT = Math.round((DEFAULT_WIDTH * 900) / 1440); // a 1440 x 900 screen, scaled
@@ -136,61 +136,35 @@ type ItemProps = {
   element: ExcalidrawElement;
   manifest: Manifest;
   current: Prototype;
+  item: Artifact;
   offscreen: boolean;
   overview: boolean;
   // Has been near the viewport, so its preview is live. Before that it's a sized placeholder.
   mounted: boolean;
 };
 
-function CanvasItemInner({ element, manifest, current, offscreen, overview, mounted }: ItemProps) {
+function CanvasItemInner({ element, manifest, current, item, offscreen, overview, mounted }: ItemProps) {
   const link = element.type === 'embeddable' ? element.link : null;
   const resolution = inspect(manifest, link, current);
-  const target = resolution.state === 'resolved' ? resolution.target : null;
-  const Embed =
-    target &&
-    resolution.state === 'resolved' &&
-    resolution.preview.available &&
-    fileTypeModules[target.item.fileType]?.Embed;
-  // A card fills the element. A missing one is a card too, and so is one from another prototype.
-  if (!target || !Embed)
-    return (
-      <div data-canvas-frame='' className='h-full w-full'>
-        <ArtifactCard
-          proto={target?.proto}
-          item={target?.item}
-          elsewhere={resolution.state === 'unavailable' && resolution.code === 'unsupported_scope'}
-        />
-      </div>
-    );
-  const { proto, item } = target;
-  const hidden = offscreen || overview;
   return (
-    <EmbedFrame proto={proto} item={item} className='h-full w-full'>
-      {/* Hidden means mounted but skipped for layout and paint (far off screen, or too small to
-          read), so the live preview never reloads or jumps. */}
-      <div
-        inert
-        data-canvas-embed-id={element.id}
-        className='min-h-0 flex-1'
-        style={hidden ? { visibility: 'hidden', contentVisibility: 'hidden' } : undefined}
+    <div data-canvas-embed-id={element.id} className='h-full w-full'>
+      <ArtifactHost
+        request={{ reference: link ?? '', origin: { proto: current, item }, surface: 'canvas' }}
+        manifest={manifest}
+        className='h-full w-full'
+        width={element.width - BORDER}
+        height={element.height - HEADER_HEIGHT - BORDER}
+        interaction='inert'
+        mounted={mounted}
+        hidden={offscreen || overview}
       >
-        {mounted ? (
-          <Embed
-            proto={proto}
-            item={item}
-            width={element.width - BORDER}
-            height={element.height - HEADER_HEIGHT - BORDER}
-          />
-        ) : (
-          <div className='h-full bg-muted/50' />
+        {overview && !offscreen && (
+          <div className='canvas-overview'>
+            <span>{resolution.state === 'resolved' ? artifactLabel(resolution.target.item.path) : 'File'}</span>
+          </div>
         )}
-      </div>
-      {overview && !offscreen && (
-        <div className='canvas-overview'>
-          <span>{artifactLabel(item.path)}</span>
-        </div>
-      )}
-    </EmbedFrame>
+      </ArtifactHost>
+    </div>
   );
 }
 
@@ -202,6 +176,7 @@ export const CanvasItem = memo(
   (a, b) =>
     a.manifest === b.manifest &&
     a.current === b.current &&
+    a.item === b.item &&
     a.element.id === b.element.id &&
     a.element.version === b.element.version &&
     a.offscreen === b.offscreen &&

@@ -28,6 +28,7 @@ export type ArtifactResolution =
       state: 'resolved';
       target: Readonly<ArtifactContext>;
       href: string;
+      typeLabel: string;
       presentation: 'preview' | 'card';
       preview: { available: boolean; code?: AvailabilityCode; message?: string };
     };
@@ -99,6 +100,7 @@ export function inspectArtifact(request: ArtifactRequest, manifest: Manifest): A
     state: 'resolved',
     target,
     href: artifactPath(target.proto, target.item),
+    typeLabel: spec.label,
     presentation: available ? 'preview' : 'card',
     preview: available
       ? { available: true }

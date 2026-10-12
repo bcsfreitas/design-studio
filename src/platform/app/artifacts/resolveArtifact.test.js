@@ -9,7 +9,7 @@ const server = await createServer({
   optimizeDeps: { noDiscovery: true },
 });
 after(() => server.close());
-const { inspectArtifact, resolveArtifact } = await server.ssrLoadModule('/platform/app/artifacts/resolveArtifact.ts');
+const { inspectArtifact, resolveArtifact } = await server.ssrLoadModule('/platform/api/data.ts');
 const proto = {
   studioId: '0123456789abcdef',
   id: 'demo',
@@ -40,6 +40,7 @@ test('declared hosts share scope, permanent identity, relative reference, and av
     const live = inspectArtifact(request(permanent, surface), manifest);
     assert.equal(live.state, 'resolved', JSON.stringify(live));
     assert.equal(live.preview.available, true);
+    assert.equal(live.typeLabel, 'View');
     assert.equal(inspectArtifact(request('../main.tsx', surface), manifest).href, permanent);
     for (const reference of ['../../outside/main.tsx', '../_helpers/main.tsx', 'https://outside.test/main.tsx'])
       assert.notEqual(inspectArtifact(request(reference, surface), manifest).state, 'resolved');

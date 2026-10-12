@@ -243,6 +243,7 @@ function Editor({
           element={element}
           manifest={manifest}
           current={proto}
+          item={item}
           offscreen={offscreen}
           overview={overview}
           mounted={lastSeen.current.has(element.id)}

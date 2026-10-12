@@ -13,7 +13,12 @@ export async function systemSourceRequest<T>(
   extra: object = {},
 ): Promise<T> {
   try {
-    return await callModule<T>('systems', 'source', { ...target(path), action, ...extra });
+    return await callModule<T>(
+      'systems',
+      'source',
+      { ...target(path), action, ...extra },
+      { signal: AbortSignal.timeout(10_000) },
+    );
   } catch (error) {
     if (error instanceof ClientError && error.status === 409) throw new SourceChanged(error.message);
     throw error;

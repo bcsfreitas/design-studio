@@ -262,6 +262,8 @@ export default function filesPlugin() {
           }
           if (req.method === 'POST' && url.pathname === '/op') {
             const body = await readJson(req);
+            if (body.contributor === SYSTEMS_KEY)
+              return send(res, 400, { error: 'Use the Systems owner routes for component operations.' });
             const dir = prototypeDir(body.contributor, body.prototype);
             if (!dir) return send(res, 404, { error: 'This prototype no longer exists.' });
             // Contributor scope: you can change only your own folder (and the system content's, for review).

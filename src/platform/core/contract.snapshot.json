@@ -172,7 +172,7 @@
       },
       "ArtifactResolution": {
         "stability": "experimental",
-        "signature": "{ state: \"pending\"; reason: \"inventory\"; } | { state: \"unavailable\"; code: AvailabilityCode; message: string; } | { state: \"resolved\"; target: Readonly<ArtifactContext>; href: string; presentation: \"preview\" | \"card\"; preview: { available: boolean; code?: AvailabilityCode; message?: string; }; }"
+        "signature": "{ state: \"pending\"; reason: \"inventory\"; } | { state: \"unavailable\"; code: AvailabilityCode; message: string; } | { state: \"resolved\"; target: Readonly<ArtifactContext>; href: string; typeLabel: string; presentation: \"preview\" | \"card\"; preview: { available: boolean; code?: AvailabilityCode; message?: string; }; }"
       },
       "AvailabilityCode": {
         "stability": "experimental",
@@ -248,7 +248,7 @@
       },
       "callModule": {
         "stability": "experimental",
-        "signature": "<T>(module: string, route: string, body: object) => Promise<T>"
+        "signature": "<T>(module: string, route: string, body: object, options?: Pick<RequestInit, \"signal\">) => Promise<T>"
       },
       "callModuleMutation": {
         "stability": "experimental",
@@ -1685,7 +1685,7 @@
     },
     "ArtifactResolution": {
       "stability": "experimental",
-      "signature": "{ state: \"pending\"; reason: \"inventory\"; } | { state: \"unavailable\"; code: AvailabilityCode; message: string; } | { state: \"resolved\"; target: Readonly<ArtifactContext>; href: string; presentation: \"preview\" | \"card\"; preview: { available: boolean; code?: AvailabilityCode; message?: string; }; }"
+      "signature": "{ state: \"pending\"; reason: \"inventory\"; } | { state: \"unavailable\"; code: AvailabilityCode; message: string; } | { state: \"resolved\"; target: Readonly<ArtifactContext>; href: string; typeLabel: string; presentation: \"preview\" | \"card\"; preview: { available: boolean; code?: AvailabilityCode; message?: string; }; }"
     },
     "ArtifactSource": {
       "stability": "experimental",
@@ -2361,7 +2361,7 @@
     },
     "callModule": {
       "stability": "experimental",
-      "signature": "<T>(module: string, route: string, body: object) => Promise<T>"
+      "signature": "<T>(module: string, route: string, body: object, options?: Pick<RequestInit, \"signal\">) => Promise<T>"
     },
     "callModuleMutation": {
       "stability": "experimental",

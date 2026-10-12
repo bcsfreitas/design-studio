@@ -4,8 +4,8 @@ import { SourceChanged } from '@/platform/core/source/access';
 // A prototype's files, from the dev server (src/platform/node/build/vite-files-plugin.js). Dev only: on the
 // deployed site these return null, and the prototype navigation lists views from the manifest.
 import { useEffect, useState } from 'react';
-import type { Manifest, Prototype, PrototypeInfo } from '@/platform/app/data/types';
-import { SYSTEMS_KEY, rootOf } from '@/platform/core/roots';
+import type { Manifest, PrototypeInfo } from '@/platform/app/data/types';
+import { rootOf } from '@/platform/core/roots';
 import { MODULES } from '@/platform/app/data/modules';
 import { canOwn, policyFor, canPerform, pathResource } from '@/platform/core/permissions';
 import type { Status } from '@/platform/core/archive';
@@ -182,19 +182,6 @@ export type FileOpResult = {
   manifest: Manifest;
 };
 
-// A prototype system's components folder, in the shape the file layer takes for a prototype
-// (src/platform/core/roots.ts): what the Source view and the operations above are given.
-export const systemFiles = (system: string): Prototype => ({
-  id: system,
-  contributorKey: SYSTEMS_KEY,
-  title: system,
-  description: '',
-  contributor: '',
-  created: null,
-  system,
-  artifacts: [],
-});
-
 // Changes a file in your prototype (src/platform/node/build/vite-files-plugin.js). Throws the server's message.
 export async function fileOp(p: PrototypeInfo, op: FileOp): Promise<FileOpResult> {
   return requestMutation<FileOpResult>(
@@ -307,8 +294,14 @@ export async function deletePrototype(p: PrototypeInfo) {
 
 // Calls a route a module adds to the dev server (its server.ts, src/platform/core/modules/index.ts): POST /__studio/<module>/<route>.
 // Resolves with the server's reply, or throws its message.
-export async function callModule<T>(module: string, route: string, body: object): Promise<T> {
+export async function callModule<T>(
+  module: string,
+  route: string,
+  body: object,
+  options: Pick<RequestInit, 'signal'> = {},
+): Promise<T> {
   return requestJson<T>(`/__studio/${module}/${route}`, {
+    ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-Studio-Tab': TAB_ID },
     body: JSON.stringify(body),

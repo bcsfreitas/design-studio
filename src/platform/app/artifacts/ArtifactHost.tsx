@@ -105,7 +105,7 @@ export function ArtifactHost({
         message={
           resolution.state === 'unavailable'
             ? resolution.message
-            : resolution.state === 'resolved'
+            : resolution.state === 'resolved' && resolution.preview.code === 'missing_system'
               ? resolution.preview.message
               : undefined
         }

@@ -13,7 +13,6 @@ import { inspectArtifact } from '#studio/data';
 import { CaptureUpdateAction, exportToBlob, restoreElements } from '@excalidraw/excalidraw';
 import type { ExcalidrawElement } from '@excalidraw/excalidraw/element/types';
 import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types';
-import { FILE_TYPES } from '@/platform/app/data/fileTypes';
 import { artifactLabel } from '@/platform/app/data/manifest';
 import type { Artifact, Manifest, Prototype } from '@/platform/app/data/types';
 import { appPathOf, artifactPath } from '@/platform/app/artifacts/artifactLinks';
@@ -50,7 +49,7 @@ export function createCanvasAgent({ api, proto, item, manifest, editable, persis
         sourcePath: found.item.path,
         title: artifactLabel(found.item.path),
         type,
-        typeLabel: FILE_TYPES[type]?.label ?? 'File',
+        typeLabel: resolution.typeLabel,
         preview: resolution.preview.available,
       };
     },

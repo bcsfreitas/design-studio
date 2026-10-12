@@ -124,6 +124,7 @@ function FittedCanvas({ proto, item, width, height, loadingStartedAt }: EmbedPro
                 element={element}
                 manifest={manifest}
                 current={proto}
+                item={item}
                 offscreen={false}
                 overview={false}
                 mounted

@@ -1,12 +1,6 @@
 import type { ComponentType } from 'react';
 import type { CodeIcon } from '@hugeicons/core-free-icons';
-import {
-  artifactAvailability,
-  capabilityAvailability,
-  type ArtifactAvailabilityContext,
-  type FileTypeSpec,
-  type EmbedSurface,
-} from '../../core/fileTypes.ts';
+import { capabilityAvailability, type ArtifactAvailabilityContext, type FileTypeSpec } from '../../core/fileTypes.ts';
 export type { EmbedSurface } from '../../core/fileTypes.ts';
 import type { Artifact, Prototype } from '@/platform/app/data/types';
 
@@ -126,25 +120,6 @@ export async function runArtifactAction(id: string, resolve: () => ArtifactActio
   if (!entry) throw new Error('This artifact action is unsupported.');
   if (!entry.availability.available) throw new Error(entry.availability.reason);
   return entry.action.run(target.context);
-}
-
-// Only explicitly declared surfaces receive a preview.
-export function embedFor(
-  spec: FileTypeSpec | undefined,
-  module: FileTypeModule | undefined,
-  surface: EmbedSurface,
-  scope: ArtifactAvailabilityContext['scope'],
-  dependencies: Pick<ArtifactAvailabilityContext, 'systemMissing'> = {},
-) {
-  const state = artifactAvailability(spec, {
-    local: false,
-    editable: false,
-    present: true,
-    renderer: Boolean(module?.Embed),
-    scope,
-    ...dependencies,
-  });
-  return state.embeds[surface].available ? module?.Embed : undefined;
 }
 
 // Every route reader uses the same handoff: data and renderer must both be prepared.

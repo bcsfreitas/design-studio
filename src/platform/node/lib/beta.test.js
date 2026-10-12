@@ -271,12 +271,27 @@ test('create and rename preserve addresses, file errors recover, and system remo
       const theme = JSON.parse(themeRead.body);
       const themeSaved = await sourceRequest('/systems/source', {action:'write', systemId:defaultIdentity, path:'styles/theme.css', base:theme.version, content:theme.content});
       assert.equal(themeSaved.statusCode, 200, themeSaved.body);
+      const genericComponent = await sourceRequest('/op', {contributor:'systems', prototype:'product', op:'rename', path:'button', name:'unsafe-button'});
+      assert.equal(genericComponent.statusCode, 400);
+      assert.ok(!fs.existsSync('src/systems/product/components/unsafe-button'));
+      fs.renameSync(themePath, themePath + '.ordinary'); fs.symlinkSync(path.basename(themePath) + '.ordinary', themePath);
+      try { assert.equal((await sourceRequest('/systems/source', {action:'read', systemId:defaultIdentity, path:'styles/theme.css'})).statusCode, 404); }
+      finally { fs.unlinkSync(themePath); fs.renameSync(themePath + '.ordinary', themePath); }
+
       const conflict = await sourceRequest('/systems/source', {action:'write', systemId:defaultIdentity, path:'styles/theme.css', base:'stale', content:theme.content});
       assert.equal(conflict.statusCode, 409);
       const escape = await sourceRequest('/systems/source', {action:'read', systemId:defaultIdentity, path:'../marketing/system.ts'});
       assert.equal(escape.statusCode, 400);
       const stale = await sourceRequest('/systems/source', {action:'read', systemId:createResourceId(), path:'styles/theme.css'});
       assert.equal(stale.statusCode, 404);
+      const marketingFile = 'src/systems/marketing/system.ts';
+      const marketingSource = fs.readFileSync(marketingFile, 'utf8');
+      const marketingIdentity = readDeclaration(marketingSource).value.studioId;
+      fs.writeFileSync(marketingFile, marketingSource.replace(/status: ["']active["']/, 'status: "archived"'));
+      assert.equal(readDeclaration(fs.readFileSync(marketingFile, 'utf8')).value.status, 'archived');
+      try { assert.equal((await sourceRequest('/systems/source', {action:'write', systemId:marketingIdentity, path:'styles/theme.css', content:'Unauthorized', base:'stale'})).statusCode, 404); }
+      finally { fs.writeFileSync(marketingFile, marketingSource); }
+
       const skillMade = await sourceRequest('/systems/skill', {systemId:defaultIdentity, name:'beta-owned-skill', description:'Check the Systems route.'});
       assert.equal(skillMade.statusCode, 200, skillMade.body);
       assert.ok(JSON.parse(skillMade.body).manifest.systemContent.some(p => p.artifacts?.some(i => i.path === 'beta-owned-skill/SKILL.md')));

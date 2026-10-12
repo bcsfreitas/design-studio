@@ -2,7 +2,7 @@ import { compatible } from '@/platform/core/modules';
 // The file types installed in the module roots (the modules that have a type.ts): one folder each, found with a glob, so the app
 // runs with any of them removed. (src/platform/node/lib/file-types.js finds the same folders for the
 // build.) Core code reads types here and never imports a type's folder (src/platform/node/check/check-modules.js).
-import { assertUniqueExtensions, matchFileType } from '@/platform/core/fileTypes';
+import { matchFileType } from '@/platform/core/fileTypes';
 import { assertFileTypeModule, type FileTypeModule } from '@/platform/app/data/fileTypeModule';
 import { MODULES } from '@/platform/app/data/modules';
 import { isEnabled } from '@/platform/app/data/config';
@@ -20,7 +20,6 @@ export const fileTypeModules: Record<string, FileTypeModule> = Object.fromEntrie
     .filter(([path]) => on(path))
     .map(([path, module]) => [idOf(path), module]),
 );
-assertUniqueExtensions(FILE_TYPES);
 for (const [id, spec] of Object.entries(FILE_TYPES)) assertFileTypeModule(id, spec, fileTypeModules[id]);
 
 // The id of the type that owns a file, by its extension, or null for a plain file.
