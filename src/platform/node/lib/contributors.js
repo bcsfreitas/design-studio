@@ -17,7 +17,7 @@ const readJson = file => {
 };
 
 // Each regular contributors/<key>.json profile is the sole declaration for that key.
-export function readContributors(root = ROOT, { initializingPreferences = false } = {}) {
+export function readContributors(root = ROOT, { initializingPreferences = false, identityOnly = false } = {}) {
   const directory = path.join(root, 'contributors');
   const contributors = Object.create(null);
   const problems = [];
@@ -47,7 +47,7 @@ export function readContributors(root = ROOT, { initializingPreferences = false 
       continue;
     }
     const version = formatVersionProblem(entry.formatVersion, 'contributor', `contributors/${file}`);
-    if (version && !(initializingPreferences && entry.formatVersion === 1)) problems.push(version);
+    if (version && !identityOnly && !(initializingPreferences && entry.formatVersion === 1)) problems.push(version);
     if (typeof entry.name !== 'string' || !entry.name.trim())
       problems.push(`contributors/${file}: declare a nonempty name.`);
     try {
@@ -59,6 +59,7 @@ export function readContributors(root = ROOT, { initializingPreferences = false 
       if (typeof entry[field] !== 'string')
         problems.push(`contributors/${file}: declare ${field} as a string. Use an empty string when unavailable.`);
     if (
+      !identityOnly &&
       !(initializingPreferences && entry.preferences === undefined) &&
       (!entry.preferences ||
         typeof entry.preferences !== 'object' ||

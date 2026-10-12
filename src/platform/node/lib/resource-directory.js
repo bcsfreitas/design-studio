@@ -11,7 +11,7 @@ import { resourceId } from '../../core/resourceIdentity.ts';
 // Refresh from ordinary source files rather than cached module imports. CI builds
 // the same directory from its before-side declarations without reading this path.
 export function readResourceDirectory(root, options = {}) {
-  const { contributors, problems } = readContributors(root, options);
+  const { contributors, problems } = readContributors(root, { ...options, identityOnly: true });
   if (problems.length) throw new Error(problems.join('\n'));
   // JSON.parse alone accepts duplicate keys. Identity declarations must have a
   // single unambiguous studioId, including escaped spellings of that key.

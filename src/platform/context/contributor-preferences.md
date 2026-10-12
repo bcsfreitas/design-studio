@@ -21,3 +21,5 @@ An Admin previews retained profiles with `pnpm studio preferences --plan /tmp/pr
 Version 1 profiles are upgraded to version 2 only through this explicit operation. A module can declare `preferences.legacy` as destination field to old top-level field mappings. Onboarding maps its prior dismissed flag, preserving whether the introduction was already shown. Legacy fields remain for human review; initialization does not delete custom data. Invalid or unknown profile versions require manual review.
 
 The updater preserves contributor files and never invokes initialization. After an update, run the saved initialization workflow before checks and build. Repeating initialization on current profiles produces an empty plan.
+
+Identity discovery validates ordinary files and unambiguous identity fields independently of preference-format checks. This allows update synchronization to commit preserved old profiles, then report their required initialization. Normal contributor validation and all preference writes still require current declarations.

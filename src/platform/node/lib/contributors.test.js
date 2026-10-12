@@ -81,3 +81,20 @@ test('a profile without the current formatVersion is a problem that names the fi
   fs.writeFileSync(file, JSON.stringify({ ...profile, formatVersion: 3 }));
   assert.match(readContributors(root).problems.join('\n'), /contributors\/sam\.json: formatVersion is 3/);
 });
+
+test('identity discovery can validate retained identities without activating preference defaults', t => {
+  const root = fixture(t);
+  writeProfiles(root, { sam: { name: 'Sam' } });
+  const file = path.join(root, 'contributors/sam.json'),
+    profile = JSON.parse(fs.readFileSync(file));
+  profile.formatVersion = 1;
+  delete profile.preferences;
+  fs.writeFileSync(file, JSON.stringify(profile));
+  assert.ok(readContributors(root).problems.some(problem => problem.includes('preferences')));
+  const identities = readContributors(root, { identityOnly: true });
+  assert.deepEqual(identities.problems, []);
+  assert.equal(identities.contributors.sam.preferences, undefined);
+  profile.studioId = 'invalid';
+  fs.writeFileSync(file, JSON.stringify(profile));
+  assert.ok(readContributors(root, { identityOnly: true }).problems.some(problem => problem.includes('16')));
+});
