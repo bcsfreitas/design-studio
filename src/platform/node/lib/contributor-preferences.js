@@ -125,7 +125,7 @@ export function planContributorPreferences(root, actor, requestedModule) {
       if (!spec.preferences || !compatible(spec)) continue;
       const legacy = Object.entries(spec.preferences.legacy ?? {}).filter(([, old]) => Object.hasOwn(profile, old));
       if (!(isEnabled(config, spec.id) || requestedModule === spec.id || legacy.length)) continue;
-      if (next.preferences[spec.id] === undefined) {
+      if (!Object.hasOwn(next.preferences, spec.id)) {
         next.preferences[spec.id] = structuredClone(spec.preferences.defaults);
         for (const [field, old] of legacy) next.preferences[spec.id][field] = profile[old];
       }

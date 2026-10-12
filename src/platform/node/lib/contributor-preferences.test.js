@@ -152,3 +152,22 @@ test('initialization previews legacy state, revalidates saved plans, and preserv
     error => error.status === 403,
   );
 });
+
+test('valid module IDs that match inherited properties still receive explicit namespaces', t => {
+  const root = fixture(t);
+  declarations(root);
+  const folder = path.join(root, 'src/modules/constructor');
+  fs.mkdirSync(folder, { recursive: true });
+  fs.writeFileSync(
+    path.join(folder, 'module.ts'),
+    "export default {id:'constructor',label:'Constructor',version:'0.1.0',requires:'0.4.0',optional:true,lib:false,preferences:{fields:{ready:'boolean'},defaults:{ready:false}}};",
+  );
+  const file = path.join(root, 'studio.config.json'),
+    config = JSON.parse(fs.readFileSync(file));
+  config.modules.constructor = true;
+  fs.writeFileSync(file, JSON.stringify(config));
+  applyContributorPreferences(root, 'sam', planContributorPreferences(root, 'sam'));
+  const current = readContributorPreferences(root, { actor: 'sam', module: 'constructor' });
+  assert.deepEqual(current.value, { ready: false });
+  assert.equal(Object.hasOwn(readPreferenceProfile(root, 'sam').profile.preferences, 'constructor'), true);
+});

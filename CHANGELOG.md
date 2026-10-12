@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Modules declare preference schemas and registration defaults. Contributor format version 2 stores module namespaces; authorized, versioned transactions preserve identity and unrelated data. Saved initialization plans transition retained profiles and prepare newly enabled modules. The updater does not initialize or rewrite profiles.
+
+- Enabled modules declare dependency optimization and lazy JSON build assets. Canvas no longer has a Vite configuration branch. Systems props use the shared asset transport, cache, dependency watches, and production emission instead of a bespoke endpoint and virtual module.
+
+- Prototypes and Systems share file navigation and error presentation with owner-supplied policies. Application system queries and theme scope use `#studio/systems`; old private discovery paths are removed. Public UI leaves no longer eagerly import the shell or module registry.
+
 - Systems owns source, skill, and component-documentation routes. Generic operations no longer contain Systems creation cases. Shared artifact inspection validates explicit host declarations without importing renderers; Markdown, Canvas, and a team surface use one host. Canvas retains admission, visibility, opening, and camera policy. Development timestamped source imports now honor non-root base paths.
 
 - Typed prototype and generic file clients own successful application synchronization and return navigation identities. Repeated caller-owned manifest updates are removed. This tab's mutations run in order, other tabs retain live notifications, and source conflicts remain typed structured failures.
