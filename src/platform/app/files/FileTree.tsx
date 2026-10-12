@@ -1,4 +1,3 @@
-import { createSkill as createSystemSkill } from '@/platform/modules/systems/pages/systemSource';
 import { FileActionItems } from '@/platform/app/shell/FileActionItems';
 // The prototype's files, in its navigation: a filterable tree with expand/collapse all, and a
 // "Edit source" in a file's menu, which opens its text in place of its page (the shared platform SourceEditor).
@@ -12,7 +11,7 @@ import { FileActionItems } from '@/platform/app/shell/FileActionItems';
 // arrange artifacts to determine the opening artifact. Every change
 // is a plain file change, so agents see the same thing. On the deployed site, it lists the
 // prototype's items, from the manifest.
-import { Fragment, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { Fragment, useEffect, useLayoutEffect, useRef, useState, type ReactNode, type ComponentType } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { dropTargetForElements, monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import { extractInstruction } from '@atlaskit/pragmatic-drag-and-drop-hitbox/list-item';
@@ -32,7 +31,6 @@ import {
 } from '@hugeicons/core-free-icons';
 import { allPrototypes, artifactLabel, artifactLink, prototypeLink } from '@/platform/app/data/manifest';
 import {
-  canChangePrototype,
   fileOp,
   openInEditor,
   repoPath,
@@ -47,14 +45,10 @@ import type { Artifact, Manifest, Prototype } from '@/platform/app/data/types';
 import { artifactAvailability, isHelper } from '@/platform/core/fileTypes';
 import { artifactActions, runArtifactAction, type ArtifactActionTarget } from '@/platform/app/data/fileTypeModule';
 import { navIndent, navRow, navRowState } from '@/platform/app/shell/nav';
-import { SYSTEM_CONTENT_KEY, contentSection } from '@/platform/core/roots';
-import { creatableIn, isSkillFile, isSkillFolder, opProblem } from '@/platform/modules/systems/content/rules';
-import { NEW_KINDS } from '@/platform/modules/systems/content/pages/newKinds';
-import NewSkillDialog from '@/platform/modules/systems/content/pages/NewSkillDialog';
 import { artifactUrl } from '@/platform/app/artifacts/artifactLinks';
 import { place } from '@/platform/core/order';
-import { DRAG_KIND, DragRow, type Dropped, type Operations } from '@/platform/modules/prototypes/viewer/DragRow';
-import { creatableTypes, FILE_TYPES, fileTypeModules } from '@/platform/app/data/fileTypes';
+import { DRAG_KIND, DragRow, type Dropped, type Operations } from './DragRow';
+import { FILE_TYPES, fileTypeModules } from '@/platform/app/data/fileTypes';
 import { useShowAllFiles } from '@/platform/app/shell/appPrefs';
 import { Button } from '@/platform/systems/studio/components/button';
 import { Input } from '@/platform/systems/studio/components/input';
@@ -117,16 +111,16 @@ const itemsOf = (m: Manifest, p: Prototype) =>
   allPrototypes(m).find(x => x.contributorKey === p.contributorKey && x.id === p.id)?.artifacts ?? [];
 
 // While filtering, keep files whose name matches, and folders with a match inside.
-function filterNodes(nodes: FileNode[], q: string, systemProto?: Prototype): FileNode[] {
+function filterNodes(nodes: FileNode[], q: string, searchPrototype?: Prototype): FileNode[] {
   return nodes.flatMap(n => {
-    // System search includes artifact titles and paths; matching a folder reveals its contents.
+    // Owner search includes artifact titles and paths; matching a folder reveals its contents.
     if (
-      systemProto &&
-      (n.path.toLowerCase().includes(q) || artifactLabel(n.path, systemProto).toLowerCase().includes(q))
+      searchPrototype &&
+      (n.path.toLowerCase().includes(q) || artifactLabel(n.path, searchPrototype).toLowerCase().includes(q))
     )
       return [n];
     if (!n.dir) return n.name.toLowerCase().includes(q) || artifactLabel(n.name).toLowerCase().includes(q) ? [n] : [];
-    const children = filterNodes(n.children ?? [], q, systemProto);
+    const children = filterNodes(n.children ?? [], q, searchPrototype);
     return children.length || n.name.toLowerCase().includes(q) ? [{ ...n, children }] : [];
   });
 }
@@ -265,7 +259,29 @@ type TreeNavigation = {
   folderCommand: { version: number; expanded: boolean };
   onFoldersExpanded: (open: boolean) => void;
 };
-type FileTreeProps = {
+export type NewFileOption = { target: string; label: string; icon: typeof File01Icon };
+export type FileTreePolicy = {
+  scope: 'prototype' | 'systemContent';
+  noun: 'artifacts' | 'files';
+  reorder: boolean;
+  canChange(proto: Prototype, actor: string | null): boolean;
+  newOptions(folder: string, context: { live: boolean; editable: boolean }): NewFileOption[];
+  fixed?(node: FileNode): boolean;
+  movable?(node: FileNode): boolean;
+  canMoveTo?(source: { path: string; dir: boolean }, folder: string): boolean;
+  hideFolderControls?: boolean;
+  itemForNode?(node: FileNode, items: Map<string, Artifact>): Artifact | undefined;
+  bundleItem?(node: FileNode, items: Map<string, Artifact>): Artifact | undefined;
+  creationTarget?: string;
+  CreationDialog?: ComponentType<{
+    proto: Prototype;
+    open: boolean;
+    onOpenChange(open: boolean): void;
+    onCreated(receipt: { manifest: Manifest; path?: string }): void;
+  }>;
+};
+export type FileTreeProps = {
+  policy: FileTreePolicy;
   proto: Prototype;
   current: Artifact | undefined;
   embedded?: boolean;
@@ -278,7 +294,7 @@ type FileTreeProps = {
 
 const guidanceBranchState = new Map<string, boolean>();
 
-const systemFolderState = new Map<string, { closed: Set<string>; commandVersion: number }>();
+const folderState = new Map<string, { closed: Set<string>; commandVersion: number }>();
 
 export default function FileTree({
   proto,
@@ -289,6 +305,7 @@ export default function FileTree({
   contentIcon,
   branch,
   navigation,
+  policy,
 }: FileTreeProps) {
   const { files, reload } = useFileTree(proto);
   const treeScope = proto.contributorKey + ':' + proto.id;
@@ -310,45 +327,10 @@ export default function FileTree({
   const me = useMe();
   const navigate = useNavigate();
   const live = import.meta.env.DEV && files !== null;
-  // Your own prototypes, and the system content (in dev): its files are platform files, changed here for
-  // review like any change, in the fixed shape src/platform/modules/systems/content/rules.ts describes.
-  const isSystemContent = proto.contributorKey === SYSTEM_CONTENT_KEY;
-  const isSkills = isSystemContent && contentSection(proto.id) === 'skills';
-  const editable = live && canChangePrototype(proto, me);
-  const [newSkillOpen, setNewSkillOpen] = useState(false);
-  // A skill's SKILL.md can't be renamed, moved, or deleted alone.
-  const fixed = (node: FileNode) => isSystemContent && isSkillFile(contentSection(proto.id), node.path);
-  // What can be made in a folder: a prototype's file types and folders, or what the system content section holds there.
-  const newOptions = (folder: string) =>
-    isSystemContent
-      ? creatableIn(contentSection(proto.id), folder)
-          .filter(
-            kind =>
-              kind !== 'document' ||
-              artifactAvailability(FILE_TYPES.systems, {
-                local: live,
-                editable,
-                present: false,
-                renderer: Boolean(fileTypeModules.systems),
-                scope: 'systemContent',
-              }).create.available,
-          )
-          .map(kind => ({ target: kind === 'document' ? 'systems' : kind, ...NEW_KINDS[kind] }))
-      : [
-          ...creatableTypes
-            .filter(
-              t =>
-                artifactAvailability(FILE_TYPES[t.id], {
-                  local: import.meta.env.DEV,
-                  editable,
-                  present: false,
-                  renderer: Boolean(fileTypeModules[t.id]),
-                  scope: 'prototype',
-                }).create.available,
-            )
-            .map(t => ({ target: t.id, label: `New ${t.label.toLowerCase()}`, icon: t.icon })),
-          { target: 'folder', ...NEW_KINDS.folder },
-        ];
+  const editable = live && policy.canChange(proto, me);
+  const [creationOpen, setCreationOpen] = useState(false);
+  const fixed = (node: FileNode) => policy.fixed?.(node) ?? false;
+  const newOptions = (folder: string) => policy.newOptions(folder, { live, editable });
   const items = new Map(proto.artifacts.map(i => [i.path, i]));
   const actionTarget = useRef<(path: string) => ArtifactActionTarget | undefined>(() => undefined);
   useLayoutEffect(() => {
@@ -367,7 +349,7 @@ export default function FileTree({
             editable,
             present: true,
             renderer: Boolean(module),
-            scope: isSystemContent ? 'systemContent' : 'prototype',
+            scope: policy.scope,
           },
         },
       };
@@ -381,7 +363,7 @@ export default function FileTree({
   const nodes = !files ? itemsAsNodes(proto) : showAll ? files : visibleNodes(files, items);
   const [filterOpen, setFilterOpen] = useState(false);
   const [filter, setFilter] = useState('');
-  const savedFolders = navigation ? systemFolderState.get(proto.id) : undefined;
+  const savedFolders = navigation ? folderState.get(proto.id) : undefined;
   const [closed, setClosed] = useState(() => savedFolders?.closed ?? new Set<string>());
   const commandVersion = useRef(savedFolders?.commandVersion ?? -1);
   const [editing, setEditing] = useState<Editing>(null);
@@ -395,7 +377,7 @@ export default function FileTree({
 
   const q = (externalFilter?.query ?? navigation?.query ?? filter).trim().toLowerCase();
   const shown = q ? filterNodes(nodes, q, navigation || externalFilter ? proto : undefined) : nodes;
-  const dirs = isSkills ? [] : allDirs(nodes);
+  const dirs = policy.hideFolderControls ? [] : allDirs(nodes);
   // While filtering, every folder with a match shows open.
   const isOpen = (d: string) =>
     Boolean(q) || Boolean(navigation?.searching) || Boolean(externalFilter?.searching) || !closed.has(d);
@@ -408,7 +390,7 @@ export default function FileTree({
     }
   }, [navigation?.folderCommand.version, dirSignature]);
   useEffect(() => {
-    if (navigation) systemFolderState.set(proto.id, { closed, commandVersion: commandVersion.current });
+    if (navigation) folderState.set(proto.id, { closed, commandVersion: commandVersion.current });
   }, [proto.id, closed]);
   useEffect(() => {
     navigation?.onFoldersExpanded(allOpen);
@@ -431,7 +413,7 @@ export default function FileTree({
       return next;
     });
   // Show all files exposes helpers and assets as well as artifacts.
-  const noun = showAll || proto.contributorKey === SYSTEM_CONTENT_KEY ? 'files' : 'artifacts';
+  const noun = showAll ? 'files' : policy.noun;
 
   // Runs a change, then takes the new manifest. If it moved or removed the open view, go to
   // its new place (or the prototype's first view) first, so the old address is never reloaded.
@@ -493,38 +475,31 @@ export default function FileTree({
 
   const startCreate = (parent: string, target: NewTarget) => {
     setExpanded(true);
-    if (target === 'skill') {
-      setNewSkillOpen(true);
+    if (target === policy.creationTarget) {
+      setCreationOpen(true);
       return;
     }
     if (parent) setOpen(parent, true);
     setEditing({ kind: 'create', parent, target });
   };
-  // A new skill: the dialog has checked the name and description; the file layer checks them again
-  // and writes the folder. Errors go back to the dialog.
-  async function createSkill(name: string, description: string) {
-    const result = await createSystemSkill(proto.id, name, description);
+  function created(receipt: { manifest: Manifest; path?: string }) {
     reload();
-    setNewSkillOpen(false);
-    const item = result.path && itemsOf(result.manifest, proto).find(i => i.path === result.path);
+    setCreationOpen(false);
+    const item = receipt.path && itemsOf(receipt.manifest, proto).find(item => item.path === receipt.path);
     if (item) navigate(artifactLink(proto, item));
   }
 
   // Drag and drop (DragRow.tsx): drag a row before or after another, or into a folder. Order is saved
-  // in meta.json (src/platform/core/order.ts). The system content has a fixed shape, so there a row can only move into a folder.
+  // in meta.json (src/platform/core/order.ts). The owner policy controls movement and ordering.
   const movable = (node: FileNode) =>
-    editable &&
-    node.path !== 'meta.json' &&
-    !fixed(node) &&
-    !(isSystemContent && isSkillFolder(contentSection(proto.id), node.path, node.dir));
+    editable && node.path !== 'meta.json' && !fixed(node) && (policy.movable?.(node) ?? true);
   const canMoveTo = (source: { path: string; dir: boolean }, folder: string) =>
-    !isSystemContent ||
-    opProblem(contentSection(proto.id), { op: 'move', path: source.path, to: folder }, source.dir) === null;
+    policy.canMoveTo?.(source, folder) ?? true;
   // What dropping `source` on a row may do. A folder that's open has its contents below it, so "after" it is inside it.
   const operationsFor =
     (target: FileNode, open: boolean) =>
     (source: { path: string; dir: boolean }): Operations => {
-      const ordering = !isSystemContent && !q;
+      const ordering = policy.reorder && !q;
       return {
         combine:
           target.dir && parentOf(source.path) !== target.path && canMoveTo(source, target.path)
@@ -544,7 +519,7 @@ export default function FileTree({
   function drop(path: string, target: string | null, operation: Dropped) {
     if (target === null) {
       // the empty space below the tree: the top level, last
-      if (isSystemContent) run({ op: 'move', path, to: '' });
+      if (!policy.reorder) run({ op: 'move', path, to: '' });
       else arrange(path, '', '');
       return;
     }
@@ -591,13 +566,13 @@ export default function FileTree({
       }),
     ];
     return () => stops.forEach(stop => stop());
-  }, [editable, isSystemContent, treeScope]);
+  }, [editable, policy, treeScope]);
 
   // Move up or down: the same as dragging, from the keyboard (Option + arrow).
   const moves = (node: FileNode) => {
     const sibs = siblingsOf(node.path);
     const at = sibs.findIndex(n => n.path === node.path);
-    const can = editable && !isSystemContent && !q && node.path !== 'meta.json' && at >= 0;
+    const can = editable && policy.reorder && !q && node.path !== 'meta.json' && at >= 0;
     return {
       up: can && at > 0 ? () => arrange(node.path, parentOf(node.path), sibs[at - 1].path) : null,
       down:
@@ -637,13 +612,13 @@ export default function FileTree({
     // Authoring actions need a local studio; explicitly public module actions can also appear in a published menu.
     const local = import.meta.env.DEV && live;
     const changeable = local && editable && node.path !== 'meta.json' && !fixed(node);
-    const menuItem = items.get(isSkills && node.dir ? node.path + '/SKILL.md' : node.path);
+    const menuItem = policy.itemForNode ? policy.itemForNode(node, items) : items.get(node.path);
     const environment = {
       local,
       editable,
       present: Boolean(menuItem),
       renderer: Boolean(menuItem && fileTypeModules[menuItem.fileType]),
-      scope: isSystemContent ? ('systemContent' as const) : ('prototype' as const),
+      scope: policy.scope,
       systemMissing: proto.systemMissing,
     };
     const spec = menuItem && FILE_TYPES[menuItem.fileType];
@@ -797,37 +772,35 @@ export default function FileTree({
         );
       }
       if (node.dir) {
-        // A skill is one bundle, not a folder followed by a duplicate SKILL.md entry.
-        if (isSkills && isSkillFolder('skills', node.path, true)) {
-          const skill = items.get(node.path + '/SKILL.md');
-          if (skill)
-            return (
-              <Fragment key={node.path}>
-                {rowMenu(
-                  node.path,
-                  node,
-                  <Link
-                    {...artifactLink(proto, skill)}
-                    {...keyProps(node)}
-                    aria-current={current && within(current.path, node.path) ? 'page' : undefined}
-                    style={indent(depth)}
-                    className={cn(row, navRowState(Boolean(current && within(current.path, node.path))))}
-                  >
-                    {contentIcon ?? (
-                      <HugeiconsIcon
-                        icon={fileTypeModules[skill.fileType]?.icon ?? CodeIcon}
-                        size={14}
-                        className='shrink-0 text-muted-foreground'
-                      />
-                    )}
-                    <span className='min-w-0 flex-1 truncate' title={repoPath(proto, skill.path)}>
-                      {artifactLabel(skill.path, proto)}
-                    </span>
-                  </Link>,
-                )}
-                {createField(node.path, depth)}
-              </Fragment>
-            );
+        const bundled = policy.bundleItem?.(node, items);
+        if (bundled) {
+          return (
+            <Fragment key={node.path}>
+              {rowMenu(
+                node.path,
+                node,
+                <Link
+                  {...artifactLink(proto, bundled)}
+                  {...keyProps(node)}
+                  aria-current={current && within(current.path, node.path) ? 'page' : undefined}
+                  style={indent(depth)}
+                  className={cn(row, navRowState(Boolean(current && within(current.path, node.path))))}
+                >
+                  {contentIcon ?? (
+                    <HugeiconsIcon
+                      icon={fileTypeModules[bundled.fileType]?.icon ?? CodeIcon}
+                      size={14}
+                      className='shrink-0 text-muted-foreground'
+                    />
+                  )}
+                  <span className='min-w-0 flex-1 truncate' title={repoPath(proto, bundled.path)}>
+                    {artifactLabel(bundled.path, proto)}
+                  </span>
+                </Link>,
+              )}
+              {createField(node.path, depth)}
+            </Fragment>
+          );
         }
         const open = isOpen(node.path);
         return (
@@ -988,7 +961,7 @@ export default function FileTree({
           </button>
         ) : (
           <p className='min-w-0 flex-1 truncate text-[12px] font-semibold leading-none'>
-            {showAll || proto.contributorKey === SYSTEM_CONTENT_KEY ? 'Files' : 'Artifacts'}
+            {showAll || policy.noun === 'files' ? 'Files' : 'Artifacts'}
           </p>
         )}
         {/* Shown while the pointer is over the list or focus is in it, so the heading stays quiet. */}
@@ -1096,7 +1069,9 @@ export default function FileTree({
           {rows(shown, 0)}
         </div>
       </div>
-      {isSystemContent && <NewSkillDialog open={newSkillOpen} onOpenChange={setNewSkillOpen} onCreate={createSkill} />}
+      {policy.CreationDialog && (
+        <policy.CreationDialog proto={proto} open={creationOpen} onOpenChange={setCreationOpen} onCreated={created} />
+      )}
 
       <Dialog
         open={confirmDelete !== null}

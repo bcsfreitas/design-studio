@@ -24,7 +24,7 @@ import { shadcnDocsUrl } from '@/platform/modules/systems/sources';
 import type { DesignSystem } from '@/platform/app/data/types';
 import { ErrorBoundary } from 'react-error-boundary';
 import { MDXProvider } from '@mdx-js/react';
-import ViewError from '@/platform/modules/prototypes/viewer/ViewError';
+import { FileError as ViewError } from '#studio/ui';
 
 // One component's page in the Systems section, built from its files: the title and description
 // and the Markdown page, then live examples, then its props read from the code. Whatever the

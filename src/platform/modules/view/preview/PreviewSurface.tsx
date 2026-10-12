@@ -4,7 +4,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { ThemeScope } from '@/platform/modules/systems/ThemeScope';
 import { PortalContext } from '#studio/runtime';
 import { PrototypeNavigationProvider } from '@/platform/modules/prototypes/lib';
-import ViewError from '@/platform/modules/prototypes/viewer/ViewError';
+import { FileError as ViewError } from '#studio/ui';
 import MissingSystem from '@/platform/modules/prototypes/viewer/MissingSystem';
 import EmptyView from '../EmptyView';
 import type { loadView } from '../load';

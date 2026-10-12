@@ -82,7 +82,8 @@
         "src/platform/node/lib/system-dependencies.test.js",
         "src/platform/node/lib/system-folders.test.js",
         "src/platform/node/lib/reference-adapters.test.js",
-        "src/platform/node/lib/build-assets.test.js"
+        "src/platform/node/lib/build-assets.test.js",
+        "src/platform/app/files/fileTreePolicy.test.ts"
       ],
       "dependencies": [
         "src/platform/**",

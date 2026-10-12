@@ -27,7 +27,8 @@ import { Input } from '@/platform/systems/studio/components/input';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/platform/systems/studio/components/tooltip';
 import { artifactLabel, findArtifact } from '@/platform/app/data/manifest';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/platform/systems/studio/components/collapsible';
-import FileTree from '@/platform/modules/prototypes/viewer/FileTree';
+import { FileTree } from '#studio/ui';
+import { systemFileTreePolicy } from '../content/fileTreePolicy';
 import { contentId, SYSTEM_CONTENT_SECTIONS, systemFolder } from '@/platform/core/roots';
 import type { ContentData } from '../content/SystemContentPage';
 import SystemContentPage from '../content/SystemContentPage';
@@ -392,6 +393,7 @@ function SystemNav({
         {contentSections.map(({ id, section, proto }) => (
           <FileTree
             key={proto.id}
+            policy={systemFileTreePolicy(proto)}
             proto={proto}
             current={page === id && params._splat ? findArtifact(proto, params._splat) : undefined}
             embedded

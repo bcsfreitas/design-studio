@@ -404,6 +404,22 @@
         "stability": "experimental",
         "signature": "({ Component, title, description, toc, scrollKey, footer, actions }: DocLayoutProps) => import(\"react\").JSX.Element"
       },
+      "FileError": {
+        "stability": "experimental",
+        "signature": "({ error }: FallbackProps) => import(\"react\").JSX.Element"
+      },
+      "FileTree": {
+        "stability": "experimental",
+        "signature": "({ proto, current, embedded, rememberExpansion, externalFilter, contentIcon, branch, navigation, policy, }: FileTreeProps) => import(\"react\").JSX.Element | null"
+      },
+      "FileTreePolicy": {
+        "stability": "experimental",
+        "signature": "{ scope: \"prototype\" | \"systemContent\"; noun: \"artifacts\" | \"files\"; reorder: boolean; canChange(proto: Prototype, actor: string | null): boolean; newOptions(folder: string, context: { live: boolean; editable: boolean; }): NewFileOption[]; fixed?(node: FileNode): boolean; movable?(node: FileNode): boolean; canMoveTo?(source: { path: string; dir: boolean; }, folder: string): boolean; hideFolderControls?: boolean; itemForNode?(node: FileNode, items: Map<string, Artifact>): Artifact | undefined; bundleItem?(node: FileNode, items: Map<string, Artifact>): Artifact | undefined; creationTarget?: string; CreationDialog?: ComponentType<{ proto: Prototype; open: boolean; onOpenChange(open: boolean): void; onCreated(receipt: { manifest: Manifest; path?: string; }): void; }>; }"
+      },
+      "FileTreeProps": {
+        "stability": "experimental",
+        "signature": "{ policy: FileTreePolicy; proto: Prototype; current: Artifact | undefined; embedded?: boolean; rememberExpansion?: boolean; externalFilter?: { query: string; searching: boolean; }; contentIcon?: ReactNode; branch?: { label: string; path: string; active: boolean; defaultExpanded?: boolean; }; navigation?: TreeNavigation; }"
+      },
       "HomeHint": {
         "stability": "experimental",
         "signature": "({ children }: { children: ReactNode; }) => import(\"react\").JSX.Element"
@@ -439,6 +455,10 @@
       "NavTitle": {
         "stability": "experimental",
         "signature": "({ children, actions }: { children: ReactNode; actions?: ReactNode; }) => import(\"react\").JSX.Element"
+      },
+      "NewFileOption": {
+        "stability": "experimental",
+        "signature": "{ target: string; label: string; icon: typeof File01Icon; }"
       },
       "NotFound": {
         "stability": "experimental",
@@ -1521,6 +1541,98 @@
       "stability": "experimental",
       "signature": "{ Component: MDXContent; title?: string; description?: string; toc?: boolean; scrollKey?: string; footer?: ReactNode; actions?: ReactNode; }"
     },
+    "#studio/ui.FileTree.PlatformReferenceGroup": {
+      "stability": "experimental",
+      "signature": "{ id: string; label: string; enabled: boolean; references: { source: string; title: string; related?: { title: string; href: string; }[]; }[]; related: { title: string; href: string; }[]; }"
+    },
+    "#studio/ui.FileTree.PrototypeRef": {
+      "stability": "experimental",
+      "signature": "PrototypeInfo & { artifacts?: Artifact[]; artifactCount?: number; artifactsHash?: string; }"
+    },
+    "#studio/ui.FileTree.SystemComponent": {
+      "stability": "experimental",
+      "signature": "{ name: string; slug: string; files: { source: string | null; examples: string | null; doc: string | null; }; }"
+    },
+    "#studio/ui.FileTree.SystemComponentDoc": {
+      "stability": "experimental",
+      "signature": "SystemComponent & { title: string; description: string; category: string | null; docsUrl: string | null; sourceNote?: string; }"
+    },
+    "#studio/ui.FileTree.SystemContentMap": {
+      "stability": "experimental",
+      "signature": "{ entry: boolean; always: string[]; onDemand: { path: string; when: string; }[]; via: { path: string; from: string; }[]; unrouted: string[]; skills: { folder: string; name: string; description: string; when?: string; }[]; missing: string[]; }"
+    },
+    "#studio/ui.FileTree.ThemeToken": {
+      "stability": "experimental",
+      "signature": "{ name: string; value: string; group: TokenGroup; subgroup: string | null; dark: boolean; }"
+    },
+    "#studio/ui.FileTree.TokenGroup": {
+      "stability": "experimental",
+      "signature": "\"colors\" | \"typography\" | \"radius\" | \"shadows\" | \"spacing\" | \"motion\" | \"effects\" | \"other\""
+    },
+    "#studio/ui.FileTree.TreeNavigation": {
+      "stability": "experimental",
+      "signature": "{ query: string; searching: boolean; expanded: boolean; onExpandedChange: (open: boolean) => void; folderCommand: { version: number; expanded: boolean; }; onFoldersExpanded: (open: boolean) => void; }"
+    },
+    "#studio/ui.FileTreePolicy.PlatformReferenceGroup": {
+      "stability": "experimental",
+      "signature": "{ id: string; label: string; enabled: boolean; references: { source: string; title: string; related?: { title: string; href: string; }[]; }[]; related: { title: string; href: string; }[]; }"
+    },
+    "#studio/ui.FileTreePolicy.PrototypeRef": {
+      "stability": "experimental",
+      "signature": "PrototypeInfo & { artifacts?: Artifact[]; artifactCount?: number; artifactsHash?: string; }"
+    },
+    "#studio/ui.FileTreePolicy.SystemComponent": {
+      "stability": "experimental",
+      "signature": "{ name: string; slug: string; files: { source: string | null; examples: string | null; doc: string | null; }; }"
+    },
+    "#studio/ui.FileTreePolicy.SystemComponentDoc": {
+      "stability": "experimental",
+      "signature": "SystemComponent & { title: string; description: string; category: string | null; docsUrl: string | null; sourceNote?: string; }"
+    },
+    "#studio/ui.FileTreePolicy.SystemContentMap": {
+      "stability": "experimental",
+      "signature": "{ entry: boolean; always: string[]; onDemand: { path: string; when: string; }[]; via: { path: string; from: string; }[]; unrouted: string[]; skills: { folder: string; name: string; description: string; when?: string; }[]; missing: string[]; }"
+    },
+    "#studio/ui.FileTreePolicy.ThemeToken": {
+      "stability": "experimental",
+      "signature": "{ name: string; value: string; group: TokenGroup; subgroup: string | null; dark: boolean; }"
+    },
+    "#studio/ui.FileTreePolicy.TokenGroup": {
+      "stability": "experimental",
+      "signature": "\"colors\" | \"typography\" | \"radius\" | \"shadows\" | \"spacing\" | \"motion\" | \"effects\" | \"other\""
+    },
+    "#studio/ui.FileTreeProps.PlatformReferenceGroup": {
+      "stability": "experimental",
+      "signature": "{ id: string; label: string; enabled: boolean; references: { source: string; title: string; related?: { title: string; href: string; }[]; }[]; related: { title: string; href: string; }[]; }"
+    },
+    "#studio/ui.FileTreeProps.PrototypeRef": {
+      "stability": "experimental",
+      "signature": "PrototypeInfo & { artifacts?: Artifact[]; artifactCount?: number; artifactsHash?: string; }"
+    },
+    "#studio/ui.FileTreeProps.SystemComponent": {
+      "stability": "experimental",
+      "signature": "{ name: string; slug: string; files: { source: string | null; examples: string | null; doc: string | null; }; }"
+    },
+    "#studio/ui.FileTreeProps.SystemComponentDoc": {
+      "stability": "experimental",
+      "signature": "SystemComponent & { title: string; description: string; category: string | null; docsUrl: string | null; sourceNote?: string; }"
+    },
+    "#studio/ui.FileTreeProps.SystemContentMap": {
+      "stability": "experimental",
+      "signature": "{ entry: boolean; always: string[]; onDemand: { path: string; when: string; }[]; via: { path: string; from: string; }[]; unrouted: string[]; skills: { folder: string; name: string; description: string; when?: string; }[]; missing: string[]; }"
+    },
+    "#studio/ui.FileTreeProps.ThemeToken": {
+      "stability": "experimental",
+      "signature": "{ name: string; value: string; group: TokenGroup; subgroup: string | null; dark: boolean; }"
+    },
+    "#studio/ui.FileTreeProps.TokenGroup": {
+      "stability": "experimental",
+      "signature": "\"colors\" | \"typography\" | \"radius\" | \"shadows\" | \"spacing\" | \"motion\" | \"effects\" | \"other\""
+    },
+    "#studio/ui.FileTreeProps.TreeNavigation": {
+      "stability": "experimental",
+      "signature": "{ query: string; searching: boolean; expanded: boolean; onExpandedChange: (open: boolean) => void; folderCommand: { version: number; expanded: boolean; }; onFoldersExpanded: (open: boolean) => void; }"
+    },
     "#studio/ui.ModuleApp.PlatformReferenceGroup": {
       "stability": "experimental",
       "signature": "{ id: string; label: string; enabled: boolean; references: { source: string; title: string; related?: { title: string; href: string; }[]; }[]; related: { title: string; href: string; }[]; }"
@@ -2021,6 +2133,10 @@
       "stability": "experimental",
       "signature": "({ className, ...props }: React.ComponentProps<\"div\">) => import(\"react\").JSX.Element"
     },
+    "FileError": {
+      "stability": "experimental",
+      "signature": "({ error }: FallbackProps) => import(\"react\").JSX.Element"
+    },
     "FileNode": {
       "stability": "experimental",
       "signature": "{ name: string; path: string; dir: boolean; children?: FileNode[]; }"
@@ -2032,6 +2148,18 @@
     "FileOpResult": {
       "stability": "experimental",
       "signature": "{ path?: string; artifactId?: ResourceId; trashedTo?: string; relinkedFiles?: string[]; manifest: Manifest; }"
+    },
+    "FileTree": {
+      "stability": "experimental",
+      "signature": "({ proto, current, embedded, rememberExpansion, externalFilter, contentIcon, branch, navigation, policy, }: FileTreeProps) => import(\"react\").JSX.Element | null"
+    },
+    "FileTreePolicy": {
+      "stability": "experimental",
+      "signature": "{ scope: \"prototype\" | \"systemContent\"; noun: \"artifacts\" | \"files\"; reorder: boolean; canChange(proto: Prototype, actor: string | null): boolean; newOptions(folder: string, context: { live: boolean; editable: boolean; }): NewFileOption[]; fixed?(node: FileNode): boolean; movable?(node: FileNode): boolean; canMoveTo?(source: { path: string; dir: boolean; }, folder: string): boolean; hideFolderControls?: boolean; itemForNode?(node: FileNode, items: Map<string, Artifact>): Artifact | undefined; bundleItem?(node: FileNode, items: Map<string, Artifact>): Artifact | undefined; creationTarget?: string; CreationDialog?: ComponentType<{ proto: Prototype; open: boolean; onOpenChange(open: boolean): void; onCreated(receipt: { manifest: Manifest; path?: string; }): void; }>; }"
+    },
+    "FileTreeProps": {
+      "stability": "experimental",
+      "signature": "{ policy: FileTreePolicy; proto: Prototype; current: Artifact | undefined; embedded?: boolean; rememberExpansion?: boolean; externalFilter?: { query: string; searching: boolean; }; contentIcon?: ReactNode; branch?: { label: string; path: string; active: boolean; defaultExpanded?: boolean; }; navigation?: TreeNavigation; }"
     },
     "FileTypeModule": {
       "stability": "experimental",
@@ -2140,6 +2268,10 @@
     "NavTitle": {
       "stability": "experimental",
       "signature": "({ children, actions }: { children: ReactNode; actions?: ReactNode; }) => import(\"react\").JSX.Element"
+    },
+    "NewFileOption": {
+      "stability": "experimental",
+      "signature": "{ target: string; label: string; icon: typeof File01Icon; }"
     },
     "NotFound": {
       "stability": "experimental",

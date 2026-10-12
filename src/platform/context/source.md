@@ -100,3 +100,5 @@ Manual chapters and owner README documents have separate source files. Each read
 - `src/platform/app/source/ArtifactSource.tsx`: prototype and system context access adapter.
 - `src/platform/app/shell/FileNavItem.tsx` and `FileActionItems.tsx`: file-backed navigation and common actions. File trees use the same actions with their own structure.
 - `src/platform/node/build/files/source.js`: versioned, size-limited access to explicitly allowlisted Documentation and Systems files. Prototype and system context access retain their existing file policies.
+
+File-backed navigation shares `FileTree` and `FileError` from `#studio/ui`. Owners supply explicit creation, permission, movement, ordering, and bundle policies. Prototypes owns artifact creation; Systems owns context and skill rules. The shared tree contains neither Systems creation handlers nor skill format assumptions. Server authorization remains mandatory.

@@ -4,13 +4,14 @@
 import type { Artifact, Prototype } from '@/platform/app/data/types';
 import { SectionNav } from '@/platform/app/shell/nav';
 import PrototypeHeader from '@/platform/modules/prototypes/viewer/PrototypeHeader';
-import FileTree from '@/platform/modules/prototypes/viewer/FileTree';
+import { FileTree } from '#studio/ui';
+import { prototypeFileTreePolicy } from './fileTreePolicy';
 
 export default function PrototypeNav({ proto, current }: { proto: Prototype; current: Artifact | undefined }) {
   return (
     <SectionNav label='Prototype navigation'>
       <PrototypeHeader proto={proto} />
-      <FileTree proto={proto} current={current} />
+      <FileTree policy={prototypeFileTreePolicy} proto={proto} current={current} />
     </SectionNav>
   );
 }
