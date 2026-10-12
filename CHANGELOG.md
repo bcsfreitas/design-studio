@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Systems owns source, skill, and component-documentation routes. Generic operations no longer contain Systems creation cases. Shared artifact inspection validates explicit host declarations without importing renderers; Markdown, Canvas, and a team surface use one host. Canvas retains admission, visibility, opening, and camera policy. Development timestamped source imports now honor non-root base paths.
+
 - Typed prototype and generic file clients own successful application synchronization and return navigation identities. Repeated caller-owned manifest updates are removed. This tab's mutations run in order, other tabs retain live notifications, and source conflicts remain typed structured failures.
 
 - View, Diagrams, and Canvas now own their identity adapters. Generic identity assignment uses JSON metadata rather than a Canvas adapter. File declarations use `#studio/files` and Node-safe local helpers, with transitive boundary checks.
