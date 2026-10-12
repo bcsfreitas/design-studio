@@ -60,4 +60,6 @@ Use existing commands for repeatable mechanics and skills for decisions and outc
 
 Each module and system has its own README entry point, context, and relevant skills. A README is technical context at the owner's front door. Skills consult authoritative context rather than copying contracts.
 
+The [API environment policy](context/modules.md#environment-policy) separates Studio application, Node tooling, and prototype runtime consumers. Its entry inventory drives the shared checks and development/build guard; executable dependency graphs must support every declared environment.
+
 The Documentation surface offers a curated Manual and a platform and module Context and Skills browser. The browser displays these original files. System context and skills appear within each system’s UI alongside its components and theme. Generated harness entries route agents back to the canonical skills.

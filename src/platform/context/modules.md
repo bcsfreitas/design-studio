@@ -26,16 +26,32 @@ Every module declares `requires`, the oldest platform version it works with, suc
 
 Team modules (`src/modules/<id>/`) and team systems (`src/systems/<id>/`) import platform code only through the public API in `src/platform/api/`, one file per entry. The root `package.json` maps `#studio/*` to those files through its `imports` field, so one specifier works in browser code, Node-loaded files such as `type.ts`, `server.ts`, and `check.ts`, and a system's `system.ts`.
 
-| Entry | Use it for | Where it loads |
+| Entry | Use it for | Executable environment |
 | --- | --- | --- |
-| `#studio/module` | `ModuleSpec`, `ModuleServer`, `ServerRoute`, `ModuleCheck`, `ModuleBuild` (experimental), `PLATFORM_VERSION`. | Browser and Node; type imports anywhere. |
+| `#studio/module` | `ModuleSpec`, `ModuleServer`, `ServerRoute`, `ModuleCheck`, `ModuleBuild` (experimental), `PLATFORM_VERSION`. | Application and Node. |
 | `#studio/system` | `SystemSpec`, `SystemLibrary`, `SystemIntro`, and the types inside them. | Types anywhere. |
-| `#studio/files` | Declaring a file type in `type.ts`: `defineFileType`, `FileTypeSpec`, capabilities, identity, and the Markdown declaration to extend. | Browser and Node. |
-| `#studio/data` | Reading content in the app: the manifest, `contribution<Data>`, the studio identity (`APP_NAME`, `TAGLINE`, read-only `CONFIG`), a prototype's files, the current contributor and edit permissions, `callModule`, and what a file type's `loader.ts` and `open.tsx` implement. | Browser. |
-| `#studio/ui` | Browser app contributions (`ModuleApp`, `PaletteContext`, `PrototypeAction`) and the shell's building blocks: section navigation, home blocks, collections, documents, and the source editor. | Browser. |
-| `#studio/components` | Studio's interface components, such as `Button`, `Dialog`, `Input`, `Tooltip`, menus, and `toast`. | Browser. |
+| `#studio/files` | Declaring a file type in `type.ts`: `defineFileType`, `FileTypeSpec`, capabilities, identity, and the Markdown declaration to extend. | Application and Node. |
+| `#studio/data` | Reading content in the app: the manifest, `contribution<Data>`, the studio identity (`APP_NAME`, `TAGLINE`, read-only `CONFIG`), a prototype's files, the current contributor and edit permissions, `callModule`, and what a file type's `loader.ts` and `open.tsx` implement. | Application. |
+| `#studio/ui` | Browser app contributions (`ModuleApp`, `PaletteContext`, `PrototypeAction`) and the shell's building blocks: section navigation, home blocks, collections, documents, and the source editor. | Application. |
+| `#studio/components` | Studio's interface components, such as `Button`, `Dialog`, `Input`, `Tooltip`, menus, and `toast`. | Application. |
 | `#studio/references` | Node source adapters, resolution context types and shared code, Markdown and CSS source grammars. | Node only. |
-| `#studio/lifecycle` | Renderer-neutral source, preparation and displayed revision state, input digests and DOM evidence. | Browser and Node. |
+| `#studio/lifecycle` | Renderer-neutral source, preparation and displayed revision state, input digests and DOM evidence. | Application and Node. |
+
+### Environment policy
+
+`API_POLICY` in `src/platform/core/modules/boundaries.ts` is the single inventory of entries and executable environments:
+
+- **Application:** Studio's browser contributions and system overviews.
+- **Node:** module declarations, `type.ts`, `server.ts`, `check.ts`, `build.ts`, `references.ts`, `cli.ts`, module `node/` helpers, and system declarations.
+- **Runtime:** prototype code, system components and libraries, shared utilities, and public module libraries. Existing runtime scopes still apply. No public API entry currently grants executable runtime access.
+
+Explicit type-only imports and re-exports from public entries are available in every environment. They do not load the implementation. Private imports remain invalid even when they import only types.
+
+`pnpm check` and the development/production import guard use the same environment service in `src/platform/node/lib/api-environments.js`. It follows executable literal imports, re-exports, and `require` through repository helpers in the caller's environment. Moving a browser import into a helper does not make it Node-safe. Helpers outside a team folder cannot bypass the public boundary. Node and runtime graphs reject computed imports; supplied application loaders retain their compiled-glob behavior.
+
+Every public entry's executable graph is checked in each declared environment. Node graphs reject browser globals, renderer imports, JSX, browser application code, and Vite browser features. Application and runtime graphs reject Node built-ins and platform Node tooling. Runtime graphs cannot reach the Studio shell. Erased type dependencies are excluded from this executable graph; existing dependency and module-removal checks still apply to them.
+
+The graph follows repository source, not npm package implementations. Packages remain governed by declared dependencies and runtime scope checks. These checks enforce source contracts, not a security sandbox. A Node import regression also loads every Node-capable public entry in a fresh process.
 
 `src/platform/api/*.ts` lists each export with a JSDoc tag:
 

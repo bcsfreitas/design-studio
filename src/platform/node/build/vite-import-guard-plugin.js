@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { isTeamCode, platformImportProblem } from '../../core/modules/boundaries.ts';
+import { isTeamCode, apiEntryOf } from '../../core/modules/boundaries.ts';
 import { moduleIdOfPath } from '../../core/roots.ts';
 import { fileURLToPath } from 'node:url';
 import { PROTOTYPE_SYSTEMS, DEFAULT_SYSTEM } from '../../modules/systems/node/systems.js';
@@ -20,7 +20,10 @@ export default function importGuard({
   return {
     name: 'prototype-import-guard',
     enforce: 'pre',
-    configResolved() {},
+    buildStart() {
+      const problems = policy.apiEntryProblems();
+      if (problems.length) this.error(problems.join('\n'));
+    },
     async resolveId(source, importer, options) {
       if (!importer || importer.includes('\0')) return null;
       const file = importer.split('?')[0];
@@ -37,32 +40,31 @@ export default function importGuard({
         );
       const resolved = await this.resolve(source, importer, { ...options, skipSelf: true });
       if (!resolved || resolved.external || !path.isAbsolute(resolved.id)) return resolved;
-      const platformProblem = platformImportProblem(
-        rel,
-        path.relative(root, resolved.id.split('?')[0]).replaceAll(path.sep, '/'),
-        source,
-      );
-      if (platformProblem) this.error(platformProblem);
       const problem = policy.problem(source, file, resolved.id.split('?')[0]);
       if (problem) this.error(problem);
       return resolved;
     },
     transform(code, id) {
       const file = id.split('?')[0];
+      const rel = path.relative(root, file).split(path.sep).join('/');
+      const scope = policy.scopeOf(file);
+      // Re-read the graph on transforms: dev edits to a transitive helper must not reuse a stale verdict.
+      const apiProblems = isTeamCode(rel) || scope ? policy.apiProblems(file) : [];
+      const entry = apiEntryOf(rel);
+      if (entry) apiProblems.push(...policy.apiEntryProblems([entry]));
+      if (apiProblems.length) this.error(apiProblems.join('\n'));
       if (/\.[cm]?[jt]sx?$/.test(file))
         for (const { source } of importsOf(code, file)) {
           const problem = policy.packageProblem(source, file);
           if (problem) this.error(problem);
         }
-      const scope = policy.scopeOf(file);
       if (!scope && moduleIdOfPath(path.relative(root, file).split(path.sep).join('/')) === undefined) return null;
       if (scope && /\.module\.css$/.test(file)) {
         const problems = cssProblems(code, { file, mode: 'module' });
         if (problems.length) this.error(problems.join('\n'));
       } else if (/\.[cm]?[jt]sx?$/.test(file) && importsOf(code, file).some(i => !i.typeOnly && i.source === null)) {
-        this.error(
-          `${scope?.kind ?? 'Module'} scope: computed imports in ${file} cannot be checked. Use literal import paths.`,
-        );
+        const problem = policy.computedImportProblem(file);
+        if (problem) this.error(problem);
       }
       return null;
     },

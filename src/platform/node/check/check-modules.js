@@ -1,4 +1,4 @@
-import { apiSpecifier, platformImportProblem } from '../../core/modules/boundaries.ts';
+import { apiSpecifier } from '../../core/modules/boundaries.ts';
 import { installedReferenceAdapters } from '../lib/reference-adapters.js';
 import { scopePolicy } from '../lib/scope.js';
 import { dependencyResolver, importsOf, sourceFiles } from '../lib/imports.js';
@@ -158,6 +158,7 @@ const runtimePolicy = scopePolicy({
   modules: ENABLED_MODULES,
   prototypeDirs: PROTOTYPE_DIRS,
 });
+problems.push(...runtimePolicy.apiEntryProblems());
 const ids = Object.keys(MODULES);
 const moduleDir = id => path.resolve(ROOT, MODULE_DIRS[id]);
 // The module a file belongs to when it is inside a module root and that module is installed there.
@@ -170,11 +171,13 @@ for (const file of [...sourceFiles(path.join(ROOT, 'src')), path.join(ROOT, 'vit
   const inside = moduleOf(file);
   const rel = path.relative(ROOT, file);
   if (runtimePolicy.scopeOf(file)?.missing) continue;
+  if (!/\.(?:test|integration\.test)\.[cm]?[jt]sx?$/.test(file)) problems.push(...runtimePolicy.apiProblems(file));
   const dependencies = importsOf(fs.readFileSync(file, 'utf8'), file);
-  const browserModule = inside && !/\/(?:node\/|cli\.ts$|server\.ts$|check\.ts$)/.test(rel);
-  if ((runtimePolicy.scopeOf(file) || browserModule) && dependencies.some(i => i.source === null))
-    problems.push(`${rel}: computed imports cannot be checked; use literal import paths.`);
-  for (const { source: specifier } of dependencies) {
+  if (dependencies.some(i => !i.typeOnly && i.source === null)) {
+    const problem = runtimePolicy.computedImportProblem(file);
+    if (problem) problems.push(problem);
+  }
+  for (const { source: specifier, typeOnly } of dependencies) {
     const dependencyProblem = runtimePolicy.packageProblem(specifier, file);
     if (dependencyProblem) {
       problems.push(dependencyProblem);
@@ -182,13 +185,7 @@ for (const file of [...sourceFiles(path.join(ROOT, 'src')), path.join(ROOT, 'vit
     }
     const resolved = resolveDependency(specifier, file);
     if (!resolved) continue;
-    const platformProblem = platformImportProblem(
-      rel.replaceAll(path.sep, '/'),
-      path.relative(ROOT, resolved).replaceAll(path.sep, '/'),
-      specifier,
-    );
-    if (platformProblem) problems.push(platformProblem);
-    const problem = runtimePolicy.problem(specifier, file, resolved);
+    const problem = runtimePolicy.problem(specifier, file, resolved, { typeOnly });
     if (problem) problems.push(problem);
     const targetId = moduleOf(resolved);
     if (targetId === null || targetId === inside) continue;

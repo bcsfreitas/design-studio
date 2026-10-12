@@ -89,7 +89,11 @@ test('prototype import allowlist includes its system and rejects unrelated local
       modules: [],
       prototypeDirs: [],
     });
-    guard.configResolved({ command: 'build' });
+    guard.buildStart.call({
+      error(message) {
+        throw new Error(message);
+      },
+    });
     for (const [target, allowed] of [
       ['src/systems/product/components/button/index.ts', true],
       ['src/lib/store.ts', true],
