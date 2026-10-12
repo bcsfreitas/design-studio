@@ -360,6 +360,14 @@
         "stability": "experimental",
         "signature": "() => import(\"react\").JSX.Element"
       },
+      "ArtifactHost": {
+        "stability": "experimental",
+        "signature": "({ request, width, height, label, presentation, interaction, mounted, hidden, loadingStartedAt, className, children, manifest: supplied, }: ArtifactHostProps) => import(\"react\").JSX.Element"
+      },
+      "ArtifactHostProps": {
+        "stability": "experimental",
+        "signature": "{ request: ArtifactRequest; width: number; height: number; label?: string; presentation?: \"preview\" | \"card\"; interaction?: \"inert\" | \"interactive\"; mounted?: boolean; hidden?: boolean; loadingStartedAt?: number; className?: string; children?: ReactNode; manifest?: Manifest; }"
+      },
       "ArtifactSource": {
         "stability": "experimental",
         "signature": "({ proto, item, label, actions, onDirty, }: { proto: Prototype; item: Artifact; label?: ReactNode; actions?: ReactNode; onDirty?: (dirty: boolean) => void; }) => import(\"react\").JSX.Element"
@@ -1427,6 +1435,62 @@
       "stability": "stable",
       "signature": "{ overview?: SystemOverviewSummary; summary?: string; label: string; dir: string; scopeClass: string; intro?: ReactNode; icons?: { library: string; href: string; snippet: string; grid: ReactNode; }; }"
     },
+    "#studio/ui.ArtifactHost.PlatformReferenceGroup": {
+      "stability": "experimental",
+      "signature": "{ id: string; label: string; enabled: boolean; references: { source: string; title: string; related?: { title: string; href: string; }[]; }[]; related: { title: string; href: string; }[]; }"
+    },
+    "#studio/ui.ArtifactHost.PrototypeRef": {
+      "stability": "experimental",
+      "signature": "PrototypeInfo & { artifacts?: Artifact[]; artifactCount?: number; artifactsHash?: string; }"
+    },
+    "#studio/ui.ArtifactHost.SystemComponent": {
+      "stability": "experimental",
+      "signature": "{ name: string; slug: string; files: { source: string | null; examples: string | null; doc: string | null; }; }"
+    },
+    "#studio/ui.ArtifactHost.SystemComponentDoc": {
+      "stability": "experimental",
+      "signature": "SystemComponent & { title: string; description: string; category: string | null; docsUrl: string | null; sourceNote?: string; }"
+    },
+    "#studio/ui.ArtifactHost.SystemContentMap": {
+      "stability": "experimental",
+      "signature": "{ entry: boolean; always: string[]; onDemand: { path: string; when: string; }[]; via: { path: string; from: string; }[]; unrouted: string[]; skills: { folder: string; name: string; description: string; when?: string; }[]; missing: string[]; }"
+    },
+    "#studio/ui.ArtifactHost.ThemeToken": {
+      "stability": "experimental",
+      "signature": "{ name: string; value: string; group: TokenGroup; subgroup: string | null; dark: boolean; }"
+    },
+    "#studio/ui.ArtifactHost.TokenGroup": {
+      "stability": "experimental",
+      "signature": "\"colors\" | \"typography\" | \"radius\" | \"shadows\" | \"spacing\" | \"motion\" | \"effects\" | \"other\""
+    },
+    "#studio/ui.ArtifactHostProps.PlatformReferenceGroup": {
+      "stability": "experimental",
+      "signature": "{ id: string; label: string; enabled: boolean; references: { source: string; title: string; related?: { title: string; href: string; }[]; }[]; related: { title: string; href: string; }[]; }"
+    },
+    "#studio/ui.ArtifactHostProps.PrototypeRef": {
+      "stability": "experimental",
+      "signature": "PrototypeInfo & { artifacts?: Artifact[]; artifactCount?: number; artifactsHash?: string; }"
+    },
+    "#studio/ui.ArtifactHostProps.SystemComponent": {
+      "stability": "experimental",
+      "signature": "{ name: string; slug: string; files: { source: string | null; examples: string | null; doc: string | null; }; }"
+    },
+    "#studio/ui.ArtifactHostProps.SystemComponentDoc": {
+      "stability": "experimental",
+      "signature": "SystemComponent & { title: string; description: string; category: string | null; docsUrl: string | null; sourceNote?: string; }"
+    },
+    "#studio/ui.ArtifactHostProps.SystemContentMap": {
+      "stability": "experimental",
+      "signature": "{ entry: boolean; always: string[]; onDemand: { path: string; when: string; }[]; via: { path: string; from: string; }[]; unrouted: string[]; skills: { folder: string; name: string; description: string; when?: string; }[]; missing: string[]; }"
+    },
+    "#studio/ui.ArtifactHostProps.ThemeToken": {
+      "stability": "experimental",
+      "signature": "{ name: string; value: string; group: TokenGroup; subgroup: string | null; dark: boolean; }"
+    },
+    "#studio/ui.ArtifactHostProps.TokenGroup": {
+      "stability": "experimental",
+      "signature": "\"colors\" | \"typography\" | \"radius\" | \"shadows\" | \"spacing\" | \"motion\" | \"effects\" | \"other\""
+    },
     "#studio/ui.DocLayout.DocLayoutProps": {
       "stability": "experimental",
       "signature": "{ Component: MDXContent; title?: string; description?: string; toc?: boolean; scrollKey?: string; footer?: ReactNode; actions?: ReactNode; }"
@@ -1602,6 +1666,14 @@
     "ArtifactContext": {
       "stability": "experimental",
       "signature": "{ proto: Prototype; item: Artifact; }"
+    },
+    "ArtifactHost": {
+      "stability": "experimental",
+      "signature": "({ request, width, height, label, presentation, interaction, mounted, hidden, loadingStartedAt, className, children, manifest: supplied, }: ArtifactHostProps) => import(\"react\").JSX.Element"
+    },
+    "ArtifactHostProps": {
+      "stability": "experimental",
+      "signature": "{ request: ArtifactRequest; width: number; height: number; label?: string; presentation?: \"preview\" | \"card\"; interaction?: \"inert\" | \"interactive\"; mounted?: boolean; hidden?: boolean; loadingStartedAt?: number; className?: string; children?: ReactNode; manifest?: Manifest; }"
     },
     "ArtifactLifecycle": {
       "stability": "experimental",

@@ -52,3 +52,8 @@ export { useSourceView } from '../core/source/useSourceView.ts';
 export { useStudioSettings } from '../app/settings/useStudioSettings.ts';
 /** @experimental Lazy Mermaid rendering shared by document content and standalone diagrams. */
 export { MermaidDiagram } from '../app/diagrams/MermaidDiagram.tsx';
+
+/** @experimental Shared artifact preparation and presentation; callers retain mounting and visibility policy. */
+export { ArtifactHost } from '../app/artifacts/ArtifactHost.tsx';
+/** @experimental Artifact host layout, interaction, and admission inputs. */
+export type { ArtifactHostProps } from '../app/artifacts/ArtifactHost.tsx';

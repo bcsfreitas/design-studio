@@ -5,7 +5,8 @@ import { freshness, lifecycleAttributes, initialLifecycle } from '@/platform/cor
 import { compiledLifecycle, type ArtifactFile } from '@/platform/core/artifact-lifecycle/compiled';
 import type { MDXContent } from 'mdx/types';
 import { ErrorBoundary } from 'react-error-boundary';
-import { DocBase } from '@/platform/app/docs/DocBase';
+import type { ArtifactContext } from '../data/fileTypeModule';
+import { DocBase, DocArtifact } from '@/platform/app/docs/DocBase';
 import { DocLayout } from '@/platform/app/docs/DocLayout';
 import type { DocFrontmatter } from '@/platform/app/docs/types';
 import ViewError from '@/platform/modules/prototypes/viewer/ViewError';
@@ -24,6 +25,7 @@ export default function MarkdownPage({
   base,
   footer,
   file,
+  artifact,
 }: {
   Component: MDXContent;
   frontmatter: DocFrontmatter;
@@ -31,6 +33,7 @@ export default function MarkdownPage({
   base: string;
   footer?: ReactNode;
   file?: ArtifactFile;
+  artifact?: ArtifactContext;
 }) {
   const [refresh, setRefresh] = useState(0);
   useEffect(() => {
@@ -75,16 +78,18 @@ export default function MarkdownPage({
             hidden heading Markdown footnotes add (position: absolute) inside this box; otherwise it
             sits against the page, which then scrolls when you follow a footnote link. */}
         <div data-doc-scroll className='relative min-h-0 flex-1 overflow-y-auto bg-background text-foreground'>
-          <DocBase.Provider value={base}>
-            <DocLayout
-              Component={Component}
-              title={frontmatter.title}
-              description={frontmatter.description}
-              toc={frontmatter.toc}
-              scrollKey={docKey}
-              footer={footer}
-            />
-          </DocBase.Provider>
+          <DocArtifact.Provider value={artifact ?? null}>
+            <DocBase.Provider value={base}>
+              <DocLayout
+                Component={Component}
+                title={frontmatter.title}
+                description={frontmatter.description}
+                toc={frontmatter.toc}
+                scrollKey={docKey}
+                footer={footer}
+              />
+            </DocBase.Provider>
+          </DocArtifact.Provider>
           <Committed ready={ready} />
         </div>
       </ErrorBoundary>

@@ -8,7 +8,6 @@ import { FILE_TYPES, fileTypeModules } from '@/platform/app/data/fileTypes';
 import { artifactLabel, artifactLink } from '@/platform/app/data/manifest';
 import type { Artifact, Prototype } from '@/platform/app/data/types';
 import { cn } from '#studio/runtime';
-import { artifactSystemAvailability } from '@/platform/core/fileTypes';
 
 export const ITEM_CARD_HEIGHT = 88;
 
@@ -17,21 +16,24 @@ export default function ArtifactCard({
   item,
   elsewhere = false,
   className,
+  message,
 }: {
   proto?: Prototype;
   item?: Artifact;
   elsewhere?: boolean;
   className?: string;
+  message?: string;
 }) {
   const icon = item && fileTypeModules[item.fileType]?.icon;
   const found = proto && item;
-  const dependency = artifactSystemAvailability(item && FILE_TYPES[item.fileType], proto ?? {});
-  const reason = dependency.supported && !dependency.available ? dependency.reason : undefined;
+  const reason = message;
   return (
     <div
+      style={{ minHeight: ITEM_CARD_HEIGHT }}
       className={cn(
         'flex h-full w-full items-center gap-3 overflow-hidden rounded-xl border border-border bg-background px-4 text-left',
         className,
+        message,
       )}
     >
       <span className='flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground'>
@@ -51,12 +53,14 @@ export default function ArtifactCard({
         >
           {found
             ? (reason ?? FILE_TYPES[item.fileType]?.label ?? 'File')
-            : elsewhere
-              ? 'A canvas shows only its own prototype. Copy the view here.'
-              : // On the deployed site a missing file may be archived work, which it leaves out (src/platform/core/archive.ts).
-                import.meta.env.DEV
-                ? 'This file was moved or deleted. Ask your agent to fix the link.'
-                : 'Not on this site. It may be archived. Run the sandbox locally to see it.'}
+            : reason
+              ? reason
+              : elsewhere
+                ? 'A canvas shows only its own prototype. Copy the view here.'
+                : // On the deployed site a missing file may be archived work, which it leaves out (src/platform/core/archive.ts).
+                  import.meta.env.DEV
+                  ? 'This file was moved or deleted. Ask your agent to fix the link.'
+                  : 'Not on this site. It may be archived. Run the sandbox locally to see it.'}
         </div>
       </div>
       {found && (

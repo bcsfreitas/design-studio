@@ -127,11 +127,13 @@ console.log('Public identity and settings validators passed.');
     'src/modules/fixture/open.tsx',
     `
 import { CodeIcon } from '@hugeicons/core-free-icons';
-import { readSource, type FileTypeModule } from '#studio/data';
+import { readSource, inspectArtifact, useManifest, type Prototype, type Artifact, type FileTypeModule } from '#studio/data';
+import { ArtifactHost } from '#studio/ui';
+import { artifactAddress, resourceId } from '#studio/files';
 import { useEffect, useState } from 'react';
 import { createArtifactLifecycle, initialLifecycle, lifecycleAttributes, digestText } from '#studio/lifecycle';
 import { files } from './loader';
-function Page({source}: {source:string}) {
+function SourcePage({source}: {source:string}) {
   const [state,setState]=useState(initialLifecycle);
   useEffect(()=>{
     const controller=createArtifactLifecycle(setState);
@@ -145,16 +147,21 @@ function Page({source}: {source:string}) {
   },[source]);
   return <pre data-fixture-preview {...lifecycleAttributes(state)}>{source}</pre>;
 }
+function Page({source,proto,item}: {source:string;proto:Prototype;item:Artifact}) {
+ const request={reference:artifactAddress(resourceId(proto.studioId),resourceId(item.studioId)),origin:{proto,item},surface:'fixture/storyboard' as const};
+ const result=inspectArtifact(request,useManifest());
+ return <><SourcePage source={source}/><p data-public-inspection>{result.state}</p><ArtifactHost request={request} width={480} height={240}/></>;
+}
 export default {
   icon:CodeIcon,
   async load({proto,item}) {
     const source=import.meta.env.DEV ? (await readSource(proto,item.path)).content
       : await files['/prototypes/'+proto.contributorKey+'/'+proto.id+'/'+item.path]?.();
-    return source===undefined ? undefined : {source};
+    return source===undefined ? undefined : {source,proto,item};
   },
   Page,
   Embed: () => <div data-fixture-embed>Fixture preview</div>,
-} satisfies FileTypeModule<{source:string}>;
+} satisfies FileTypeModule<{source:string;proto:Prototype;item:Artifact}>;
 `,
   );
   const base = 'src/prototypes/artifact-fixture/mixed';

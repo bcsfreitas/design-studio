@@ -53,13 +53,14 @@ export function createLoader<M>(glob: Glob<M>, hot: ImportMeta['hot']) {
     waiting: [],
     incomplete: new Set(),
   };
+  const sourceUrl = (key: string) => `${import.meta.env.BASE_URL.replace(/\/$/, '')}${key}?t=${state.stamp}`;
   const keyOf = ({ contributor, prototype, path }: ItemFile) => `/${rootOf(contributor, prototype)}/${path}`;
 
   // The importer for a file, or undefined.
   function find(file: ItemFile) {
     const key = keyOf(file);
     if (!state.glob[key]) return undefined;
-    if (hot) return () => import(/* @vite-ignore */ `${key}?t=${state.stamp}`) as Promise<M>;
+    if (hot) return () => import(/* @vite-ignore */ sourceUrl(key)) as Promise<M>;
     return state.glob[key];
   }
 
@@ -82,7 +83,7 @@ export function createLoader<M>(glob: Glob<M>, hot: ImportMeta['hot']) {
     if (!importer) return undefined;
     const key = keyOf(file);
     if (!state.loaded.has(key)) {
-      const url = `${key}?t=${state.stamp}`;
+      const url = sourceUrl(key);
       state.loaded.set(
         key,
         importer().catch(async error => {

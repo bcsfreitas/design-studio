@@ -2,7 +2,7 @@
 // (src/platform/modules/<id>/) or the team's (<module folder>/), with a module.ts that says what it is and what it
 // adds, so the build, the dev server and the app all read one list instead of each knowing about every module.
 // A file type is a module that has a type.ts and an open.tsx (src/platform/context/file-types.md).
-// This file has no imports but the import-free roots.ts, so Node scripts can load it directly.
+// Declarations depend only on Node-neutral roots, identities, and host policy types.
 import { validHostSurface, type HostSurfaceSpec } from '../fileTypes.ts';
 import { MODULE_ROOTS, TEAM_MODULES_ROOT } from '../roots.ts';
 
