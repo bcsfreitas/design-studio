@@ -1,4 +1,4 @@
-# Design Studio Starter
+# Design Studio
 
 Read [working context](context/working-in-studio.md) at the start of each session. Preserve existing work and respect the person's explicit choices and authorization. Before changing upstream-owned paths, read [Ownership and updates](context/ownership.md).
 

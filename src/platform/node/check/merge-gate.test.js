@@ -7,12 +7,9 @@ import { spawnSync } from 'node:child_process';
 test('the actual required CI script fails on an unsuccessful required upgrade and accepts intentional skips', () => {
   const root = path.resolve(import.meta.dirname, '../../../..');
   const workflow = fs.readFileSync(path.join(root, '.github/workflows/checks.yml'), 'utf8');
-  const gate = workflow.slice(workflow.indexOf('  build:'), workflow.indexOf('  deploy:'));
+  const gate = workflow.slice(workflow.indexOf('  build:'));
   assert.match(gate, /needs: \[bundle, regressions, upgrade\]/);
-  assert.match(
-    gate,
-    /github.repository == 'itspatmorgan\/design-studio-starter' && github.event_name == 'pull_request'/,
-  );
+  assert.match(gate, /github.repository_id == '1401250166' && github.event_name == 'pull_request'/);
   const script = gate
     .match(/run: \|\n((?:          .*\n)+)/)[1]
     .split('\n')

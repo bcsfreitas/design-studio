@@ -1,10 +1,10 @@
 # Security
 
-Design Studio Starter is an early beta. Security fixes target the current development version on `main`; there are no separately supported release branches yet.
+Design Studio is an early beta. Security fixes target the current development version on `main`; there are no separately supported release branches yet.
 
 ## Reporting a vulnerability
 
-Use [GitHub's private vulnerability reporting](https://github.com/itspatmorgan/design-studio-starter/security/advisories/new) to contact the maintainer privately. Include affected versions or commits, reproduction steps, the expected and actual behavior, and the likely impact. Remove credentials and private company data from examples.
+Use [GitHub's private vulnerability reporting](https://github.com/itspatmorgan/design-studio/security/advisories/new) to contact the maintainer privately. Include affected versions or commits, reproduction steps, the expected and actual behavior, and the likely impact. Remove credentials and private company data from examples.
 
 Please keep exploit details out of public issues while the report is being assessed. Ordinary bugs and feature requests belong in GitHub issues.
 

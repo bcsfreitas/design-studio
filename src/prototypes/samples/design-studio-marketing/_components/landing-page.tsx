@@ -10,7 +10,7 @@ import { WebsiteArtifactPreview } from './website-artifacts';
 import agentMarkdown from './agent';
 import styles from './landing.module.css';
 
-const repository = 'https://github.com/itspatmorgan/design-studio-starter';
+const repository = 'https://github.com/itspatmorgan/design-studio';
 const examples = [
   { id: 'view', label: 'View', text: 'Build a working interface with your own components.' },
   { id: 'diagram', label: 'Diagram', text: 'Make the system and its flows easier to understand.' },

@@ -59,7 +59,7 @@ Upstream releases are tags named `v<version>` on the Design Studio project ([Rel
 
 The update:
 
-1. Requires a clean working tree, no merge in progress, and an `upstream` remote. Without the remote it prints the command to add one: `git remote add upstream https://github.com/itspatmorgan/design-studio-starter.git`.
+1. Requires a clean working tree, no merge in progress, and an `upstream` remote. Without the remote it prints the command to add one: `git remote add upstream https://github.com/itspatmorgan/design-studio.git`.
 2. Fetches the `v*` tags from `upstream` into `refs/studio/upstream-tags/`, so they never replace the team's own tags. Without a version it takes the newest release that is not a pre-release.
 3. Stops with nothing to do if the studio already contains the release’s commit. A lock record alone does not substitute for ancestry.
 4. Creates and switches to `studio-update/v<version>` from the current HEAD, and merges the release with the update rules (`src/platform/node/lib/upstream-merge.js`): existing seed and team paths keep the studio's complete copy or deletion, genuinely new seed paths take the release, generated files take the release and are regenerated, and upstream or mixed files merge as text.

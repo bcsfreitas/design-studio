@@ -4,7 +4,7 @@ An open platform for designers and product managers who build. Turn ideas into w
 
 ## Install
 
-1. At https://github.com/itspatmorgan/design-studio-starter, choose **Use this template → Create a new repository**. Select the owner (your account or organization), enter a repository name, and choose visibility.
+1. At https://github.com/itspatmorgan/design-studio, choose **Use this template → Create a new repository**. Select the owner (your account or organization), enter a repository name, and choose visibility.
 
 2. In your new repository, copy the HTTPS clone URL from **Code**. Clone that copy, never the starter repository directly. Replace YOUR-ACCOUNT and YOUR-STUDIO below with its owner and repository name.
 
@@ -39,7 +39,7 @@ V3 adapts the personal website’s drafting-table illustrations and feedback-tri
 
 ## Reference
 
-Repository: https://github.com/itspatmorgan/design-studio-starter
+Repository: https://github.com/itspatmorgan/design-studio
 Setup instructions: https://github.com/itspatmorgan/design-studio-plugin/blob/main/SETUP.md
 `;
 
