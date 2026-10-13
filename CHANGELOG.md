@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Parker Moss is the fictional author of the shipped examples, with an offline illustrated avatar. Contributor profiles support local public images. Upstream distribution checks keep real maintainer profiles, personal grants, and ignored local contributor work out of release builds and the public demo source.
+- Parker Moss is the fictional author of the shipped examples, with an offline illustrated avatar. His profile and prototypes use the `parker` source key while retaining their permanent IDs and links. Contributor profiles support local public images. Upstream distribution checks keep real maintainer profiles, personal grants, and ignored local contributor work out of release builds and the public demo source.
 
 - Platform context removes stale declarations, completed implementation plans, and duplicate architecture guidance. Agent skills select task-relevant contracts, with canonical identity procedures and portable publishing guidance. Preservation, authorization, API behavior, and verification requirements remain unchanged.
 

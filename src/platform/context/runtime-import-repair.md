@@ -26,7 +26,7 @@ The command is `repair-runtime-imports`. Paths are repository-relative files or 
 ```sh
 # Preview only: summary, unified diffs, blockers, and manual repairs.
 pnpm studio repair-runtime-imports
-pnpm studio repair-runtime-imports src/systems/product src/prototypes/samples
+pnpm studio repair-runtime-imports src/systems/product src/prototypes/parker
 
 # Machine-readable preview; stdout contains one JSON object.
 pnpm studio repair-runtime-imports src/systems/product --json

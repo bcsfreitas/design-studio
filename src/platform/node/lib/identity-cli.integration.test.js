@@ -26,7 +26,7 @@ test('public CLI assigns a newly authored prototype and strict readers resolve i
         withSettings(parseConfigFile(fs.readFileSync(configFile, 'utf8')).value, { usage: 'personal', admins: [] }),
       ),
     );
-    const personFile = path.join(root, 'contributors/samples.json');
+    const personFile = path.join(root, 'contributors/parker.json');
     const person = {
       ...JSON.parse(fs.readFileSync(personFile)),
       name: 'Identity Fixture',
@@ -34,7 +34,7 @@ test('public CLI assigns a newly authored prototype and strict readers resolve i
     };
     fs.writeFileSync(personFile, JSON.stringify(person));
     fs.rmSync(path.join(root, 'src/prototypes'), { recursive: true, force: true });
-    const folder = 'src/prototypes/samples/example',
+    const folder = 'src/prototypes/parker/example',
       dir = path.join(root, folder);
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(path.join(dir, 'meta.json'), '{"formatVersion":1,"title":"Example","systemId":null}');
@@ -120,12 +120,12 @@ test('public CLI assigns a newly authored prototype and strict readers resolve i
     assert.equal(denied.status, 1);
     assert.equal(fs.readFileSync(boardFile, 'utf8'), canvasAfter);
     // Location changes while the server is closed retain permanent metadata.
-    fs.renameSync(dir, path.join(root, 'src/prototypes/samples/renamed'));
-    const relocated = JSON.parse(run('context', 'src/prototypes/samples/renamed', '--json'));
+    fs.renameSync(dir, path.join(root, 'src/prototypes/parker/renamed'));
+    const relocated = JSON.parse(run('context', 'src/prototypes/parker/renamed', '--json'));
     assert.equal(relocated.prototype.studioId, meta.studioId);
     assert.ok(
       fs
-        .readFileSync(path.join(root, 'src/prototypes/samples/renamed/notes.md'), 'utf8')
+        .readFileSync(path.join(root, 'src/prototypes/parker/renamed/notes.md'), 'utf8')
         .includes(`/prototypes/${meta.studioId}/artifacts/`),
     );
   } finally {
