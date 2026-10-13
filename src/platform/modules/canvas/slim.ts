@@ -10,7 +10,7 @@
 // - Numbers are rounded, keys are sorted, and volatile fields (`updated`) are dropped.
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { resourceId, type ResourceId } from '../../core/fileTypes.ts';
+import { resourceId, type ResourceId } from '#studio/files';
 
 export type Stored = Record<string, any>;
 

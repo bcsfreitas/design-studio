@@ -2,7 +2,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useRouter } from '@tanstack/react-router';
 import { ArrowRight, ExternalLink, Library } from 'lucide-react';
 import { useManifest } from '@/platform/app/data/useManifest';
-import { systemPath } from '../data/systems';
+import { systemPath } from '#studio/systems';
+
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowDown01Icon } from '@hugeicons/core-free-icons';
 import { Button } from '@/platform/systems/studio/components/button';
@@ -24,7 +25,7 @@ import { shadcnDocsUrl } from '@/platform/modules/systems/sources';
 import type { DesignSystem } from '@/platform/app/data/types';
 import { ErrorBoundary } from 'react-error-boundary';
 import { MDXProvider } from '@mdx-js/react';
-import ViewError from '@/platform/modules/prototypes/viewer/ViewError';
+import ViewError from '@/platform/app/files/FileError';
 
 // One component's page in the Systems section, built from its files: the title and description
 // and the Markdown page, then live examples, then its props read from the code. Whatever the

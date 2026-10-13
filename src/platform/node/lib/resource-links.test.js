@@ -1,3 +1,4 @@
+import { viewIdentity } from '../../modules/view/identity.ts';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -6,9 +7,8 @@ import path from 'node:path';
 import { rewriteResourceLinks } from './resource-links.js';
 import { identifyPrototypeArtifacts } from './resource-identity-lifecycle.js';
 import {
-  viewIdentity,
   markdownIdentity,
-  canvasIdentity,
+  jsonIdentityMetadata as canvasIdentity,
   resourceId,
   parsePrototypeAddress,
 } from '../../core/resourceIdentity.ts';

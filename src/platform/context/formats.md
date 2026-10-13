@@ -48,3 +48,5 @@ Keep each migration's input check strict. A file with an unknown future version 
 - [Studio configuration](config.md) defines `studio.config.json`.
 - [Resource identity](resource-identity.md) defines the permanent IDs the same files carry.
 - [Ownership and updates](ownership.md) defines how seed and team files change during an update.
+
+Contributor format version 2 introduces declared module namespaces. Version 1 profiles use the explicit [preference initialization workflow](contributor-preferences.md); changing only their version does not initialize required state.

@@ -1,12 +1,14 @@
 // "New prototype" on the Prototypes page, in dev: the same as pnpm new, from the app.
 // It creates the folder in your space (src/platform/modules/prototypes/node/create.js) and opens it.
 import { useState } from 'react';
-import { useNavigate, useRouter } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Add01Icon } from '@hugeicons/core-free-icons';
-import { createPrototype, useMe } from '@/platform/app/data/files';
-import { findPrototype, prototypeLink, setManifest } from '@/platform/app/data/manifest';
-import { DEFAULT_SYSTEM, ACTIVE_PROTOTYPE_SYSTEMS } from '@/platform/modules/systems/data/systems';
+import { createPrototype, useMe } from '#studio/data';
+import { findPrototype, prototypeLink } from '@/platform/app/data/manifest';
+import { defaultSystemKey, getSystems } from '#studio/systems';
+const DEFAULT_SYSTEM = defaultSystemKey();
+const ACTIVE_PROTOTYPE_SYSTEMS = getSystems({ role: 'prototype', status: 'active' });
 import { Button } from '@/platform/systems/studio/components/button';
 import { Input } from '@/platform/systems/studio/components/input';
 import {
@@ -33,7 +35,6 @@ export default function NewPrototypeButton() {
 
 function NewPrototype() {
   const me = useMe();
-  const router = useRouter();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,8 +48,6 @@ function NewPrototype() {
     setError(null);
     try {
       const result = await createPrototype(String(form.get('title') ?? ''), system === '__none' ? null : system);
-      setManifest(result.manifest);
-      await router.invalidate();
       setOpen(false);
       const created = findPrototype(result.manifest, result.contributor, result.prototype);
       if (!created) throw new Error('The new prototype is missing from the inventory.');

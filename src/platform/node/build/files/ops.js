@@ -8,9 +8,8 @@ import { FILE_TYPES, INSTALLED_FILE_TYPES, fileTypeOf, systemContentTypeOf } fro
 import { retainedResourceIds, allocateResourceIdentity } from '../../lib/resource-identity-lifecycle.js';
 import { STATUSES, parseStatus } from '../../../core/archive.ts';
 import { afterChange, parentOf, parseOrder, place, withFolderOrder } from '../../../core/order.ts';
-import { scaffold } from '../../../modules/systems/node/scaffold-docs.js';
 import { opProblem } from '../../../modules/systems/content/rules.ts';
-import { SKILL_FILE, descriptionProblem, nameProblem } from '../../../modules/systems/content/skills.ts';
+import { SKILL_FILE } from '../../../modules/systems/content/skills.ts';
 import { ROOT, TRASH, readOrder, readTree, resolveInside, validName } from './paths.js';
 import { prototypeAddress, repairReferences, snapshotFiles } from '../../lib/artifact-moves.js';
 import { prototypeAssignment } from '../../lib/prototype-assignment.js';
@@ -33,14 +32,6 @@ export const titleOf = name => {
   const t = name.replace(/-/g, ' ');
   return t.charAt(0).toUpperCase() + t.slice(1);
 };
-
-// A skill's new SKILL.md: the frontmatter the Agent Skills format needs, and a start for the body.
-// A description that isn't plain text goes in a block, which any YAML reader takes literally.
-export function skillTemplate(name, description) {
-  const plain = /^[A-Za-z0-9][^:#"'\\\n]*$/.test(description) && !/\s$/.test(description);
-  const line = plain ? `description: ${description}` : `description: >\n  ${description.replace(/\s+/g, ' ').trim()}`;
-  return `---\nname: ${name}\n${line}\n---\n\nSay what to do, step by step, and when it applies.\n`;
-}
 
 // Moves a file or folder to the Trash with macOS's built-in trash command, or, where
 // there isn't one, into .trash/ at the repo root (ignored by Git).
@@ -101,21 +92,6 @@ export function runOp(
   const relOf = abs => path.relative(fs.realpathSync(dir), abs).split(path.sep).join('/');
   // The system content has a fixed shape: check the change against it first (src/platform/modules/systems/content/rules.ts).
   if (section) {
-    if (op === 'create-skill') {
-      if (section !== 'skills') throw new Error('Skills are made in the Skills tab.');
-      const bad = nameProblem(name)
-        ? `A skill's name ${nameProblem(name)}`
-        : descriptionProblem(description)
-          ? `The description ${descriptionProblem(description)}`
-          : null;
-      if (bad) throw new Error(bad);
-      if (/[\r\n]/.test(name)) throw new Error("A skill's name is one word or several joined by hyphens.");
-      const folder = path.join(dir, name);
-      if (fs.existsSync(folder)) throw new Error(`A skill named “${name}” already exists.`);
-      fs.mkdirSync(folder);
-      fs.writeFileSync(path.join(folder, SKILL_FILE), skillTemplate(name, description));
-      return { path: `${name}/${SKILL_FILE}` };
-    }
     const target = op === 'create' ? null : inside(rel);
     // A Markdown file keeps its .md: rename to "notes" and it's "notes.md", like a new file.
     if (
@@ -251,17 +227,6 @@ export function runOp(
     return { trashedTo: where };
   }
   throw new Error(`Unknown operation: ${op}`);
-}
-
-// The one operation a prototype system's components have (see the header). Anything else, like
-// adding, renaming, or deleting a component, is done in the files: it would break the prototypes using it.
-export function runSystemOp(system, { op, component }) {
-  if (op === 'add-docs') {
-    if (typeof component !== 'string') throw new Error('Say which component.');
-    scaffold(system, component);
-    return {};
-  }
-  throw new Error('Components are added and changed in their files: edit them in the Source view, or ask your agent.');
 }
 
 // Show a file in the system file browser.

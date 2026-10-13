@@ -6,18 +6,29 @@
 import { TEAM_MODULES_ROOT, TEAM_SYSTEMS_ROOT } from '../roots.ts';
 
 export const API_FOLDER = 'src/platform/api';
-// One file per entry in API_FOLDER; a test keeps this list and the folder the same.
-export const API_ENTRIES = [
-  'module',
-  'system',
-  'files',
-  'data',
-  'ui',
-  'components',
-  'references',
-  'lifecycle',
-] as const;
+export type ApiEnvironment = 'application' | 'node' | 'runtime';
+// The single inventory of public entries and their executable environments. Explicit type-only imports are
+// available in every environment; system has no executable exports.
+export const API_POLICY = {
+  module: ['application', 'node'],
+  system: [],
+  systems: ['application'],
+  files: ['application', 'node'],
+  data: ['application'],
+  ui: ['application'],
+  components: ['application'],
+  references: ['node'],
+  preferences: ['node'],
+  lifecycle: ['application', 'node'],
+  runtime: ['application', 'runtime'],
+} as const satisfies Record<string, readonly ApiEnvironment[]>;
+export const API_ENTRIES = Object.keys(API_POLICY) as (keyof typeof API_POLICY)[];
 export const apiSpecifier = (entry: string) => `#studio/${entry}`;
+export const apiEntryOf = (file: string) => API_ENTRIES.find(entry => file === `${API_FOLDER}/${entry}.ts`);
+export const apiEnvironmentProblem = (entry: keyof typeof API_POLICY, environment: ApiEnvironment) =>
+  (API_POLICY[entry] as readonly ApiEnvironment[]).includes(environment)
+    ? null
+    : `${apiSpecifier(entry)} cannot execute in ${environment}; ${API_POLICY[entry].length ? `use it in ${API_POLICY[entry].join(' or ')}` : 'use an explicit type-only import'}.`;
 
 const TEAM_ROOTS = [TEAM_MODULES_ROOT, TEAM_SYSTEMS_ROOT];
 // A file inside one of the team's module or system folders (not the root's own README).

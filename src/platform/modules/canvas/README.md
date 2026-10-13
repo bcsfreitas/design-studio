@@ -7,7 +7,7 @@ Human orientation: [Prototypes & systems](/documentation/manual/prototypes#what-
 
 **This folder is a self-contained file type.** Core never imports it (`src/platform/node/check/check-modules.js`),
 so the app runs with or without it. Canvas doesn't import another file type either: it asks the
-registry (`src/platform/app/data/fileTypes.ts`) how to show an artifact. Browser and CLI sizing use the same surface declaration.
+shared `#studio/data` inspection and `#studio/ui` artifact host how to show an artifact. Browser and CLI sizing use the same surface declaration.
 
 Canvas declares `systemUsage: 'independent'`. Its scene remains readable locally when the prototype's assigned system is missing; each embed checks its own artifact dependency. `references.ts` owns scene-link repair during moves and copies, preserving scene identity and updating changed element versions.
 
@@ -71,3 +71,7 @@ Fitted, read-only canvases in Markdown use the same quiet opening surface, bound
 ### Preview lifetime
 
 Retained view and diagram embeds use the [shared artifact lifecycle contract](../../context/source.md#artifact-revision-and-preview-lifecycle). Offscreen hiding preserves mounted runtimes and updates within the existing admission/eviction policy; it does not pause them. Eviction, removal, or leaving disposes their listeners and pending work. Canvas scene saving retains its separate version and conflict model.
+
+## Shared artifact host
+
+Canvas uses the common artifact resolver for sizing, opening readiness, and agent metadata. `ArtifactHost` owns frames, cards, pending rendering, lazy format preparation, and error containment. Canvas owns its scene, dimensions, inert interaction, overview label, camera, admission interval, target budget, visibility margins, and retention grace. Hiding an admitted preview changes layout/paint visibility without unmounting it or replacing its readiness evidence.

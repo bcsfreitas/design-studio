@@ -1,8 +1,13 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "name": "Patrick Morgan",
   "github": "itspatmorgan",
   "email": "",
   "welcomeDismissed": true,
-  "studioId": "62bhewkp605tb9y6"
+  "studioId": "62bhewkp605tb9y6",
+  "preferences": {
+    "onboarding": {
+      "welcomeDismissed": true
+    }
+  }
 }

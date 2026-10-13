@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+- The API foundations refactor is closed. Preference writes use validated data snapshots without invoking accessors; declaration caches use physical file identity and isolated snapshots; asset subscribers fail independently, and each reader receives an independent copy. Deferred performance work and stopping criteria are recorded in the maintainer backlog.
+
+- Modules declare preference schemas and registration defaults. Contributor format version 2 stores module namespaces; authorized, versioned transactions preserve identity and unrelated data. Saved initialization plans transition retained profiles and prepare newly enabled modules. The updater does not initialize or rewrite profiles.
+
+- Enabled modules declare dependency optimization and lazy JSON build assets. Canvas no longer has a Vite configuration branch. Systems props use the shared asset transport, cache, dependency watches, and production emission instead of a bespoke endpoint and virtual module.
+
+- Prototypes and Systems share file navigation and error presentation with owner-supplied policies. Application system queries and theme scope use `#studio/systems`; old private discovery paths are removed. Public UI leaves no longer eagerly import the shell or module registry.
+
+- Systems owns source, skill, and component-documentation routes. Generic operations no longer contain Systems creation cases. Shared artifact inspection validates explicit host declarations without importing renderers; Markdown, Canvas, and a team surface use one host. Canvas retains admission, visibility, opening, and camera policy. Development timestamped source imports now honor non-root base paths.
+
+- Typed prototype and generic file clients own successful application synchronization and return navigation identities. Repeated caller-owned manifest updates are removed. This tab's mutations run in order, other tabs retain live notifications, and source conflicts remain typed structured failures.
+
+- View, Diagrams, and Canvas now own their identity adapters. Generic identity assignment uses JSON metadata rather than a Canvas adapter. File declarations use `#studio/files` and Node-safe local helpers, with transitive boundary checks.
+
+- Proven settings, Mermaid, permanent-address, and compilation-lifecycle helpers are public experimental APIs. Browser compilation tracking stays in `#studio/data`; renderer-neutral lifecycle primitives remain Node-safe. Contributors, Diagrams, Documents, View, and Canvas use covered public entries.
+
+- Module clients throw `ClientError` with a machine-readable code, HTTP status when available, and a display message. Onboarding uses the shared client, preserves its persistence fallback and 422 suppression, and reports malformed successful replies.
+
+- `pnpm studio repair-runtime-imports` previews retained utility and empty-view import repairs. Explicit application revalidates a saved plan, current contributor authority, source bytes, and safe paths; custom helpers require manual resolution. Repair stays separate from the updater. The v0.3.0 upgrade fixture verifies preservation before repair and production compilation afterward.
+
+- Views owns the experimental `emptyView` runtime sentinel through `@module/view`. Prototype and file creation share its source template; the old shared sentinel path and duplicate prototype view scaffold are removed. Empty-state presentation remains in the View host.
+
+- Shared class and overlay helpers now use the experimental `#studio/runtime` API. System components, prototype helpers, and hosts share its portal context; the old utility files and saved shadcn aliases are removed. Empty views retain their existing sentinel until the separate View runtime contract.
+
+- Public API entries now declare their executable environments in one policy shared by checks and the development/build import guard. Transitive imports and re-exports cannot relay application services into Node tooling or prototype runtime, or bypass team code's public boundary. Explicit type-only imports remain erased, and Node-capable entries are exercised in a fresh process.
+
 - Restore the ongoing public demo links to the existing custom-domain GitHub Pages deployment. ChatGPT Sites is an optional publishing-workflow demonstration.
 
 ## 0.3.0 (2026-10-11)

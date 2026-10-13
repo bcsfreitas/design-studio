@@ -48,7 +48,7 @@ test('the byte order mark stays first', () => {
 
 test('a new view exports emptyView, which the platform shows as its empty page, and passes the view check', () => {
   const source = view.template!('user-settings.tsx');
-  assert.match(source, /import \{ emptyView \} from '@\/lib\/emptyView'/);
+  assert.match(source, /import \{ emptyView \} from '@module\/view'/);
   assert.match(source, /export default emptyView;/);
   assert.deepEqual(view.check!({ source } as never), []);
 });

@@ -5,7 +5,7 @@ import { Button } from '@/platform/systems/studio/components/button';
 import { findArtifact } from '@/platform/app/data/manifest';
 import { FILE_TYPES, fileTypeModules } from '@/platform/app/data/fileTypes';
 import { useSourceView } from '@/platform/core/source/useSourceView';
-import { NotFound } from '@/platform/app/shell/App';
+import { NotFound } from '@/platform/app/shell/NotFound';
 import type { Prototype } from '@/platform/app/data/types';
 import { prepareFile } from '@/platform/app/data/fileTypeModule';
 import type { FileTypeModule } from '@/platform/app/data/fileTypeModule';

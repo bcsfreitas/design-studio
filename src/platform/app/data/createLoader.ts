@@ -24,8 +24,8 @@ type State<M> = {
   stamp: number;
   loaded: Map<string, Promise<M>>;
   waiting: (() => void)[];
-  // Files that loaded without what the app needs (a view with no component yet, a document
-  // that doesn't compile). When one changes, the router loads it again.
+  // Files awaiting an implementation (including empty-view sentinels), or without what the app needs.
+  // When the loader updates, discard these descriptors before asking the router to load them again.
   incomplete: Set<string>;
 };
 
@@ -53,13 +53,14 @@ export function createLoader<M>(glob: Glob<M>, hot: ImportMeta['hot']) {
     waiting: [],
     incomplete: new Set(),
   };
+  const sourceUrl = (key: string) => `${import.meta.env.BASE_URL.replace(/\/$/, '')}${key}?t=${state.stamp}`;
   const keyOf = ({ contributor, prototype, path }: ItemFile) => `/${rootOf(contributor, prototype)}/${path}`;
 
   // The importer for a file, or undefined.
   function find(file: ItemFile) {
     const key = keyOf(file);
     if (!state.glob[key]) return undefined;
-    if (hot) return () => import(/* @vite-ignore */ `${key}?t=${state.stamp}`) as Promise<M>;
+    if (hot) return () => import(/* @vite-ignore */ sourceUrl(key)) as Promise<M>;
     return state.glob[key];
   }
 
@@ -82,7 +83,7 @@ export function createLoader<M>(glob: Glob<M>, hot: ImportMeta['hot']) {
     if (!importer) return undefined;
     const key = keyOf(file);
     if (!state.loaded.has(key)) {
-      const url = `${key}?t=${state.stamp}`;
+      const url = sourceUrl(key);
       state.loaded.set(
         key,
         importer().catch(async error => {
@@ -108,6 +109,10 @@ export function createLoader<M>(glob: Glob<M>, hot: ImportMeta['hot']) {
       // A file that was incomplete reaches here once it's fixed: tell the router to load it
       // again (router.tsx).
       if (state.incomplete.size) {
+        for (const file of state.incomplete) {
+          const key = file.startsWith('src/') ? '/' + file.slice(4) : file;
+          state.loaded.delete(key);
+        }
         state.incomplete.clear();
         window.dispatchEvent(new Event('studio:views'));
       }

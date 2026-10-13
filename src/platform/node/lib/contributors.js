@@ -16,8 +16,44 @@ const readJson = file => {
   }
 };
 
+export function contributorProfileProblems(
+  entry,
+  source,
+  file,
+  { initializingPreferences = false, identityOnly = false } = {},
+) {
+  const problems = [];
+  if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
+    problems.push(`${file} must be an object with name, github, and email declarations.`);
+    return problems;
+  }
+  const version = formatVersionProblem(entry.formatVersion, 'contributor', `${file}`);
+  if (version && !identityOnly && !(initializingPreferences && entry.formatVersion === 1)) problems.push(version);
+  if (typeof entry.name !== 'string' || !entry.name.trim()) problems.push(`${file}: declare a nonempty name.`);
+  try {
+    jsonIdentity(source);
+  } catch (error) {
+    problems.push(`${file}: ${error.message}`);
+  }
+  for (const field of ['email', 'github'])
+    if (typeof entry[field] !== 'string')
+      problems.push(`${file}: declare ${field} as a string. Use an empty string when unavailable.`);
+  if (
+    !identityOnly &&
+    !(initializingPreferences && entry.preferences === undefined) &&
+    (!entry.preferences ||
+      typeof entry.preferences !== 'object' ||
+      Array.isArray(entry.preferences) ||
+      Object.values(entry.preferences).some(value => !value || typeof value !== 'object' || Array.isArray(value)))
+  )
+    problems.push(
+      `${file}: declare preferences as module namespace objects. Run pnpm studio preferences --plan <file>.`,
+    );
+  return problems;
+}
+
 // Each regular contributors/<key>.json profile is the sole declaration for that key.
-export function readContributors(root = ROOT) {
+export function readContributors(root = ROOT, { initializingPreferences = false, identityOnly = false } = {}) {
   const directory = path.join(root, 'contributors');
   const contributors = Object.create(null);
   const problems = [];
@@ -42,27 +78,14 @@ export function readContributors(root = ROOT) {
       continue;
     }
     const entry = readJson(profile);
-    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
-      problems.push(`contributors/${file} should be { "name": ..., "github": ..., "email": ... }.`);
-      continue;
-    }
-    const version = formatVersionProblem(entry.formatVersion, 'contributor', `contributors/${file}`);
-    if (version) problems.push(version);
-    if (typeof entry.name !== 'string' || !entry.name.trim())
-      problems.push(`contributors/${file}: declare a nonempty name.`);
-    try {
-      jsonIdentity(fs.readFileSync(profile, 'utf8'));
-    } catch (error) {
-      problems.push(`contributors/${file}: ${error.message}`);
-    }
-    for (const field of ['email', 'github'])
-      if (typeof entry[field] !== 'string')
-        problems.push(`contributors/${file}: declare ${field} as a string. Use an empty string when unavailable.`);
+    problems.push(
+      ...contributorProfileProblems(entry, fs.readFileSync(profile, 'utf8'), `contributors/${file}`, {
+        initializingPreferences,
+        identityOnly,
+      }),
+    );
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) continue;
     contributors[key] = entry;
-  }
-  for (const [key, entry] of Object.entries(contributors)) {
-    if (entry?.welcomeDismissed !== undefined && typeof entry.welcomeDismissed !== 'boolean')
-      problems.push(`Contributor "${key}": welcomeDismissed must be true or false.`);
   }
   for (const [key, entry] of Object.entries(contributors)) {
     if (entry?.sample !== undefined && entry.sample !== true)

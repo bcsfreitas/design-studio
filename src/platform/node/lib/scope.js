@@ -2,6 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { inside, realFile } from './imports.js';
 import { moduleDirOf } from './module-folders.js';
+import { apiEntryOf, apiSpecifier, isTeamCode } from '../../core/modules/boundaries.ts';
+import { apiEnvironmentPolicy } from './api-environments.js';
 import { prototypeAssignment } from './prototype-assignment.js';
 import { packageName, systemPackage, SHARED_RUNTIME_PACKAGES, SYSTEM_RUNTIME_PACKAGES } from './system-dependencies.js';
 
@@ -12,11 +14,13 @@ export const systemDocumentation = (file, dir) =>
 
 // Where a prototype gets what it cannot import by bare name.
 const prototypeImportAdvice = (name, system) =>
-  name === '@tanstack/react-router'
-    ? "Import Link and useNavigate from '@module/prototypes'."
-    : system
-      ? `Import it through a declared library entry of the assigned system (${system}), such as '@/systems/${system}/libraries/<entry>' (icons come from its icons library).`
-      : 'A prototype with no system can import only React and React DOM; assign a system to use its libraries.';
+  name === 'cn'
+    ? "Import cn from '#studio/runtime'."
+    : name === '@tanstack/react-router'
+      ? "Import Link and useNavigate from '@module/prototypes'."
+      : system
+        ? `Import it through a declared library entry of the assigned system (${system}), such as '@/systems/${system}/libraries/<entry>' (icons come from its icons library).`
+        : 'A prototype with no system can import only React and React DOM; assign a system to use its libraries.';
 
 export function scopePolicy({ root, systems, modules, prototypeDirs = [] }) {
   root = realFile(root);
@@ -93,12 +97,28 @@ export function scopePolicy({ root, systems, modules, prototypeDirs = [] }) {
       return `Shared utility scope: ${source} belongs in a system, not a shared utility.`;
     return null;
   };
+  const api = apiEnvironmentPolicy({ root, scopeOf });
   return {
     scopeOf,
     packageProblem,
-    problem(source, importer, target) {
+    apiEntryProblems: api.entryProblems,
+    computedImportProblem: api.computedImportProblem,
+    apiProblems(file) {
+      // Follow helpers in the caller's environment, even when their own filename has no environment marker.
+      return isTeamCode(path.relative(root, file).split(path.sep).join('/')) || scopeOf(file) ? api.problems(file) : [];
+    },
+    problem(source, importer, target, { typeOnly = false } = {}) {
       importer = realFile(importer);
       target = realFile(target);
+      const environmentProblem = api.edgeProblem(source, importer, target, { typeOnly });
+      if (environmentProblem) {
+        const scope = scopeOf(importer);
+        return scope ? `${scope.kind} scope: ${environmentProblem}` : environmentProblem;
+      }
+      // The inventory grants public API access; runtime entries need no second allowlist here.
+      // Type-only imports are erased. Private-import and executable environment rules applied above.
+      const publicEntry = apiEntryOf(path.relative(root, target).split(path.sep).join('/'));
+      if (publicEntry && source === apiSpecifier(publicEntry)) return null;
       const dependencyProblem = packageProblem(source, importer);
       if (dependencyProblem) return dependencyProblem;
       const scope = scopeOf(importer);
@@ -130,7 +150,7 @@ export function scopePolicy({ root, systems, modules, prototypeDirs = [] }) {
             (scope.kind === 'Module library' && !lib.optional)));
       return allowed
         ? null
-        : `${scope.kind} scope: ${path.relative(src, importer)} imports ${path.relative(src, target)} outside its runtime boundary. Use its own files, permitted shared utilities, assigned system components, or an enabled module's public @module/<id> entry.`;
+        : `${scope.kind} scope: ${path.relative(src, importer)} imports ${path.relative(src, target)} outside its runtime boundary. Use #studio/runtime, its own files, permitted shared utilities, assigned system components, or an enabled module's public @module/<id> entry.`;
     },
   };
 }

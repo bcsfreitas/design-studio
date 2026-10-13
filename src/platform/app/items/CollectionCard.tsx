@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Link } from '@tanstack/react-router';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import { Card, CardContent } from '@/platform/systems/studio/components/card';
-import { cn } from '@/lib/utils';
+import { cn } from '#studio/runtime';
 
 // The card for anything in a collection (a prototype, a section item), on each collection's index. Neutral on purpose: a tile with
 // the module's icon, then the title, what it is, and a line of detail, so a team's theme is what gives it colour. `link` is

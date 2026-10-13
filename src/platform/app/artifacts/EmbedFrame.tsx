@@ -4,7 +4,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { SquareArrowExpand01Icon } from '@hugeicons/core-free-icons';
 import { artifactLabel, artifactLink } from '@/platform/app/data/manifest';
 import type { Artifact, Prototype } from '@/platform/app/data/types';
-import { cn } from '@/lib/utils';
+import { cn } from '#studio/runtime';
 
 export const EMBED_HEADER_HEIGHT = 36;
 

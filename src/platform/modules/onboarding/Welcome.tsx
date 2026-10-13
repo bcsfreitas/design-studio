@@ -7,6 +7,7 @@ import { APP_NAME, CONFIG } from '#studio/data';
 import { useManifest } from '@/platform/app/data/useManifest';
 import { useMe } from '@/platform/app/data/files';
 import { claimIntroduction, complete, progressKey, recordIntroduction } from './progress';
+import { toast } from '#studio/components';
 import { ArtifactPreview, CollaborationPreview, SystemPreview } from './ConceptPreview';
 import { AgentSketch, StorySketch } from './Illustrations';
 
@@ -55,11 +56,19 @@ export default function Welcome() {
   useEffect(() => {
     if (me === undefined) return;
     let active = true;
-    void claimIntroduction(key).then(show => {
-      if (!active) return;
-      setOpen(show);
-      if (show) recordIntroduction(key);
-    });
+    void claimIntroduction(key)
+      .then(show => {
+        if (!active) return;
+        setOpen(show);
+        if (show) recordIntroduction(key);
+      })
+      .catch(error => {
+        if (active)
+          toast.add({
+            type: 'error',
+            title: error instanceof Error ? error.message : 'Onboarding progress could not be read.',
+          });
+      });
     return () => {
       active = false;
     };

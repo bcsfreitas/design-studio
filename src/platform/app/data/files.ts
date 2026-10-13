@@ -1,15 +1,21 @@
 import { CONFIG } from './config';
-import { SYSTEM_SPECS } from '@/platform/modules/systems/data/systems';
+import { getSystems } from '#studio/systems';
+const SYSTEM_SPECS = getSystems();
 import { SourceChanged } from '@/platform/core/source/access';
 // A prototype's files, from the dev server (src/platform/node/build/vite-files-plugin.js). Dev only: on the
 // deployed site these return null, and the prototype navigation lists views from the manifest.
 import { useEffect, useState } from 'react';
-import type { Manifest, Prototype, PrototypeInfo } from '@/platform/app/data/types';
-import { SYSTEMS_KEY, rootOf } from '@/platform/core/roots';
+import type { Manifest, PrototypeInfo } from '@/platform/app/data/types';
+import { rootOf } from '@/platform/core/roots';
 import { MODULES } from '@/platform/app/data/modules';
 import { canOwn, policyFor, canPerform, pathResource } from '@/platform/core/permissions';
 import type { Status } from '@/platform/core/archive';
 import { toast } from '@/platform/systems/studio/components/toast';
+import { requestJson } from './client';
+import { requestMutation } from './mutations';
+import { findPrototype, allPrototypes } from './manifest';
+import { resourceId, type ResourceId } from '../../core/resourceIdentity';
+import { ClientError } from '../../core/client-error';
 
 export type FileNode = { name: string; path: string; dir: boolean; children?: FileNode[] };
 
@@ -167,47 +173,38 @@ export type FileOp =
   | { op: 'delete'; path: string }
   // Put a file or folder before another in its folder (`before` empty: last), moving it to folder `to` first if that's elsewhere.
   | { op: 'reorder'; path: string; to?: string; before?: string }
-  | { op: 'meta'; title?: string; status?: Status }
-  // A system content skill: skills/<name>/SKILL.md, in the Agent Skills format.
-  | { op: 'create-skill'; name: string; description: string }
-  // A prototype system's components: the examples and page one is missing.
-  | { op: 'add-docs'; component: string };
+  | { op: 'meta'; title?: string; status?: Status };
 
-export type FileOpResult = { path?: string; trashedTo?: string; relinkedFiles?: string[]; manifest: Manifest };
-
-// A prototype system's components folder, in the shape the file layer takes for a prototype
-// (src/platform/core/roots.ts): what the Source view and the operations above are given.
-export const systemFiles = (system: string): Prototype => ({
-  id: system,
-  contributorKey: SYSTEMS_KEY,
-  title: system,
-  description: '',
-  contributor: '',
-  created: null,
-  system,
-  artifacts: [],
-});
+export type FileOpResult = {
+  path?: string;
+  artifactId?: ResourceId;
+  trashedTo?: string;
+  relinkedFiles?: string[];
+  manifest: Manifest;
+};
 
 // Changes a file in your prototype (src/platform/node/build/vite-files-plugin.js). Throws the server's message.
 export async function fileOp(p: PrototypeInfo, op: FileOp): Promise<FileOpResult> {
-  const res = await fetch('/__studio/op', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-Studio-Tab': TAB_ID },
-    body: JSON.stringify({ contributor: p.contributorKey, prototype: p.id, ...op }),
-  });
-  const body = await res.json();
-  if (!res.ok) throw new Error(body.error ?? 'Something went wrong. Check that the dev server is still running.');
-  return body;
+  return requestMutation<FileOpResult>(
+    '/__studio/op',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Studio-Tab': TAB_ID },
+      body: JSON.stringify({ contributor: p.contributorKey, prototype: p.id, ...op }),
+    },
+    reply => {
+      const proto = allPrototypes(reply.manifest).find(x => x.contributorKey === p.contributorKey && x.id === p.id);
+      const item = reply.path ? proto?.artifacts?.find(x => x.path === reply.path) : undefined;
+      return item?.studioId ? { ...reply, artifactId: resourceId(item.studioId) } : reply;
+    },
+  );
 }
 
 // An item file's text and its version (a hash), for the Source view. Any prototype's, so other
 // people's can be read. Throws the server's message.
 export async function readSource(p: PrototypeInfo, path: string) {
   const query = new URLSearchParams({ contributor: p.contributorKey, prototype: p.id, path });
-  const res = await fetch(`/__studio/file?${query}`);
-  const body = await res.json();
-  if (!res.ok) throw new Error(body.error ?? 'Something went wrong. Check that the dev server is still running.');
-  return body as { content: string; version: string };
+  return requestJson<{ content: string; version: string }>(`/__studio/file?${query}`);
 }
 
 // Switches an item in your prototype to lofi or back, by changing the marker in its file the way its
@@ -227,76 +224,100 @@ export async function setArtifactLofi(
 
 // Saves an item file in your prototype. `base` is the version you read or last saved.
 export async function writeSource(p: PrototypeInfo, path: string, content: string, base: string) {
-  const res = await fetch('/__studio/write', {
-    method: 'POST',
-    signal: AbortSignal.timeout(10_000),
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ contributor: p.contributorKey, prototype: p.id, path, content, base }),
-  });
-  const body = await res.json();
-  if (res.status === 409) throw new SourceChanged(body.error);
-  if (!res.ok) throw new Error(body.error ?? 'Something went wrong. Check that the dev server is still running.');
-  // `warnings` are problems with the file's format that the save didn't block (a skill's SKILL.md).
-  return body as { version: string; warnings?: string[] };
+  try {
+    return await requestJson<{ version: string; warnings?: string[] }>('/__studio/write', {
+      method: 'POST',
+      signal: AbortSignal.timeout(10_000),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contributor: p.contributorKey, prototype: p.id, path, content, base }),
+    });
+  } catch (error) {
+    if (error instanceof ClientError && error.status === 409) throw new SourceChanged(error.message);
+    throw error;
+  }
+}
+
+type PrototypeMutationResult = { contributor: string; prototype: string; prototypeId: ResourceId; manifest: Manifest };
+function prototypeResult(reply: PrototypeMutationResult, contributor: string) {
+  const proto = findPrototype(reply.manifest, contributor, reply.prototype);
+  if (!proto?.studioId)
+    throw new ClientError('invalid_response', 'Studio mutation reply is missing the prototype identity.');
+  return { ...reply, contributor, prototypeId: resourceId(proto.studioId) };
 }
 
 // Creates a prototype in your folder, like pnpm new. Returns its URL parts and the new manifest.
 export async function createPrototype(title: string, system?: string | null) {
-  const res = await fetch('/__studio/prototype', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-Studio-Tab': TAB_ID },
-    body: JSON.stringify({ title, system }),
-  });
-  const body = await res.json();
-  if (!res.ok) throw new Error(body.error ?? 'Something went wrong. Check that the dev server is still running.');
-  return body as { contributor: string; prototype: string; manifest: Manifest };
+  return requestMutation<PrototypeMutationResult>(
+    '/__studio/prototype',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Studio-Tab': TAB_ID },
+      body: JSON.stringify({ title, system }),
+    },
+    reply => prototypeResult(reply, reply.contributor),
+  );
 }
 
 // Copies an owned prototype; a different target system records an agent rebuild request.
 export async function duplicatePrototype(p: PrototypeInfo, change: { title: string; system: string | null }) {
-  const res = await fetch('/__studio/prototype-duplicate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-Studio-Tab': TAB_ID },
-    body: JSON.stringify({ contributor: p.contributorKey, prototype: p.id, ...change }),
-  });
-  const body = await res.json();
-  if (!res.ok) throw new Error(body.error ?? 'Could not duplicate this prototype.');
-  return body as { prototype: string; manifest: Manifest };
+  return requestMutation<PrototypeMutationResult>(
+    '/__studio/prototype-duplicate',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Studio-Tab': TAB_ID },
+      body: JSON.stringify({ contributor: p.contributorKey, prototype: p.id, ...change }),
+    },
+    reply => prototypeResult(reply, p.contributorKey),
+  );
 }
 
 // Renames the title and folder. The reply includes the new URL id.
 export async function renamePrototype(p: PrototypeInfo, change: { title: string }) {
-  const res = await fetch('/__studio/prototype-rename', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-Studio-Tab': TAB_ID },
-    body: JSON.stringify({ contributor: p.contributorKey, prototype: p.id, ...change }),
-  });
-  const body = await res.json();
-  if (!res.ok) throw new Error(body.error ?? 'Something went wrong. Check that the dev server is still running.');
-  return body as { prototype: string; manifest: Manifest };
+  return requestMutation<PrototypeMutationResult>(
+    '/__studio/prototype-rename',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Studio-Tab': TAB_ID },
+      body: JSON.stringify({ contributor: p.contributorKey, prototype: p.id, ...change }),
+    },
+    reply => prototypeResult(reply, p.contributorKey),
+  );
 }
 
 // Moves a prototype you own to the Trash. Returns where it went and the new manifest.
 export async function deletePrototype(p: PrototypeInfo) {
-  const res = await fetch('/__studio/prototype-delete', {
+  return requestMutation<{ trashedTo: string; manifest: Manifest }>('/__studio/prototype-delete', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-Studio-Tab': TAB_ID },
     body: JSON.stringify({ contributor: p.contributorKey, prototype: p.id }),
   });
-  const body = await res.json();
-  if (!res.ok) throw new Error(body.error ?? 'Something went wrong. Check that the dev server is still running.');
-  return body as { trashedTo: string; manifest: Manifest };
 }
 
 // Calls a route a module adds to the dev server (its server.ts, src/platform/core/modules/index.ts): POST /__studio/<module>/<route>.
 // Resolves with the server's reply, or throws its message.
-export async function callModule<T>(module: string, route: string, body: object): Promise<T> {
-  const res = await fetch(`/__studio/${module}/${route}`, {
+export async function callModule<T>(
+  module: string,
+  route: string,
+  body: object,
+  options: Pick<RequestInit, 'signal'> = {},
+): Promise<T> {
+  return requestJson<T>(`/__studio/${module}/${route}`, {
+    ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-Studio-Tab': TAB_ID },
     body: JSON.stringify(body),
   });
-  const reply = await res.json();
-  if (!res.ok) throw new Error(reply.error ?? 'Something went wrong. Check that the dev server is still running.');
-  return reply as T;
+}
+
+// Module mutation receipts follow the same inventory and refresh contract as generic mutations.
+export function callModuleMutation<T extends { manifest: Manifest }>(
+  module: string,
+  route: string,
+  body: unknown,
+): Promise<T> {
+  return requestMutation<T>(`/__studio/${module}/${route}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Studio-Tab': TAB_ID },
+    body: JSON.stringify(body),
+  });
 }

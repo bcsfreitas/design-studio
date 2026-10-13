@@ -1,4 +1,5 @@
-import { SYSTEM_SPECS } from '../data/systems';
+import { getSystems } from '#studio/systems';
+const SYSTEM_SPECS = getSystems();
 import { systemFolder } from '@/platform/core/roots';
 import { Button } from '@/platform/systems/studio/components/button';
 import { toast } from '@/platform/systems/studio/components/toast';

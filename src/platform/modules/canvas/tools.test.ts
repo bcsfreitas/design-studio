@@ -1,8 +1,9 @@
+import { canvasIdentity } from './identity.ts';
 // Tests for the canvas tools (tools.ts) and the stored form (slim.ts). Run: pnpm test
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { stringifyScene } from './slim.ts';
-import { canvasIdentity, resourceId } from '../../core/fileTypes.ts';
+import { resourceId } from '../../core/fileTypes.ts';
 import { lineWidth, wrapText } from './elements.ts';
 import { run, ToolError, type Ctx, type El } from './tools.ts';
 

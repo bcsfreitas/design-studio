@@ -1,4 +1,7 @@
-import { apiSpecifier, platformImportProblem } from '../../core/modules/boundaries.ts';
+import { moduleBuilds } from '../lib/module-builds.js';
+import { buildAssetStore } from '../lib/build-assets.js';
+import { contributorPreferenceProblems } from '../../core/modules/preferences.ts';
+import { fileTypeDeclarationProblems } from '../lib/file-type-declarations.js';
 import { installedReferenceAdapters } from '../lib/reference-adapters.js';
 import { scopePolicy } from '../lib/scope.js';
 import { dependencyResolver, importsOf, sourceFiles } from '../lib/imports.js';
@@ -16,7 +19,7 @@ import { dependencyResolver, importsOf, sourceFiles } from '../lib/imports.js';
 //   - a team module or system imports platform code only through the public API, #studio/<entry>
 //     (src/platform/core/modules/boundaries.ts)
 //   - a file type (a module with a type.ts, src/platform/context/file-types.md) has an open.tsx, its type.ts imports
-//     only the file type declarations (src/platform/core/fileTypes.ts, or #studio/files in a team module; the build loads it
+//     #studio/files and Node-safe local helpers (the build loads the declaration graph
 //     directly in Node), and its loader.ts lists its files with the
 //     ['/__studio_globs__/*'] placeholder, so a new section and archived files reach it (src/platform/node/build/vite-globs-plugin.js)
 // Usage: node src/platform/node/check/check-modules.js
@@ -54,6 +57,11 @@ import { ownershipFails, printOwnership } from './check-ownership.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
 const problems = declarationProblems();
+try {
+  buildAssetStore(moduleBuilds(), { root: ROOT, enabled: ENABLED_MODULES.map(module => module.id) });
+} catch (error) {
+  problems.push(error.message);
+}
 try {
   installedReferenceAdapters();
 } catch (error) {
@@ -132,6 +140,7 @@ for (const m of specs) {
 }
 
 const { contributors: contributorMap, problems: contributorProblems } = readContributors();
+problems.push(...contributorPreferenceProblems(contributorMap, ENABLED_MODULES));
 const contributors = Object.keys(contributorMap);
 problems.push(...adminProblems(CONFIG, contributors).filter(problem => !problems.includes(problem)));
 problems.push(...contributorProblems);
@@ -158,6 +167,7 @@ const runtimePolicy = scopePolicy({
   modules: ENABLED_MODULES,
   prototypeDirs: PROTOTYPE_DIRS,
 });
+problems.push(...runtimePolicy.apiEntryProblems());
 const ids = Object.keys(MODULES);
 const moduleDir = id => path.resolve(ROOT, MODULE_DIRS[id]);
 // The module a file belongs to when it is inside a module root and that module is installed there.
@@ -170,11 +180,13 @@ for (const file of [...sourceFiles(path.join(ROOT, 'src')), path.join(ROOT, 'vit
   const inside = moduleOf(file);
   const rel = path.relative(ROOT, file);
   if (runtimePolicy.scopeOf(file)?.missing) continue;
+  if (!/\.(?:test|integration\.test)\.[cm]?[jt]sx?$/.test(file)) problems.push(...runtimePolicy.apiProblems(file));
   const dependencies = importsOf(fs.readFileSync(file, 'utf8'), file);
-  const browserModule = inside && !/\/(?:node\/|cli\.ts$|server\.ts$|check\.ts$)/.test(rel);
-  if ((runtimePolicy.scopeOf(file) || browserModule) && dependencies.some(i => i.source === null))
-    problems.push(`${rel}: computed imports cannot be checked; use literal import paths.`);
-  for (const { source: specifier } of dependencies) {
+  if (dependencies.some(i => !i.typeOnly && i.source === null)) {
+    const problem = runtimePolicy.computedImportProblem(file);
+    if (problem) problems.push(problem);
+  }
+  for (const { source: specifier, typeOnly } of dependencies) {
     const dependencyProblem = runtimePolicy.packageProblem(specifier, file);
     if (dependencyProblem) {
       problems.push(dependencyProblem);
@@ -182,13 +194,7 @@ for (const file of [...sourceFiles(path.join(ROOT, 'src')), path.join(ROOT, 'vit
     }
     const resolved = resolveDependency(specifier, file);
     if (!resolved) continue;
-    const platformProblem = platformImportProblem(
-      rel.replaceAll(path.sep, '/'),
-      path.relative(ROOT, resolved).replaceAll(path.sep, '/'),
-      specifier,
-    );
-    if (platformProblem) problems.push(platformProblem);
-    const problem = runtimePolicy.problem(specifier, file, resolved);
+    const problem = runtimePolicy.problem(specifier, file, resolved, { typeOnly });
     if (problem) problems.push(problem);
     const targetId = moduleOf(resolved);
     if (targetId === null || targetId === inside) continue;
@@ -217,19 +223,7 @@ for (const id of typeIds) {
   const where = path.relative(ROOT, dir);
   if (!fs.existsSync(path.join(dir, 'open.tsx')))
     problems.push(`${where}/ has a type.ts, so it is a file type, but no open.tsx saying how the app opens it.`);
-  // Real import lines only: a type.ts can hold import text inside a template, like a new view's.
-  for (const [, specifier] of fs
-    .readFileSync(path.join(dir, 'type.ts'), 'utf8')
-    .matchAll(/^import\b[^\n]*?\bfrom\s*['"]([^'"]+)['"]/gm)) {
-    // A supplied type.ts imports ../../core/fileTypes.ts; a team one imports the same declarations as #studio/files.
-    const allowed = MODULE_DIRS[id].startsWith(`${TEAM_MODULES_ROOT}/`)
-      ? apiSpecifier('files')
-      : path.relative(dir, path.join(ROOT, 'src/platform/core/fileTypes.ts')).split(path.sep).join('/');
-    if (specifier !== allowed)
-      problems.push(
-        `${where}/type.ts imports "${specifier}". A type.ts can import only ${allowed}, because the build loads it directly in Node.`,
-      );
-  }
+  problems.push(...fileTypeDeclarationProblems(ROOT, dir, runtimePolicy.scopeOf));
   const loader = path.join(dir, 'loader.ts');
   if (fs.existsSync(loader) && !fs.readFileSync(loader, 'utf8').includes("'/__studio_globs__/*'")) {
     problems.push(

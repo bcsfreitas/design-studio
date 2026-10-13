@@ -1,6 +1,6 @@
+import { loadModuleAsset, subscribeModuleAsset } from '#studio/data';
 import { useEffect, useState, type ComponentType } from 'react';
 import type { MDXContent } from 'mdx/types';
-import { SYSTEMS_KEY } from '@/platform/core/roots';
 import { exampleNames, type ComponentPropsDoc, type SystemComponentDoc } from '@/platform/modules/systems/docs';
 
 // A component's docs files in a system (src/systems/<system>/components/, or src/platform/systems/studio/components/; see
@@ -76,30 +76,19 @@ export function useDocsVersion() {
   const [version, setVersion] = useState(0);
   useEffect(() => {
     const bump = () => setVersion(v => v + 1);
-    // A component's own file changing doesn't re-run this module, but its props may have changed.
-    const onFile = (change: { contributor: string }) => {
-      if (change.contributor === SYSTEMS_KEY) bump();
-    };
+    const unsubscribe = subscribeModuleAsset('systems', 'props', bump);
     state.listeners.add(bump);
-    import.meta.hot?.on('studio:file', onFile);
     return () => {
       state.listeners.delete(bump);
-      import.meta.hot?.off('studio:file', onFile);
+      unsubscribe();
     };
   }, []);
   return version;
 }
 
-// The props of the components a file exports, read from the code (src/platform/modules/systems/node/props-plugin.js).
-// While the app runs, the dev server reads them fresh, so an edit to a component shows; the
-// built site has them in a module made at build time.
+// Component props use the shared lazy build asset lifecycle.
 export async function loadProps(system: string, file: string): Promise<ComponentPropsDoc[]> {
-  const all = import.meta.env.DEV
-    ? await fetch('/__studio/system-props').then(response => {
-        if (!response.ok) throw new Error("Couldn't load component props.");
-        return response.json() as Promise<Record<string, ComponentPropsDoc[]>>;
-      })
-    : (await import('virtual:system-props')).default;
+  const all = await loadModuleAsset<Record<string, ComponentPropsDoc[]>>('systems', 'props');
   return all[`${system}/${file}`] ?? [];
 }
 

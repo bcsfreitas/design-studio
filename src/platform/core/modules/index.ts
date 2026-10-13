@@ -2,7 +2,8 @@
 // (src/platform/modules/<id>/) or the team's (<module folder>/), with a module.ts that says what it is and what it
 // adds, so the build, the dev server and the app all read one list instead of each knowing about every module.
 // A file type is a module that has a type.ts and an open.tsx (src/platform/context/file-types.md).
-// This file has no imports but the import-free roots.ts, so Node scripts can load it directly.
+// Declarations depend only on Node-neutral roots, identities, and host policy types.
+import { validHostSurface, type HostSurfaceSpec } from '../fileTypes.ts';
 import { MODULE_ROOTS, TEAM_MODULES_ROOT } from '../roots.ts';
 
 // The version of the public contract this copy of the platform offers: the declaration types and the #studio/*
@@ -11,6 +12,23 @@ import { MODULE_ROOTS, TEAM_MODULES_ROOT } from '../roots.ts';
 // version it works with in `requires`. See context/checks.md for snapshot and released-baseline verification.
 export const PLATFORM_VERSION = '0.4.0';
 export const CORE_PAGE_KEYS = ['settings'] as const;
+
+// A bounded schema: every named primitive field is required; module checks may add domain constraints.
+export type PreferenceSpec = {
+  defaults: Record<string, string | number | boolean>;
+  fields: Record<string, 'string' | 'number' | 'boolean'>;
+  // Explicit transition from old top-level fields. Initialization retains those fields for human review.
+  legacy?: Record<string, string>;
+};
+export function preferenceProblems(value: unknown, schema: PreferenceSpec): string[] {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return ['declare a preference object'];
+  const object = value as Record<string, unknown>;
+  return Object.entries(schema.fields).flatMap(([field, type]) =>
+    typeof object[field] !== type || (type === 'number' && !Number.isFinite(object[field]))
+      ? [`declare ${field} as ${type}`]
+      : [],
+  );
+}
 
 export type ModuleSpec = {
   id: string; // the folder's name
@@ -22,6 +40,11 @@ export type ModuleSpec = {
   requires: string;
   // Explicitly declare whether studio.config.json may turn this module off.
   optional: boolean;
+  // Explicit host policies; absent/disabled hosts leave retained references unavailable.
+  hosts?: readonly HostSurfaceSpec[];
+  preferences?: PreferenceSpec;
+  // Startup optimization of declared package roots, without arbitrary Vite hooks.
+  optimizeDependencies?: readonly string[];
   // Where Studio settings lists the module: one of its groups and a place within it, low first. Without one it is listed with the other modules.
   settings?: { group: 'prototyping' | 'systems' | 'team'; order: number };
   // The top-level area the module adds: its address in the app (/examples) and, if it keeps content, the folder
@@ -81,7 +104,12 @@ export type ModuleCheck = (context: { root: string }) => string[] | Promise<stri
  * lists folders (relative to the repo root) whose Markdown changes rebuild the manifest in the dev server.
  * `sourceFiles` lists the repo-relative files of that data the Documentation surface may open for editing.
  */
+export type BuildAsset = {
+  watch: readonly string[];
+  load(context: { root: string; enabled: string[] }): unknown | Promise<unknown>;
+};
 export type ModuleBuild<Data = unknown> = {
+  assets?: Record<string, BuildAsset>;
   manifest?(context: {
     root: string;
     enabled: string[];
@@ -129,6 +157,49 @@ export function moduleProblems(spec: unknown, folder: string, dir = `${TEAM_MODU
   )
     problems.push(`${where}: settings must be { group: 'prototyping' | 'systems' | 'team', order: <number> }.`);
   if (typeof m.optional !== 'boolean') problems.push(`${where}: declare optional as true or false.`);
+  if (m.preferences !== undefined) {
+    const p = m.preferences;
+    if (
+      !p ||
+      !p.fields ||
+      typeof p.fields !== 'object' ||
+      Array.isArray(p.fields) ||
+      !Object.keys(p.fields).length ||
+      Object.entries(p.fields).some(
+        ([field, type]) => !/^[a-zA-Z][a-zA-Z0-9]*$/.test(field) || !['boolean', 'string', 'number'].includes(type),
+      ) ||
+      preferenceProblems(p.defaults, p).length ||
+      Object.keys(p.defaults).some(field => !Object.hasOwn(p.fields, field)) ||
+      (p.legacy !== undefined &&
+        (!p.legacy ||
+          typeof p.legacy !== 'object' ||
+          Array.isArray(p.legacy) ||
+          Object.entries(p.legacy).some(
+            ([field, old]) =>
+              !Object.hasOwn(p.fields, field) || typeof old !== 'string' || !/^[a-zA-Z][a-zA-Z0-9]*$/.test(old),
+          )))
+    )
+      problems.push(
+        `${where}: preferences need required primitive fields, matching explicit defaults, and valid legacy mappings.`,
+      );
+  }
+  if (m.hosts !== undefined) {
+    if (!Array.isArray(m.hosts)) problems.push(`${where}: hosts must be a list of host declarations.`);
+    else
+      for (const host of m.hosts) {
+        if (
+          !host ||
+          !validHostSurface(host.id) ||
+          !((host.id === 'canvas' && folder === 'canvas') || host.id.startsWith(folder + '/')) ||
+          host.references !== 'same-prototype' ||
+          !Array.isArray(host.scopes) ||
+          !host.scopes.length ||
+          host.scopes.some((scope: string) => !['prototype', 'systemContent'].includes(scope)) ||
+          new Set(host.scopes).size !== host.scopes.length
+        )
+          problems.push(`${where}: hosts need an owner-prefixed ID, unique scopes, and same-prototype references.`);
+      }
+  }
   if (m.instructions !== undefined) {
     if (!Array.isArray(m.instructions)) problems.push(`${where}: instructions should be a list of { path, when }.`);
     else
@@ -153,6 +224,16 @@ export function moduleProblems(spec: unknown, folder: string, dir = `${TEAM_MODU
           problems.push(`${where}: dependency ${name} should have a version like "^1.2.3" or "1.2.3".`);
       }
   }
+  if (
+    m.optimizeDependencies !== undefined &&
+    (!Array.isArray(m.optimizeDependencies) ||
+      m.optimizeDependencies.length > 32 ||
+      new Set(m.optimizeDependencies).size !== m.optimizeDependencies.length ||
+      m.optimizeDependencies.some(
+        name => typeof name !== 'string' || !NPM_NAME.test(name) || !Object.hasOwn(m.dependencies ?? {}, name),
+      ))
+  )
+    problems.push(`${where}: optimizeDependencies must list at most 32 unique package roots declared in dependencies.`);
   if (m.upstream !== undefined) {
     const u = m.upstream as Partial<NonNullable<ModuleSpec['upstream']>>;
     if (
@@ -212,6 +293,12 @@ export function moduleRootProblems(found: readonly { id: string; dir: string }[]
 // Problems across the whole list: two modules claiming the same section key or folder.
 export function listProblems(specs: readonly ModuleSpec[]): string[] {
   const problems: string[] = [];
+  const hosts = new Set<string>();
+  for (const m of specs)
+    for (const host of m.hosts ?? []) {
+      if (hosts.has(host.id)) problems.push(`Host surface ${host.id} is declared more than once.`);
+      hosts.add(host.id);
+    }
   const keys = new Map<string, string>();
   const dirs = new Map<string, string>();
   for (const m of specs) {
@@ -253,3 +340,9 @@ export function compatible(spec: { requires?: string }, platform: string = PLATF
   for (let i = 0; i < 3; i++) if (need[i] !== have[i]) return need[i] < have[i];
   return true;
 }
+
+// Callers supply enabled modules; incompatible declarations never contribute.
+export const optimizedDependencies = (modules: readonly ModuleSpec[]): string[] =>
+  [
+    ...new Set(modules.filter(module => compatible(module)).flatMap(module => module.optimizeDependencies ?? [])),
+  ].sort();

@@ -1,5 +1,6 @@
+import { viewIdentity } from './identity.ts';
 // A view: a React component in a .tsx or .jsx file, opened as a page in the prototype.
-import { defineFileType, viewIdentity } from '../../core/fileTypes.ts';
+import { defineFileType } from '#studio/files';
 
 // Lofi is a comment at the top of the view, above any code: /** @lofi */
 const HEADER = /^\uFEFF?(?:\s|\/\*[\s\S]*?\*\/|\/\/[^\n]*)*/;
@@ -32,9 +33,9 @@ export default defineFileType({
   language: 'tsx',
   fidelity: { isLofi, setLofi },
 
-  // It starts as emptyView (src/lib/emptyView.ts), which the platform shows as an empty page, until something is built in it.
+  // View owns the runtime sentinel; the host supplies the empty-state presentation.
   template: () =>
-    `import { emptyView } from '@/lib/emptyView';\n\n// Empty until something is built here: describe it to your agent, who replaces this export with the view.\nexport default emptyView;\n`,
+    `import { emptyView } from '@module/view';\n\n// Empty until something is built here: describe it to your agent, who replaces this export with the view.\nexport default emptyView;\n`,
 
   // The app renders a view's default export.
   check: ({ source }) =>

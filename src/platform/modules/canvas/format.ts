@@ -1,3 +1,4 @@
+import { canvasIdentity } from './identity.ts';
 // The canvas file: an Excalidraw scene, kept small and stable so canvases diff cleanly in git and
 // an agent can read and edit them.
 //
@@ -11,7 +12,7 @@
 //   so a canvas works on any host and under any base path.
 import type { ExcalidrawElement } from '@excalidraw/excalidraw/element/types';
 import { appPathOf } from '@/platform/app/artifacts/artifactLinks';
-import { canvasIdentity, type ResourceId } from '../../core/fileTypes';
+import { type ResourceId } from '../../core/fileTypes';
 import { DEFAULT_BACKGROUND, FORMAT_VERSION, stringifyScene, type Stored } from './slim';
 
 export type ParsedCanvas = {

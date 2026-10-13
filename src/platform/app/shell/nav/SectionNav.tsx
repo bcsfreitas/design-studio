@@ -10,7 +10,7 @@ import {
   useSectionNavOpen,
   useSectionNavWidth,
 } from '@/platform/app/shell/appPrefs';
-import { cn } from '@/lib/utils';
+import { cn } from '#studio/runtime';
 
 export function SectionNav({ label, children }: { label: string; children: ReactNode }) {
   const { width, resizing, handleProps } = useSectionNavWidth();

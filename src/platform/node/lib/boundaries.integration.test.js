@@ -154,6 +154,16 @@ test('private module consumers and symlink scopes are rejected; disabled app and
       assert.equal(result.status, 0, file + ': ' + source + '\n' + result.stdout + result.stderr);
       fs.rmSync(target);
     }
+    // Real checker and production guard reject a Node API laundered through a browser helper.
+    write(root, 'src/modules/extra/app.tsx', "import './environment-helper'; export default {};");
+    write(root, 'src/modules/extra/environment-helper.ts', "export {moveCode} from '#studio/references';");
+    const wrongEnvironment = attempt('src/platform/node/check/check-modules.js');
+    assert.equal(wrongEnvironment.status, 1, wrongEnvironment.stdout + wrongEnvironment.stderr);
+    assert.match(wrongEnvironment.stderr, /cannot execute in application/);
+    const wrongEnvironmentBuild = attempt('node_modules/vite/bin/vite.js', 'build');
+    assert.notEqual(wrongEnvironmentBuild.status, 0);
+    assert.match(wrongEnvironmentBuild.stdout + wrongEnvironmentBuild.stderr, /cannot execute in application/);
+    fs.rmSync(path.join(root, 'src/modules/extra/environment-helper.ts'));
     // A team build hook imports the Node-safe public entry. Its app reads the contribution through the browser API.
     write(
       root,
@@ -176,10 +186,11 @@ test('private module consumers and symlink scopes are rejected; disabled app and
       `
       import type { ModuleApp } from '#studio/ui';
       import { APP_NAME, contribution, type Manifest } from '#studio/data';
+      import { cn } from '#studio/runtime';
       import { Home01Icon } from '@hugeicons/core-free-icons';
       function Overview({manifest}: {manifest: Manifest}) {
         const data = contribution<{label: string}>(manifest, 'extra');
-        return <div>{APP_NAME}: {data?.label ?? '__PUBLIC_CONTRIBUTION_MISSING__'}</div>;
+        return <div className={cn('runtime-consumer')}>{APP_NAME}: {data?.label ?? '__PUBLIC_CONTRIBUTION_MISSING__'}</div>;
       }
       export default {icon: Home01Icon, rail: 'none', order: 50, overview: Overview} satisfies ModuleApp;
     `,

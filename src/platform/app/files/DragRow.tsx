@@ -11,7 +11,7 @@ import {
   type Availability,
   type Operation,
 } from '@atlaskit/pragmatic-drag-and-drop-hitbox/list-item';
-import { cn } from '@/lib/utils';
+import { cn } from '#studio/runtime';
 
 // What a dragged row carries, and what a row under it is.
 export const DRAG_KIND = 'studio-path';

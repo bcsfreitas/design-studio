@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Link } from '@tanstack/react-router';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import { Item, ItemContent, ItemMedia, ItemTitle } from '@/platform/systems/studio/components/item';
-import { cn } from '@/lib/utils';
+import { cn } from '#studio/runtime';
 
 // The row for anything in a section: on the front page (HomeSection.tsx) and in a collection's list view (Collection.tsx). It is
 // the design system's Item, rendered as a link, with a neutral tile holding the module's rail icon, so all of a section's

@@ -91,18 +91,21 @@ test('file references resolve nested files and remain within the document protot
 });
 
 test('file previews respect the Node-readable capability surfaces to bound canvas nesting', async () => {
-  const { embedFor } = await import('../../app/data/fileTypeModule.ts');
-  const Embed = () => null;
+  const { artifactAvailability } = await import('../../core/fileTypes.ts');
+  const allowed = (type, surface, renderer = true) =>
+    artifactAvailability(type, { local: false, editable: false, present: true, renderer, scope: 'prototype' }).embeds[
+      surface
+    ].available;
   const spec = surfaces => ({
     systemUsage: 'independent',
     inPrototype: true,
     inSystemContent: false,
     capabilities: { embeds: surfaces },
   });
-  assert.equal(embedFor(undefined, { Embed }, 'document', 'prototype'), undefined);
-  assert.equal(embedFor(spec([]), { Embed }, 'canvas', 'prototype'), undefined);
-  assert.equal(embedFor(spec(['document', 'canvas']), { Embed }, 'canvas', 'prototype'), Embed);
-  assert.equal(embedFor(spec(['document']), { Embed }, 'document', 'prototype'), Embed);
-  assert.equal(embedFor(spec(['document']), { Embed }, 'canvas', 'prototype'), undefined);
-  assert.equal(embedFor(spec(['document']), undefined, 'document', 'prototype'), undefined);
+  assert.equal(allowed(undefined, 'document'), false);
+  assert.equal(allowed(spec([]), 'canvas'), false);
+  assert.equal(allowed(spec(['document', 'canvas']), 'canvas'), true);
+  assert.equal(allowed(spec(['document']), 'document'), true);
+  assert.equal(allowed(spec(['document']), 'canvas'), false);
+  assert.equal(allowed(spec(['document']), 'document', false), false);
 });

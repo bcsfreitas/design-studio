@@ -6,12 +6,9 @@ import { Shapes01Icon } from '@hugeicons/core-free-icons';
 import { CommandGroup, CommandItem, CommandSeparator } from '@/platform/systems/studio/components/command';
 import { HomeSection } from '@/platform/app/items/HomeSection';
 import { ItemRow } from '@/platform/app/items/ItemRow';
-import {
-  PROTOTYPE_SYSTEMS,
-  SYSTEM_SPECS,
-  systemKeyFromIdentity,
-  systemPath,
-} from '@/platform/modules/systems/data/systems';
+import { getSystems, systemKeyFromIdentity, systemPath } from '#studio/systems';
+const PROTOTYPE_SYSTEMS = getSystems({ role: 'prototype' });
+const SYSTEM_SPECS = getSystems();
 import { APP_NAME } from '@/platform/app/data/config';
 import { artifactLabel, loadManifest } from '@/platform/app/data/manifest';
 import { contentId } from '@/platform/core/roots';

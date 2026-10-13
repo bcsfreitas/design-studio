@@ -9,6 +9,11 @@ export default {
   optional: true,
   settings: { group: 'team', order: 0 },
   lib: false,
+  preferences: {
+    defaults: { welcomeDismissed: false },
+    fields: { welcomeDismissed: 'boolean' },
+    legacy: { welcomeDismissed: 'welcomeDismissed' },
+  },
   instructions: [
     {
       path: 'skills/use-onboarding/',

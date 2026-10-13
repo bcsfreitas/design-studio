@@ -18,7 +18,7 @@ export function writeProfiles(root, entries) {
           studioId: previous.studioId ?? createResourceId(),
           github: '',
           email: '',
-          welcomeDismissed: false,
+          preferences: { onboarding: { welcomeDismissed: false } },
           ...entry,
         },
         null,

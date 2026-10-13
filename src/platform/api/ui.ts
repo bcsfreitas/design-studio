@@ -7,7 +7,7 @@ export type { PaletteContext } from '../app/modules.ts';
 /** @stable One entry a module adds to a prototype's menu. */
 export type { PrototypeAction } from '../app/modules.ts';
 /** @experimental The shell's not-found page. */
-export { NotFound } from '../app/shell/App.tsx';
+export { NotFound } from '../app/shell/NotFound.tsx';
 /** @experimental A section's side navigation and its parts. */
 export {
   SectionNav,
@@ -48,3 +48,19 @@ export type { SourceLanguage } from '../core/source/SourceEditor.tsx';
 export { default as ArtifactSource } from '../app/source/ArtifactSource.tsx';
 /** @experimental The Source view toggle state, its shortcut and focus return, for a file page. */
 export { useSourceView } from '../core/source/useSourceView.ts';
+/** @experimental The authorized settings editor with stale-snapshot handling and restart coordination. */
+export { useStudioSettings } from '../app/settings/useStudioSettings.ts';
+/** @experimental Lazy Mermaid rendering shared by document content and standalone diagrams. */
+export { MermaidDiagram } from '../app/diagrams/MermaidDiagram.tsx';
+
+/** @experimental Shared artifact preparation and presentation; callers retain mounting and visibility policy. */
+export { ArtifactHost } from '../app/artifacts/ArtifactHost.tsx';
+/** @experimental Artifact host layout, interaction, and admission inputs. */
+export type { ArtifactHostProps } from '../app/artifacts/ArtifactHost.tsx';
+
+/** @experimental Shared file navigation with explicit owner creation, bundle and permission policies. */
+export { default as FileTree } from '../app/files/FileTree.tsx';
+/** @experimental Owner policies and props for shared file navigation. */
+export type { FileTreePolicy, FileTreeProps, NewFileOption } from '../app/files/FileTree.tsx';
+/** @experimental Copyable error presentation for file-backed surfaces. */
+export { default as FileError } from '../app/files/FileError.tsx';

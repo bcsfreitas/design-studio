@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { MDXProvider } from '@mdx-js/react';
 import { markdownComponents } from '@/platform/app/docs/markdownComponents';
-import { cn } from '@/lib/utils';
+import { cn } from '#studio/runtime';
 
 // Compiled Markdown, styled as a document with Tailwind Typography (the small size, 14px):
 // https://github.com/tailwindlabs/tailwindcss-typography

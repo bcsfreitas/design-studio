@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/lib/utils';
+import { cn } from '#studio/runtime';
 
 import { Button } from '@/platform/systems/studio/components/button';
 import { Input } from '@/platform/systems/studio/components/input';

@@ -7,8 +7,10 @@ import { Alert, AlertTitle, AlertDescription } from '@/platform/systems/studio/c
 import { useManifest } from '@/platform/app/data/useManifest';
 import { systemUsage, prototypeLink } from '@/platform/app/data/manifest';
 import { contentId } from '@/platform/core/roots';
-import { ThemeScope } from '../ThemeScope';
-import { SYSTEM_SPECS, PLATFORM_ID } from '../data/systems';
+import { ThemeScope } from '#studio/systems';
+import { getSystems, platformSystemKey } from '#studio/systems';
+const SYSTEM_SPECS = getSystems();
+const PLATFORM_ID = platformSystemKey();
 import { systemAssets } from '../data/assets';
 import SystemReferenceNotice from './SystemReferenceNotice';
 import SystemSetup from './SystemSetup';

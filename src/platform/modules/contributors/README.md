@@ -9,7 +9,7 @@ This module owns team contributor management. Open **Contributors** in the local
 - [Use Contributors](skills/use-contributors/SKILL.md) owns assignment and access-review workflows.
 - The platform owns contributor identity, profiles, configuration, and permission decisions. Its [contributor scope](../../context/contributor-scope.md) applies even when this module is absent.
 
-The module uses the public `useStudioSettings` client and the platform settings service. The client sends only changed fields. Saves recheck current Admin authority and reject stale configuration or profile snapshots. This module writes only `admins` and `systemMaintainers`.
+The module uses `useStudioSettings` from `#studio/ui`, `adminProblems` from Node-safe `#studio/module`, and the platform settings service. The client sends only changed fields. Saves recheck current Admin authority and reject stale configuration or profile snapshots. This module writes only `admins` and `systemMaintainers`.
 
 Profiles remain in `contributors/<key>.json`. They declare a permanent `studioId` and preferences; the filename supplies the current source key. Authority remains in `studio.config.json` as permanent contributor and system ID references. Controls select readable source keys; the settings service serializes IDs. See [Studio configuration](../../context/config.md) for the canonical schema. Registration remains a platform workflow because personal studios also need contributor identity.
 

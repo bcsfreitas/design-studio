@@ -1,4 +1,5 @@
-import { systemPath } from './systems';
+import { systemPath } from '#studio/systems';
+
 import { systemFolder } from '@/platform/core/roots';
 // Only previewable static files are exposed; source code and HTML are not assets here.
 // Both system roots (src/platform/core/roots.ts), the platform system's and the team's.

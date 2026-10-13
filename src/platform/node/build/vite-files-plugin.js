@@ -21,11 +21,9 @@ import { documentationSources, sourceFile } from './files/source.js';
 //        delete   { path }                        to the Trash (or .trash/ at the repo root)
 //        reorder  { path, to?, before? }         put a file or folder before another in its folder ("before" empty: last), moving it to folder "to" first if given; saved in meta.json "order"
 //        meta     { title?, status? }  edit meta.json (status is "active" or "archived")
-//        create-skill { name, description }       system content skills only: skills/<name>/SKILL.md, in the Agent Skills format
 //      (In the system content, anyone can change files, but only in its fixed shape: src/platform/modules/systems/content/rules.ts.)
 //      (contributor "systems" opens a system's components, <system folder>/components/ in either system root. Anyone can
 //      read and save its text files, and it has one operation of its own:
-//        add-docs { component }                    the examples and page a component is missing)
 //   POST /__studio/prototype { title, system? }   a new prototype in your folder, like pnpm new
 //   POST /__studio/prototype-duplicate { contributor, prototype, title, system }   copy an owned personal prototype
 //   POST /__studio/prototype-rename { contributor, prototype, title }   retitle a prototype you own; a new title renames its folder too
@@ -78,7 +76,7 @@ import {
 } from './files/paths.js';
 import { readJson, sameOrigin, send } from './files/http.js';
 import { canChange, canWriteSource, ownerError, owns } from './files/policy.js';
-import { SYSTEM_CONTENT_NOTE, reveal, runOp, runSystemOp, trash } from './files/ops.js';
+import { SYSTEM_CONTENT_NOTE, reveal, runOp, trash } from './files/ops.js';
 
 export default function filesPlugin() {
   let moves;
@@ -264,6 +262,8 @@ export default function filesPlugin() {
           }
           if (req.method === 'POST' && url.pathname === '/op') {
             const body = await readJson(req);
+            if (body.contributor === SYSTEMS_KEY)
+              return send(res, 400, { error: 'Use the Systems owner routes for component operations.' });
             const dir = prototypeDir(body.contributor, body.prototype);
             if (!dir) return send(res, 404, { error: 'This prototype no longer exists.' });
             // Contributor scope: you can change only your own folder (and the system content's, for review).
@@ -271,10 +271,11 @@ export default function filesPlugin() {
               return send(res, 403, { error: ownerError(body.contributor, me()) });
             try {
               moves.flush();
-              const result =
-                body.contributor === SYSTEMS_KEY
-                  ? runSystemOp(body.prototype, body)
-                  : runOp(dir, body, body.contributor === SYSTEM_CONTENT_KEY ? contentSection(body.prototype) : null);
+              const result = runOp(
+                dir,
+                body,
+                body.contributor === SYSTEM_CONTENT_KEY ? contentSection(body.prototype) : null,
+              );
               movedUpdates.record(dir, result);
               moves.capture();
               const { manifest } = buildManifest();
@@ -378,28 +379,6 @@ export default function filesPlugin() {
             const { manifest } = buildManifest();
             publishManifest(server, manifest, req.headers['x-studio-tab']);
             return send(res, 200, { trashedTo, manifest });
-          }
-          if (req.method === 'POST' && url.pathname === '/system-source') {
-            const manifest = buildManifest({ write: false, quiet: true }).manifest;
-            const allowed = Object.entries(SYSTEM_SOURCES).flatMap(([id, source]) => [
-              source.theme,
-              ...(id === 'platform' ? [] : [source.dir + 'system.ts']),
-              source.dir + 'intro.tsx',
-              ...(manifest.systems[id]?.components ?? []).flatMap(component =>
-                Object.values(component.files)
-                  .filter(Boolean)
-                  .map(file => source.components + '/' + file),
-              ),
-            ]);
-            const request = await readJson(req);
-            if (request.action === 'write' && !canWriteSource(me(), request.path, ROOT, request.content))
-              return send(res, 403, {
-                error:
-                  'Only an Admin or an assigned system maintainer can edit this source. You can propose changes in a pull request.',
-              });
-            const result = sourceFile(ROOT, allowed, request);
-            if (result.reveal) await reveal(result.reveal);
-            return send(res, result.status ?? 200, result.body);
           }
           if (req.method === 'POST' && url.pathname === '/documentation') {
             const manifest = buildManifest({ write: false, quiet: true }).manifest;

@@ -1,10 +1,10 @@
 // Child-document renderer. Shared by page previews and inert embeds.
 import { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { ThemeScope } from '@/platform/modules/systems/ThemeScope';
-import { PortalContext } from '@/lib/portal';
+import { ThemeScope } from '#studio/systems';
+import { PortalContext } from '#studio/runtime';
 import { PrototypeNavigationProvider } from '@/platform/modules/prototypes/lib';
-import ViewError from '@/platform/modules/prototypes/viewer/ViewError';
+import ViewError from '@/platform/app/files/FileError';
 import MissingSystem from '@/platform/modules/prototypes/viewer/MissingSystem';
 import EmptyView from '../EmptyView';
 import type { loadView } from '../load';

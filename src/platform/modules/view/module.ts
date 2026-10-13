@@ -4,7 +4,7 @@ import type { ModuleSpec } from '#studio/module';
 export default {
   optional: false,
   settings: { group: 'prototyping', order: 1 },
-  lib: false,
+  lib: true,
   id: 'view',
   label: 'Views',
   version: '0.1.0',

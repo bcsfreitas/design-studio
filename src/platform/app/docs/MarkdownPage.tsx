@@ -1,19 +1,15 @@
 // One document, in the app's own style (not its prototype's design system), inside an error
 // boundary: a document that fails to render shows the error, with a button to copy it.
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import {
-  compiledLifecycle,
-  freshness,
-  lifecycleAttributes,
-  initialLifecycle,
-  type ArtifactFile,
-} from '@/platform/core/artifact-lifecycle/index';
+import { freshness, lifecycleAttributes, initialLifecycle } from '@/platform/core/artifact-lifecycle/index';
+import { compiledLifecycle, type ArtifactFile } from '@/platform/core/artifact-lifecycle/compiled';
 import type { MDXContent } from 'mdx/types';
 import { ErrorBoundary } from 'react-error-boundary';
-import { DocBase } from '@/platform/app/docs/DocBase';
+import type { ArtifactContext } from '../data/fileTypeModule';
+import { DocBase, DocArtifact } from '@/platform/app/docs/DocBase';
 import { DocLayout } from '@/platform/app/docs/DocLayout';
 import type { DocFrontmatter } from '@/platform/app/docs/types';
-import ViewError from '@/platform/modules/prototypes/viewer/ViewError';
+import ViewError from '@/platform/app/files/FileError';
 
 // docKey (contributor/prototype/path) resets the error boundary when the document changes,
 // and so does a new Component (the file was fixed, in dev).
@@ -29,6 +25,7 @@ export default function MarkdownPage({
   base,
   footer,
   file,
+  artifact,
 }: {
   Component: MDXContent;
   frontmatter: DocFrontmatter;
@@ -36,6 +33,7 @@ export default function MarkdownPage({
   base: string;
   footer?: ReactNode;
   file?: ArtifactFile;
+  artifact?: ArtifactContext;
 }) {
   const [refresh, setRefresh] = useState(0);
   useEffect(() => {
@@ -80,16 +78,18 @@ export default function MarkdownPage({
             hidden heading Markdown footnotes add (position: absolute) inside this box; otherwise it
             sits against the page, which then scrolls when you follow a footnote link. */}
         <div data-doc-scroll className='relative min-h-0 flex-1 overflow-y-auto bg-background text-foreground'>
-          <DocBase.Provider value={base}>
-            <DocLayout
-              Component={Component}
-              title={frontmatter.title}
-              description={frontmatter.description}
-              toc={frontmatter.toc}
-              scrollKey={docKey}
-              footer={footer}
-            />
-          </DocBase.Provider>
+          <DocArtifact.Provider value={artifact ?? null}>
+            <DocBase.Provider value={base}>
+              <DocLayout
+                Component={Component}
+                title={frontmatter.title}
+                description={frontmatter.description}
+                toc={frontmatter.toc}
+                scrollKey={docKey}
+                footer={footer}
+              />
+            </DocBase.Provider>
+          </DocArtifact.Provider>
           <Committed ready={ready} />
         </div>
       </ErrorBoundary>

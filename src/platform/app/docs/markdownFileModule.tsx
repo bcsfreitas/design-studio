@@ -33,6 +33,7 @@ export function markdownFileModule(documents: ReturnType<typeof createLoader<Mar
           : addressOf(file.contributor, file.prototype);
       return {
         file,
+        artifact: { proto, item },
         Component:
           mod instanceof Error
             ? () => {

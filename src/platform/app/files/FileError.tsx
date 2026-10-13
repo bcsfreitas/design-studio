@@ -1,11 +1,11 @@
-// Shown in place of a view that throws, with the error so it can be copied into a bug report or an agent chat.
+// Shown in place of a file that throws, with the error so it can be copied into a bug report or an agent chat.
 import { useState } from 'react';
 import type { FallbackProps } from 'react-error-boundary';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Copy01Icon, Tick02Icon } from '@hugeicons/core-free-icons';
 import { Button } from '@/platform/systems/studio/components/button';
 
-export default function ViewError({ error }: FallbackProps) {
+export default function FileError({ error }: FallbackProps) {
   const [copied, setCopied] = useState(false);
   const message = error instanceof Error ? error.message : String(error);
   const copy = async () => {

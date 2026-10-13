@@ -18,6 +18,7 @@ import rehypeFileEmbeds from './src/platform/node/build/rehype-file-embeds.js';
 import { documentCodeTheme } from './src/platform/systems/studio/styles/contentPalette.js';
 import tailwindcss from '@tailwindcss/vite';
 import importGuard from './src/platform/node/build/vite-import-guard-plugin.js';
+import publicApi from './src/platform/node/build/vite-public-api-plugin.js';
 import manifestWatch from './src/platform/node/build/vite-manifest-watch-plugin.js';
 import spa404 from './src/platform/node/build/vite-spa-404-plugin.js';
 import socialMetadata from './src/platform/node/build/vite-social-metadata-plugin.js';
@@ -26,9 +27,10 @@ import previewTheme from './src/platform/node/build/vite-preview-theme-plugin.js
 import files from './src/platform/node/build/vite-files-plugin.js';
 import settings from './src/platform/node/build/vite-settings-plugin.js';
 import markdownRefresh from './src/platform/node/build/vite-markdown-refresh-plugin.js';
-import systemProps from './src/platform/modules/systems/node/props-plugin.js';
+import buildAssets from './src/platform/node/build/vite-build-assets-plugin.js';
 import globs from './src/platform/node/build/vite-globs-plugin.js';
 import css, { scopedUtilities } from './src/platform/node/build/vite-css-plugin.js';
+import { optimizedDependencies } from './src/platform/core/modules/index.ts';
 import { ENABLED_MODULES, MODULE_DIRS } from './src/platform/node/lib/modules.js';
 
 // References use the same plain-Markdown pipeline, without hiding any document sections.
@@ -96,8 +98,7 @@ export default defineConfig({
     include: [
       // Prepare Mermaid and its lazy diagram chunks together before the first document opens.
       'mermaid',
-      // Canvas is lazy; discover its dependency at startup so first opening doesn't restart the page.
-      ...(ENABLED_MODULES.some((module: { id: string }) => module.id === 'canvas') ? ['@excalidraw/excalidraw'] : []),
+      ...optimizedDependencies(ENABLED_MODULES),
       // Embedded prototype views discover these deep imports after the canvas first paints.
       '@base-ui/react/**',
       '@codemirror/state',
@@ -128,6 +129,7 @@ export default defineConfig({
     react({ include: /\.[jt]sx$/ }),
     markdownRefresh(),
     importGuard(),
+    publicApi(),
     // Resolve public libraries after the guard sees the original @module import.
     // Vite aliases run earlier and would hide that explicit public entrypoint.
     {
@@ -149,7 +151,7 @@ export default defineConfig({
     manifestWatch(),
     settings(),
     files(),
-    systemProps(),
+    buildAssets(),
     spa404(),
     socialMetadata(),
     deploymentRecovery(),

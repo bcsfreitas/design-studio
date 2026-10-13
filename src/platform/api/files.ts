@@ -21,3 +21,22 @@ export { markdownIdentity } from '../core/fileTypes.ts';
 export { artifactSlug } from '../core/fileTypes.ts';
 /** @experimental Whether the format can render with this prototype's system dependency. */
 export { artifactSystemAvailability } from '../core/fileTypes.ts';
+/** @experimental Validates a permanent resource ID, without resolving it to a source path. */
+export { resourceId } from '../core/resourceIdentity.ts';
+/** @experimental A prototype's permanent public address. */
+export { prototypeAddress } from '../core/resourceIdentity.ts';
+/** @experimental A parent-scoped artifact's permanent public address. */
+export { artifactAddress } from '../core/resourceIdentity.ts';
+/** @experimental A system's permanent public address. */
+export { systemAddress } from '../core/resourceIdentity.ts';
+/** @experimental Parses permanent prototype/artifact addresses; mutable content paths are not accepted. */
+export { parsePrototypeAddress } from '../core/resourceIdentity.ts';
+/** @experimental Reads a single unambiguous JSON metadata identity. */
+export { jsonIdentity } from '../core/resourceIdentity.ts';
+/** @experimental Generic JSON metadata identity adapter; format ownership remains in each module. */
+export { jsonIdentityMetadata } from '../core/resourceIdentity.ts';
+/** @experimental Validates zero or one identity declarations, rejecting duplicates. */
+export { identityFromDeclarations } from '../core/resourceIdentity.ts';
+
+/** @experimental An owner-declared artifact host policy. */
+export type { HostSurfaceSpec } from '../core/fileTypes.ts';

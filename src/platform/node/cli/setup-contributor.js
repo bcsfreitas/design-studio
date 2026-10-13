@@ -10,7 +10,8 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { resolveContributor, loadContributors } from './resolve-contributor.js';
 import { SECTION_KEYS } from '../lib/modules.js';
-import { CONFIG } from '../lib/modules.js';
+import { CONFIG, ENABLED_MODULES } from '../lib/modules.js';
+import { preferenceDefaults } from '../../core/modules/preferences.ts';
 import { FORMAT_VERSIONS } from '../../core/formats.ts';
 import { contributorFile } from '../lib/contributors.js';
 
@@ -109,7 +110,7 @@ const entry = {
   name,
   github,
   email,
-  welcomeDismissed: false,
+  preferences: preferenceDefaults(ENABLED_MODULES),
 };
 console.log(`${yes ? 'Adding' : 'Proposed'} contributors/${key}.json:\n${JSON.stringify(entry, null, 2)}`);
 if (!yes)

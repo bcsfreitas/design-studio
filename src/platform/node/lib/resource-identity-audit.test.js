@@ -1,10 +1,11 @@
+import { viewIdentity } from '../../modules/view/identity.ts';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { auditResourceIdentities } from './resource-identity-audit.js';
-import { markdownIdentity, viewIdentity } from '../../core/resourceIdentity.ts';
+import { markdownIdentity } from '../../core/resourceIdentity.ts';
 
 const types = {
   view: { systemUsage: 'independent', inPrototype: true, extensions: ['.tsx'], identity: viewIdentity },

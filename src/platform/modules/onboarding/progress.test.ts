@@ -1,13 +1,28 @@
 import assert from 'node:assert/strict';
-import { test } from 'node:test';
-import { complete, isComplete, progressKey } from './progress.ts';
+import { test, after } from 'node:test';
+import { createServer } from 'vite';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { claimWelcome } from './node/progress.js';
 import server from './server.ts';
-import check from './check.ts';
-import { claimIntroduction, recordIntroduction } from './progress.ts';
+import { contributorPreferenceProblems } from '../../core/modules/preferences.ts';
+import { readContributors } from '../../node/lib/contributors.js';
+import { writeProfiles } from '../../node/lib/fixtures/contributors.js';
+import onboarding from './module.ts';
+const check = ({ root }: { root: string }) =>
+  contributorPreferenceProblems(readContributors(root).contributors, [onboarding]);
+// Exercise the browser-only public entry through Vite, rather than loading it in native Node.
+const browser = await createServer({
+  configFile: path.resolve('vite.config.ts'),
+  configLoader: 'native',
+  server: { middlewareMode: true, hmr: false, ws: false, watch: null },
+  optimizeDeps: { noDiscovery: true },
+});
+after(() => browser.close());
+const { complete, isComplete, progressKey, claimIntroduction, recordIntroduction } = await browser.ssrLoadModule(
+  '/platform/modules/onboarding/progress.ts',
+);
 
 test('onboarding completion persists and does not cross base paths', () => {
   const data = new Map<string, string>();
@@ -43,59 +58,71 @@ const fixture = (t: { after: (fn: () => void) => void }) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'studio-welcome-'));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   fs.mkdirSync(path.join(root, 'contributors'));
+  fs.mkdirSync(path.join(root, 'src/platform/modules/onboarding'), { recursive: true });
   fs.writeFileSync(
-    path.join(root, 'contributors/owner.json'),
-    JSON.stringify({ name: 'Owner', extra: 'keep', welcomeDismissed: false }),
+    path.join(root, 'src/platform/modules/onboarding/module.ts'),
+    'export default ' + JSON.stringify(onboarding) + ';',
   );
   fs.writeFileSync(
-    path.join(root, 'contributors/newcomer.json'),
-    JSON.stringify({ name: 'Newcomer', email: 'new@example.test', custom: { keep: true }, welcomeDismissed: false }),
+    path.join(root, 'studio.config.json'),
+    JSON.stringify({ ...JSON.parse(fs.readFileSync('studio.config.json', 'utf8')), modules: { onboarding: true } }),
   );
+  writeProfiles(root, {
+    owner: { name: 'Owner', extra: 'keep' },
+    newcomer: { name: 'Newcomer', email: 'new@example.test', custom: { keep: true } },
+  });
   return root;
 };
 
 test('each contributor gets Welcome once and keeps their own progress across restarts', t => {
   const root = fixture(t);
+  const beforeOwner = JSON.parse(fs.readFileSync(path.join(root, 'contributors/owner.json'), 'utf8'));
+  const beforeNewcomer = JSON.parse(fs.readFileSync(path.join(root, 'contributors/newcomer.json'), 'utf8'));
   assert.equal(claimWelcome(root, 'owner'), true);
   assert.equal(claimWelcome(root, 'owner'), false);
   assert.equal(claimWelcome(root, 'newcomer'), true);
   assert.equal(claimWelcome(root, 'newcomer'), false);
   assert.deepEqual(JSON.parse(fs.readFileSync(path.join(root, 'contributors/newcomer.json'), 'utf8')), {
-    name: 'Newcomer',
-    email: 'new@example.test',
-    custom: { keep: true },
-    welcomeDismissed: true,
+    ...beforeNewcomer,
+    preferences: { onboarding: { welcomeDismissed: true } },
   });
   const owner = JSON.parse(fs.readFileSync(path.join(root, 'contributors/owner.json'), 'utf8'));
-  assert.deepEqual(owner, { name: 'Owner', extra: 'keep', welcomeDismissed: true });
+  assert.deepEqual(owner, { ...beforeOwner, preferences: { onboarding: { welcomeDismissed: true } } });
   const other = fixture(t);
   assert.equal(claimWelcome(other, 'owner'), true);
 });
 
 test('unregistered exploration and legacy studio state cannot dismiss a new contributor', t => {
   const root = fixture(t);
-  fs.writeFileSync(path.join(root, 'studio.config.json'), '{ "welcomeDismissed": true }');
+  const configSource = fs.readFileSync(path.join(root, 'studio.config.json'), 'utf8');
   fs.writeFileSync(path.join(root, '.design-studio-welcome-dismissed'), '');
   const before = fs.readFileSync(path.join(root, 'contributors/newcomer.json'), 'utf8');
   assert.equal(claimWelcome(root, null), null);
   assert.equal(fs.readFileSync(path.join(root, 'contributors/newcomer.json'), 'utf8'), before);
   assert.equal(claimWelcome(root, 'newcomer'), true);
-  assert.equal(fs.readFileSync(path.join(root, 'studio.config.json'), 'utf8'), '{ "welcomeDismissed": true }');
+  assert.equal(fs.readFileSync(path.join(root, 'studio.config.json'), 'utf8'), configSource);
 });
 
 test('progress preserves other roster entries and honors explicit false', t => {
   const root = fixture(t);
   const file = path.join(root, 'contributors/colleague.json');
-  fs.writeFileSync(file, JSON.stringify({ name: 'Colleague', welcomeDismissed: true }));
+  fs.writeFileSync(
+    file,
+    JSON.stringify({ name: 'Colleague', preferences: { onboarding: { welcomeDismissed: true } } }),
+  );
   assert.equal(claimWelcome(root, 'owner'), true);
-  assert.deepEqual(JSON.parse(fs.readFileSync(file, 'utf8')), { name: 'Colleague', welcomeDismissed: true });
+  assert.deepEqual(JSON.parse(fs.readFileSync(file, 'utf8')), {
+    name: 'Colleague',
+    preferences: { onboarding: { welcomeDismissed: true } },
+  });
 });
 
 test('invalid, unknown and linked profiles are preserved', t => {
   const root = fixture(t);
   const file = path.join(root, 'contributors/newcomer.json');
-  fs.writeFileSync(file, '{"name":"Newcomer","welcomeDismissed":"yes"}');
-  assert.throws(() => claimWelcome(root, 'newcomer'), /false or true/);
+  const valid = JSON.parse(fs.readFileSync(file, 'utf8'));
+  fs.writeFileSync(file, JSON.stringify({ ...valid, preferences: { onboarding: { welcomeDismissed: 'yes' } } }));
+  assert.throws(() => claimWelcome(root, 'newcomer'), /as boolean/);
   assert.match(fs.readFileSync(file, 'utf8'), /"yes"/);
   assert.throws(() => claimWelcome(root, '../elsewhere'), /Invalid contributor/);
   assert.throws(() => claimWelcome(root, 'unknown'), /not registered/);
@@ -154,12 +181,14 @@ test('missing declarations fail validation and runtime without changing the prof
   const root = fixture(t);
   assert.deepEqual(check({ root }), []);
   const file = path.join(root, 'contributors/newcomer.json');
-  const source = '{"name":"Newcomer"}';
+  const valid = JSON.parse(fs.readFileSync(file, 'utf8'));
+  const { preferences, ...identity } = valid;
+  const source = JSON.stringify(identity);
   fs.writeFileSync(file, source);
-  assert.match(check({ root }).join(' '), /newcomer.*declare welcomeDismissed explicitly/);
-  assert.throws(() => claimWelcome(root, 'newcomer'), /declare.*explicitly/i);
+  assert.match(check({ root }).join(' '), /newcomer.*declare a preference object/);
+  assert.throws(() => claimWelcome(root, 'newcomer'), /declare preferences as module namespace objects/i);
   assert.equal(fs.readFileSync(file, 'utf8'), source);
-  fs.writeFileSync(file, '{"name":"Newcomer","welcomeDismissed":true}');
+  fs.writeFileSync(file, JSON.stringify({ ...valid, preferences: { onboarding: { welcomeDismissed: true } } }));
   assert.deepEqual(check({ root }), []);
   assert.equal(claimWelcome(root, 'newcomer'), false);
 });
@@ -171,4 +200,20 @@ test('a missing profile declaration cannot activate browser fallback', async t =
     async () => new Response(JSON.stringify({ error: 'Declare welcomeDismissed.' }), { status: 422 }),
   );
   assert.equal(await claimIntroduction(progressKey('/invalid-declaration/', 'newcomer')), false);
+});
+
+test('unavailable persistence uses browser fallback but malformed successful replies fail clearly', async t => {
+  t.mock.method(globalThis, 'fetch', async () => {
+    throw new TypeError('offline');
+  });
+  assert.equal(await claimIntroduction(progressKey('/unavailable/')), true);
+  complete(progressKey('/unavailable-completed/'));
+  assert.equal(await claimIntroduction(progressKey('/unavailable-completed/')), false);
+  for (const [index, body] of ['{}', '{"show":"yes"}', 'not json'].entries()) {
+    t.mock.method(globalThis, 'fetch', async () => new Response(body));
+    await assert.rejects(
+      claimIntroduction(progressKey('/malformed/' + index)),
+      /progress must declare|unreadable reply/,
+    );
+  }
 });

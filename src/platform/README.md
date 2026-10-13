@@ -34,6 +34,8 @@ All platform knowledge and requirements live together in `context/`:
 | --- | --- |
 | `pnpm studio update [version] [--dry-run]` | Take a newer Design Studio release on a `studio-update/v<version>` branch; `--continue` finishes one after its conflicts are resolved. See [Updating a studio](context/ownership.md#updating-a-studio). |
 | `pnpm release <version> [--dry-run]` | Upstream maintainers only: cut a platform release on `main` and tag it locally. See [Releasing](context/releasing.md). |
+| `pnpm studio repair-runtime-imports [paths]` | Preview narrow repairs to retained runtime imports. Save a plan with `--out`, then explicitly apply it with `--apply <plan> --yes`. See [Runtime import repair](context/runtime-import-repair.md). |
+
 
 ## Skills
 
@@ -56,8 +58,16 @@ Use existing commands for repeatable mechanics and skills for decisions and outc
 
 ## Implementation
 
+The [artifact service architecture](context/artifact-services-proposal.md) records the approved Systems routes, shared reference resolution, and presentation host boundaries.
+
 `api/` is the public API that team modules and systems import as `#studio/*` ([Public API](context/modules.md#public-api)). `core/` holds shared APIs and runtime boundaries. `app/` holds the application shell and shared readers. `systems/` is the supplied system root; it holds [Studio's own interface system](systems/studio/README.md), while the team's systems live in `src/systems/`. `modules/` is the supplied module root; it holds the [modules](modules/README.md) the starter ships, while the team's own live in `src/modules/`. Markdown knowledge lives in Context; task procedures live in Skills.
 
 Each module and system has its own README entry point, context, and relevant skills. A README is technical context at the owner's front door. Skills consult authoritative context rather than copying contracts.
 
+The [API environment policy](context/modules.md#environment-policy) separates Studio application, Node tooling, and prototype runtime consumers. Its entry inventory drives the shared checks and development/build guard; executable dependency graphs must support every declared environment.
+
 The Documentation surface offers a curated Manual and a platform and module Context and Skills browser. The browser displays these original files. System context and skills appear within each system’s UI alongside its components and theme. Generated harness entries route agents back to the canonical skills.
+
+[Contributor preferences](context/contributor-preferences.md) defines module-owned schemas and explicit profile initialization.
+
+[Module build assets](context/build-assets.md) owns lazy serializable contributions. [Application system services](context/system-services.md) owns browser queries and themed rendering.

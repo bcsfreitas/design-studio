@@ -1,21 +1,20 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { ModuleBuild } from '../../core/modules/index.ts';
-import { moduleFolder } from '../../core/roots.ts';
 import { frontmatter } from '../../node/lib/frontmatter.js';
 import { manualChapterEnabled } from './manual-pages.js';
 import type { DocumentationContribution, ManualPage } from './types.ts';
 
 // Runs only while Documentation is enabled. Human chapters have one home: module associations control availability,
 // not source ownership.
-const folder = () => `${moduleFolder('documentation')}/pages`;
+const folder = 'platform/modules/documentation/pages';
 
 export default {
-  watch: ['src/platform/modules/documentation/pages'],
+  watch: [`src/${folder}`],
   manifest({ root, out, enabled }) {
     const manual: (ManualPage & { order: number })[] = [];
     let errors = 0;
-    const dir = path.join(root, 'src', folder());
+    const dir = path.join(root, 'src', folder);
     const files = fs.existsSync(dir)
       ? fs
           .readdirSync(dir)
@@ -24,7 +23,7 @@ export default {
       : [];
     const pages = files.map(file => ({
       file: path.join(dir, file),
-      where: `src/${folder()}/${file}`,
+      where: `src/${folder}/${file}`,
       slug: file.replace(/\.md$/, ''),
     }));
     const taken = new Map<string, string>();
@@ -68,7 +67,7 @@ export default {
         description: fm.description ?? '',
         section: fm.section || null,
         order: fm.order,
-        source: `/${folder()}/${slug}.md`,
+        source: `/${folder}/${slug}.md`,
       });
     }
     manual.sort((a, b) => a.order - b.order);
@@ -78,13 +77,13 @@ export default {
   // metadata stays repairable.
   sourceFiles(data, { root }) {
     if (!data) return []; // no contribution: Documentation is off for this manifest
-    const dir = path.join(root, 'src', folder());
-    const listed = data.manual.map(page => `src${page.source ?? `/${folder()}/${page.slug}.md`}`);
+    const dir = path.join(root, 'src', folder);
+    const listed = data.manual.map(page => `src${page.source ?? `/${folder}/${page.slug}.md`}`);
     const present = fs.existsSync(dir)
       ? fs
           .readdirSync(dir, { withFileTypes: true })
           .filter(entry => entry.isFile() && entry.name.endsWith('.md'))
-          .map(entry => `src/${folder()}/${entry.name}`)
+          .map(entry => `src/${folder}/${entry.name}`)
       : [];
     return [...listed, ...present];
   },

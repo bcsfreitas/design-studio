@@ -1,6 +1,6 @@
 import { Button as ButtonPrimitive } from '@base-ui/react/button';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/lib/utils';
+import { cn } from '#studio/runtime';
 
 // Adapted from the starter's shadcn/Base UI Button for Marketing's brand geometry.
 const buttonVariants = cva(

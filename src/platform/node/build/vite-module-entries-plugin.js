@@ -31,6 +31,7 @@ export default function moduleEntries() {
         ![
           'src/platform/app/modules.ts',
           'src/platform/app/data/fileTypes.ts',
+          'src/platform/app/data/fileTypeSpecs.ts',
           'src/platform/app/data/modules.ts',
         ].includes(file)
       )

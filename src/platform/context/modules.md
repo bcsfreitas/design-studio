@@ -20,22 +20,49 @@ A module cannot import another optional module's implementation. Outside code ca
 
 Prototypes access public libraries through `@module/<id>`. They cannot import private platform paths. Runtime library code has its own dependency checks.
 
+Views offers the renderer-free `emptyView` sentinel through `@module/view`; its [empty-view contract](../modules/view/README.md#empty-views) owns creation and rendering behavior.
+
 Every module declares `requires`, the oldest platform version it works with, such as `requires: '0.2.0'`. Supplied modules use `requires: '0.3.0'` for the current declaration fields, browser identity entry, and build contributions. A module without one fails validation. An incompatible module is disabled and reported by checks.
 
 ## Public API
 
 Team modules (`src/modules/<id>/`) and team systems (`src/systems/<id>/`) import platform code only through the public API in `src/platform/api/`, one file per entry. The root `package.json` maps `#studio/*` to those files through its `imports` field, so one specifier works in browser code, Node-loaded files such as `type.ts`, `server.ts`, and `check.ts`, and a system's `system.ts`.
 
-| Entry | Use it for | Where it loads |
+| Entry | Use it for | Executable environment |
 | --- | --- | --- |
-| `#studio/module` | `ModuleSpec`, `ModuleServer`, `ServerRoute`, `ModuleCheck`, `ModuleBuild` (experimental), `PLATFORM_VERSION`. | Browser and Node; type imports anywhere. |
+| `#studio/module` | Module declarations, server/check/build contracts, `PLATFORM_VERSION`, resolved `StudioConfig`, and the shared `adminProblems` validator. | Application and Node. |
+| `#studio/systems` | Registered system queries, source paths, permanent system navigation, and shared theme scope. | Application. |
 | `#studio/system` | `SystemSpec`, `SystemLibrary`, `SystemIntro`, and the types inside them. | Types anywhere. |
-| `#studio/files` | Declaring a file type in `type.ts`: `defineFileType`, `FileTypeSpec`, capabilities, identity, and the Markdown declaration to extend. | Browser and Node. |
-| `#studio/data` | Reading content in the app: the manifest, `contribution<Data>`, the studio identity (`APP_NAME`, `TAGLINE`, read-only `CONFIG`), a prototype's files, the current contributor and edit permissions, `callModule`, and what a file type's `loader.ts` and `open.tsx` implement. | Browser. |
-| `#studio/ui` | Browser app contributions (`ModuleApp`, `PaletteContext`, `PrototypeAction`) and the shell's building blocks: section navigation, home blocks, collections, documents, and the source editor. | Browser. |
-| `#studio/components` | Studio's interface components, such as `Button`, `Dialog`, `Input`, `Tooltip`, menus, and `toast`. | Browser. |
+| `#studio/files` | File-type declarations, capabilities, generic identity, Markdown declarations, and permanent resource IDs and prototype/artifact/system addresses. | Application and Node. |
+| `#studio/data` | Reading content in the app: the manifest, `contribution<Data>`, the studio identity (`APP_NAME`, `TAGLINE`, read-only `CONFIG`), a prototype's files, the current contributor and edit permissions, `callModule`, structured `ClientError` failures, lazy build assets, and what a file type's `loader.ts` and `open.tsx` implement. | Application. |
+| `#studio/ui` | Browser app contributions, section navigation, home blocks, collections, documents, source editing, shared Mermaid rendering, artifact hosting, file navigation with owner policies, copyable file errors, and the authorized `useStudioSettings` client. | Application. |
+| `#studio/components` | Studio's interface components, such as `Button`, `Dialog`, `Input`, `Tooltip`, menus, and `toast`. | Application. |
+| `#studio/preferences` | Authorized, versioned reads and writes of declared contributor module namespaces. | Node only. |
 | `#studio/references` | Node source adapters, resolution context types and shared code, Markdown and CSS source grammars. | Node only. |
-| `#studio/lifecycle` | Renderer-neutral source, preparation and displayed revision state, input digests and DOM evidence. | Browser and Node. |
+| `#studio/lifecycle` | Renderer-neutral source, preparation and displayed revision state, input digests and DOM evidence. | Application and Node. |
+| `#studio/runtime` | `cn`, `PortalContext`, and `usePortalContainer` for shared class names and themed overlays. | Application and runtime. |
+
+Permanent address helpers validate ID-based public addresses; they do not resolve filesystem locations or legacy module-content addresses. `compiledLifecycle` is browser-specific and belongs to `#studio/data`; renderer-neutral revision primitives remain in Node-safe `#studio/lifecycle`.
+
+`#studio/data` also provides typed prototype and generic file mutations, file-tree observation, local editor/reveal commands, and fidelity writes. Mutation clients serialize this tab's writes, apply checked successful manifests, and schedule application refresh. Receipts include identities and source locations for caller-owned navigation. Do not apply returned manifests manually; `setManifest` stays private. Failed replies do not change the inventory. `SourceChanged` remains a distinct client error with code `source_changed` and status 409.
+
+### Environment policy
+
+`API_POLICY` in `src/platform/core/modules/boundaries.ts` is the single inventory of entries and executable environments:
+
+- **Application:** Studio's browser contributions and system overviews.
+- **Node:** module declarations, `type.ts`, `server.ts`, `check.ts`, `build.ts`, `references.ts`, `cli.ts`, module `node/` helpers, and system declarations.
+- **Runtime:** prototype code, system components and libraries, shared utilities, and public module libraries. Existing runtime scopes still apply. `#studio/runtime` is the narrow executable entry for these consumers; application services and Node tooling remain unavailable.
+
+Explicit type-only imports and re-exports from public entries are available in every environment. They do not load the implementation. Private imports remain invalid even when they import only types.
+
+`pnpm check` and the development/production import guard use the same environment service in `src/platform/node/lib/api-environments.js`. It follows executable literal imports, re-exports, and `require` through repository helpers in the caller's environment. Moving a browser import into a helper does not make it Node-safe. Helpers outside a team folder cannot bypass the public boundary. Node and runtime graphs reject computed imports; supplied application loaders retain their compiled-glob behavior. The platform’s bounded installed-module loader may load discovered `module.ts` files, whose executable graphs are checked independently as Node entries. Installed declarations are synchronous Node specifications; source or helper changes require a process restart.
+
+Every public entry's executable graph is checked in each declared environment. Node graphs reject browser globals, renderer imports, JSX, browser application code, and Vite browser features. Application and runtime graphs reject Node built-ins and platform Node tooling. Runtime graphs cannot reach the Studio shell. Erased type dependencies are excluded from this executable graph; existing dependency and module-removal checks still apply to them.
+
+The graph follows repository source, not npm package implementations. Packages remain governed by declared dependencies and runtime scope checks. These checks enforce source contracts, not a security sandbox. A Node import regression also loads every Node-capable public entry in a fresh process.
+
+Artifact hosts and Systems examples provide `PortalContext` with their themed container. System overlays read it through `usePortalContainer()` and pass that element to their portal implementation. Both import `#studio/runtime`, so the provider and consumers use one context instance per document. `cn` remains a shared runtime dependency; prototypes do not gain permission to import its package directly. The runtime entry must remain independent of shell, settings, manifest, routing, and discovery code.
 
 `src/platform/api/*.ts` lists each export with a JSDoc tag:
 
@@ -146,3 +173,11 @@ A module owns one canonical technical contract in its README.md. Human workflows
 Supplied and locally authored modules use the same contract, in different roots. Installed external capabilities record their source and file hashes in `studio.lock.json`; locally authored modules remain team-owned. The lock's `platform` entry records the upstream release the studio is on ([The installed release](ownership.md#the-installed-release)); the lock does not track supplied starter code file by file.
 
 You own all repository code. Editing supplied modules or platform internals can create conflicts when merging upstream releases; [Ownership and updates](ownership.md) maps which paths are upstream, generated, seed, or team-owned. Review updates on a branch, reconcile local changes, and run `pnpm build`. The [customization Manual](/documentation/manual/customize) explains the progression from prototype work to platform changes.
+
+Modules can declare primitive preference schemas and defaults; see [Contributor preferences](contributor-preferences.md) for registration, validation, transactions, and reviewed initialization. `#studio/preferences` is Node-only.
+
+`optimizeDependencies` lists at most 32 unique package roots from the module’s `dependencies`. Vite combines enabled, compatible declarations with shared editor dependencies before first use. Disabled or removed modules contribute nothing. Subpaths and arbitrary Vite configuration are unsupported.
+
+`ModuleBuild.assets` contributes named lazy JSON assets through the [shared asset protocol](build-assets.md). Browser consumers use `loadModuleAsset` and `subscribeModuleAsset` from `#studio/data`.
+
+`#studio/systems` exposes [application system services](system-services.md). Use these queries and `ThemeScope` for application rendering; the singular `#studio/system` remains declaration types.

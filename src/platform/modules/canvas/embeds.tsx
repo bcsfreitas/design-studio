@@ -4,17 +4,17 @@
 // the item's file type has an Embed), or a card (if it doesn't), or a "not found" card (if the
 // link points at nothing). This file knows nothing about any file type: it asks the registry.
 import { memo } from 'react';
-import { embedFor } from '@/platform/app/data/fileTypeModule';
+import { inspectArtifact } from '#studio/data';
+import { ArtifactHost } from '#studio/ui';
 import { CaptureUpdateAction, newElementWith } from '@excalidraw/excalidraw';
 import type { ExcalidrawElement } from '@excalidraw/excalidraw/element/types';
 import type { AppState, ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types';
-import { FILE_TYPES, fileTypeModules } from '@/platform/app/data/fileTypes';
 import { artifactLabel } from '@/platform/app/data/manifest';
-import type { Manifest, Prototype } from '@/platform/app/data/types';
-import ArtifactCard, { ITEM_CARD_HEIGHT } from '@/platform/app/artifacts/ArtifactCard';
-import { appPathOf, isInPrototype, resolveArtifactPath } from '@/platform/app/artifacts/artifactLinks';
+import type { Artifact, Manifest, Prototype } from '@/platform/app/data/types';
+import { ITEM_CARD_HEIGHT } from '@/platform/app/artifacts/ArtifactCard';
+import { appPathOf } from '@/platform/app/artifacts/artifactLinks';
 
-import EmbedFrame, { EMBED_HEADER_HEIGHT as HEADER_HEIGHT } from '@/platform/app/artifacts/EmbedFrame';
+import { EMBED_HEADER_HEIGHT as HEADER_HEIGHT } from '@/platform/app/artifacts/EmbedFrame';
 const BORDER = 2; // 1px each side
 const DEFAULT_WIDTH = 480;
 const DEFAULT_BODY_HEIGHT = Math.round((DEFAULT_WIDTH * 900) / 1440); // a 1440 x 900 screen, scaled
@@ -25,25 +25,18 @@ export const validateEmbed = (link: string) => appPathOf(link) !== null;
 
 // A canvas shows only items from its own prototype, so a prototype is all of its own: an item from
 // another one doesn't resolve (and its spot says so: ArtifactCard).
-const resolve = (manifest: Manifest, link: string | null, current: Prototype) => {
-  const path = link && appPathOf(link);
-  return path && isInPrototype(path, current) ? resolveArtifactPath(manifest, path) : null;
-};
-const elsewhere = (link: string | null, current: Prototype) => {
-  const path = link && appPathOf(link);
-  return Boolean(path && !isInPrototype(path, current));
-};
+const inspect = (manifest: Manifest, link: string | null, current: Prototype) =>
+  inspectArtifact(
+    {
+      reference: link ?? '',
+      origin: { proto: current, item: current.artifacts.find(i => i.fileType === 'canvas') ?? current.artifacts[0] },
+      surface: 'canvas',
+    },
+    manifest,
+  );
 const embedOf = (manifest: Manifest, link: string | null, current: Prototype) => {
-  const target = resolve(manifest, link, current);
-  return target
-    ? embedFor(
-        FILE_TYPES[target.item.fileType],
-        fileTypeModules[target.item.fileType],
-        'canvas',
-        'prototype',
-        target.proto,
-      )
-    : undefined;
+  const result = inspect(manifest, link, current);
+  return result.state === 'resolved' && result.preview.available;
 };
 
 // The size of a new embed: a preview is a screen, a card is a compact row.
@@ -143,60 +136,35 @@ type ItemProps = {
   element: ExcalidrawElement;
   manifest: Manifest;
   current: Prototype;
+  item: Artifact;
   offscreen: boolean;
   overview: boolean;
   // Has been near the viewport, so its preview is live. Before that it's a sized placeholder.
   mounted: boolean;
 };
 
-function CanvasItemInner({ element, manifest, current, offscreen, overview, mounted }: ItemProps) {
+function CanvasItemInner({ element, manifest, current, item, offscreen, overview, mounted }: ItemProps) {
   const link = element.type === 'embeddable' ? element.link : null;
-  const target = resolve(manifest, link, current);
-  const Embed =
-    target &&
-    embedFor(
-      FILE_TYPES[target.item.fileType],
-      fileTypeModules[target.item.fileType],
-      'canvas',
-      'prototype',
-      target.proto,
-    );
-  // A card fills the element. A missing one is a card too, and so is one from another prototype.
-  if (!target || !Embed)
-    return (
-      <div data-canvas-frame='' className='h-full w-full'>
-        <ArtifactCard proto={target?.proto} item={target?.item} elsewhere={elsewhere(link, current)} />
-      </div>
-    );
-  const { proto, item } = target;
-  const hidden = offscreen || overview;
+  const resolution = inspect(manifest, link, current);
   return (
-    <EmbedFrame proto={proto} item={item} className='h-full w-full'>
-      {/* Hidden means mounted but skipped for layout and paint (far off screen, or too small to
-          read), so the live preview never reloads or jumps. */}
-      <div
-        inert
-        data-canvas-embed-id={element.id}
-        className='min-h-0 flex-1'
-        style={hidden ? { visibility: 'hidden', contentVisibility: 'hidden' } : undefined}
+    <div data-canvas-embed-id={element.id} className='h-full w-full'>
+      <ArtifactHost
+        request={{ reference: link ?? '', origin: { proto: current, item }, surface: 'canvas' }}
+        manifest={manifest}
+        className='h-full w-full'
+        width={element.width - BORDER}
+        height={element.height - HEADER_HEIGHT - BORDER}
+        interaction='inert'
+        mounted={mounted}
+        hidden={offscreen || overview}
       >
-        {mounted ? (
-          <Embed
-            proto={proto}
-            item={item}
-            width={element.width - BORDER}
-            height={element.height - HEADER_HEIGHT - BORDER}
-          />
-        ) : (
-          <div className='h-full bg-muted/50' />
+        {overview && !offscreen && (
+          <div className='canvas-overview'>
+            <span>{resolution.state === 'resolved' ? artifactLabel(resolution.target.item.path) : 'File'}</span>
+          </div>
         )}
-      </div>
-      {overview && !offscreen && (
-        <div className='canvas-overview'>
-          <span>{artifactLabel(item.path)}</span>
-        </div>
-      )}
-    </EmbedFrame>
+      </ArtifactHost>
+    </div>
   );
 }
 
@@ -208,6 +176,7 @@ export const CanvasItem = memo(
   (a, b) =>
     a.manifest === b.manifest &&
     a.current === b.current &&
+    a.item === b.item &&
     a.element.id === b.element.id &&
     a.element.version === b.element.version &&
     a.offscreen === b.offscreen &&

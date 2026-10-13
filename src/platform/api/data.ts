@@ -66,9 +66,54 @@ export { writeSource } from '../app/data/files.ts';
 export { SourceChanged } from '../core/source/access.ts';
 /** @experimental Calls a route of a module's server.ts: POST /__studio/<module>/<route>. */
 export { callModule } from '../app/data/files.ts';
+/** @experimental A client failure with a machine-readable code, optional HTTP status, and display message. */
+export { ClientError } from '../core/client-error.ts';
 /** @experimental Loads a file type's files from its loader.ts glob. */
 export { createLoader } from '../app/data/createLoader.ts';
 /** @experimental Loads Markdown pages from a glob, with frontmatter. */
 export { createMarkdownLoader } from '../app/docs/createMarkdownLoader.ts';
 /** @experimental The open.tsx implementation for a Markdown-based file type. */
 export { markdownFileModule } from '../app/docs/markdownFileModule.tsx';
+/** @experimental Tracks browser compilation and renderer commits; Node-neutral lifecycle primitives remain in #studio/lifecycle. */
+export { compiledLifecycle } from '../core/artifact-lifecycle/compiled.ts';
+/** @experimental Generic source operations; system-specific creation stays with Systems. */
+export type { FileOp } from '../app/data/files.ts';
+/** @experimental A mutation receipt with updated inventory and optional artifact identity/location. */
+export type { FileOpResult } from '../app/data/files.ts';
+/** @experimental A node in the repository file tree. */
+export type { FileNode } from '../app/data/files.ts';
+/** @experimental Applies a generic file operation and synchronizes the application on success. */
+export { fileOp } from '../app/data/files.ts';
+/** @experimental Creates a prototype and returns its permanent identity, location, and updated inventory. */
+export { createPrototype } from '../app/data/files.ts';
+/** @experimental Copies an owned prototype and returns the new identity and location. */
+export { duplicatePrototype } from '../app/data/files.ts';
+/** @experimental Renames a prototype's source location while preserving its permanent identity. */
+export { renamePrototype } from '../app/data/files.ts';
+/** @experimental Trashes an owned prototype and synchronizes the application. */
+export { deletePrototype } from '../app/data/files.ts';
+/** @experimental Reads and refreshes an authored file tree in development. */
+export { useFileTree } from '../app/data/files.ts';
+/** @experimental Opens a prototype file in the configured local editor. */
+export { openInEditor } from '../app/data/files.ts';
+/** @experimental Reveals a prototype file in the local file browser. */
+export { revealInFinder } from '../app/data/files.ts';
+/** @experimental Changes an artifact's fidelity against its current source version. */
+export { setArtifactLofi } from '../app/data/files.ts';
+
+/** @experimental Calls an owner route whose successful receipt includes its updated manifest. */
+export { callModuleMutation } from '../app/data/files.ts';
+
+/** @experimental Inspect artifact scope and availability using current metadata, without mounting a renderer. */
+export { inspectArtifact } from '../app/artifacts/resolveArtifact.ts';
+/** @experimental Complete missing artifact inventory, then use the shared inspection policy. */
+export { resolveArtifact } from '../app/artifacts/resolveArtifact.ts';
+/** @experimental A host request with a current artifact origin. */
+export type { ArtifactRequest } from '../app/artifacts/resolveArtifact.ts';
+/** @experimental Shared pending, availability, and presentation metadata. */
+export type { ArtifactResolution } from '../app/artifacts/resolveArtifact.ts';
+/** @experimental Machine-readable artifact availability reasons. */
+export type { AvailabilityCode } from '../app/artifacts/resolveArtifact.ts';
+
+/** @experimental Loads an enabled module’s named serializable build asset, sharing cached work and surfacing failures. */
+export { loadModuleAsset, subscribeModuleAsset } from '../app/data/buildAssets.ts';

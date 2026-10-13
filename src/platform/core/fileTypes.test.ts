@@ -11,7 +11,6 @@ import {
   assertFileTypeModule,
   artifactActions,
   runArtifactAction,
-  embedFor,
   type FileTypeModule,
   type ArtifactActionContext,
   type ArtifactActionTarget,
@@ -107,7 +106,7 @@ test('system-consuming renderers are unavailable without blocking independent ar
     true,
     'an explicit no-system prototype is still valid',
   );
-  assert.equal(embedFor(assigned, module({ Embed: () => null }), 'canvas', 'prototype', missing), undefined);
+  assert.equal(artifactAvailability(assigned, { ...environment, ...missing }).embeds.canvas.available, false);
   assert.throws(
     () => defineFileType({ ...fixture(), systemUsage: undefined } as unknown as FileTypeSpec),
     /systemUsage/,
@@ -135,14 +134,10 @@ test('availability separates unsupported, unavailable scope, missing files, and 
 test('Node-readable embed surfaces and browser implementations must agree', () => {
   const Embed = () => null;
   const spec = fixture({ capabilities: { ...fixture().capabilities, embeds: ['document'] } });
-  assert.equal(embedFor(spec, module({ Embed }), 'document', 'prototype'), Embed);
-  assert.equal(embedFor(spec, module({ Embed }), 'canvas', 'prototype'), undefined);
-  assert.equal(embedFor(undefined, module({ Embed }), 'document', 'prototype'), undefined);
-  assert.equal(
-    embedFor(spec, module({ Embed }), 'document', 'systemContent'),
-    undefined,
-    'embed surfaces do not authorize a different content scope',
-  );
+  assert.equal(artifactAvailability(spec, environment).embeds.document.available, true);
+  assert.equal(artifactAvailability(spec, environment).embeds.canvas.available, false);
+  assert.equal(artifactAvailability(undefined, environment).embeds.document.available, false);
+  assert.equal(artifactAvailability(spec, { ...environment, scope: 'systemContent' }).embeds.document.available, false);
   assert.throws(() => assertFileTypeModule('fixture', spec, module()), /Embed/);
   assert.throws(() => assertFileTypeModule('fixture', fixture(), module({ Embed })), /Embed/);
   assert.throws(() => assertFileTypeModule('fixture', spec, undefined), /Page and load/);

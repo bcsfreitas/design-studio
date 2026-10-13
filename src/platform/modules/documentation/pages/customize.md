@@ -48,6 +48,8 @@ For example, you might ask for a new review tool or artifact type. Ask for a pro
 
 Modules run inside the application; they are not a protective sandbox. A faulty module can still affect Studio. Your agent can use the [module contracts](/documentation/context/platform.core/context/modules).
 
+Studio checks which environment a feature runs in: the browser application, local Node tooling, or prototype runtime. Those environments have different public APIs. Checks follow helper imports too, so moving incompatible code into another file does not make it available. Ask your agent to use the [API environment policy](/documentation/context/platform.core/context/modules#environment-policy) when resolving an import error.
+
 ## How do I update my studio?
 
 New versions of Design Studio come out as numbered releases, such as 0.2.1. Your studio doesn't change on its own: you choose when to take a release, and your work stays yours.

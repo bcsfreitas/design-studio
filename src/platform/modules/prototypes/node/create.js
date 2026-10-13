@@ -9,7 +9,7 @@ import { PROTOTYPE_SECTIONS } from '../../../node/lib/modules.js';
 import { resolveContributor } from '../../../node/cli/resolve-contributor.js';
 import { moveWithLinks, personAddress } from '../../../node/lib/prototype-links.js';
 import { DEFAULT_SYSTEM, PROTOTYPE_SYSTEMS } from '../../systems/node/systems.js';
-import { INSTALLED_FILE_TYPES } from '../../../node/lib/file-types.js';
+import { FILE_TYPES, INSTALLED_FILE_TYPES } from '../../../node/lib/file-types.js';
 import {
   retainedResourceIds,
   allocateResourceIdentity,
@@ -45,10 +45,15 @@ export function createPrototype({ title, key, system = DEFAULT_SYSTEM }) {
   if (fs.existsSync(dest)) throw new Error(`You already have a prototype named “${title}”. Choose a different title.`);
   const used = retainedResourceIds(ROOT, INSTALLED_FILE_TYPES);
   const studioId = allocateResourceIdentity(used);
+  const view = FILE_TYPES.view;
+  if (!view?.capabilities.create || typeof view.template !== 'function')
+    throw new Error('Views must provide their creation template before a prototype can be created.');
 
   fs.mkdirSync(path.dirname(dest), { recursive: true });
   try {
     fs.cpSync(path.join(ROOT, 'src', 'platform', 'node', 'templates', 'prototype'), dest, { recursive: true });
+    // File creation and prototype creation use the same module-owned source template.
+    fs.writeFileSync(path.join(dest, 'prototype.tsx'), view.template('prototype.tsx'), { flag: 'wx' });
     const metaPath = path.join(dest, 'meta.json');
     const meta = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
     const d = new Date();

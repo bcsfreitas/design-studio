@@ -1,11 +1,12 @@
-import { systemPath } from '../data/systems';
+import { systemPath } from '#studio/systems';
+
 import { systemFolder } from '@/platform/core/roots';
 import { useEffect, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { ArrowRight, Image, Smile, Type } from 'lucide-react';
 import { useManifest } from '@/platform/app/data/useManifest';
 import type { DesignSystem } from '@/platform/app/data/types';
-import { NotFound } from '@/platform/app/shell/App';
+import { NotFound } from '@/platform/app/shell/NotFound';
 import { IconsPage, PageHeader } from './foundations';
 import {
   Empty,
@@ -14,7 +15,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/platform/systems/studio/components/empty';
-import { ThemeScope } from '../ThemeScope';
+import { ThemeScope } from '#studio/systems';
 import { assetLink, systemAssets, type SystemAsset } from '../data/assets';
 
 function FontPreview({ asset }: { asset: SystemAsset }) {

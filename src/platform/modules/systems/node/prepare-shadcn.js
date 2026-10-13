@@ -47,7 +47,7 @@ function systemConfig(root, system, config) {
     aliases: {
       components: `${alias}/components`,
       ui: `${alias}/components`,
-      utils: '@/lib/utils',
+      utils: '#studio/runtime',
       lib: `${alias}/lib`,
       hooks: `${alias}/hooks`,
     },
@@ -154,7 +154,7 @@ export function prepareShadcn(root, system, { preset, base, components = [], des
           aliases: {
             components: '@/components',
             ui: '@/components/ui',
-            utils: '@/lib/utils',
+            utils: '@/utils',
             lib: '@/lib',
             hooks: '@/hooks',
           },
@@ -165,7 +165,7 @@ export function prepareShadcn(root, system, { preset, base, components = [], des
     );
     const theme = path.join(root, systemDirOf(root, system), 'styles/theme.css');
     if (fs.existsSync(theme)) write('src/index.css', '@import "tailwindcss";\n' + fs.readFileSync(theme, 'utf8'));
-    write('src/lib/utils.ts', 'export { cn } from "cn";\n');
+    write('src/utils.ts', 'export { cn } from "cn";\n');
     dependencies.cn = studio.dependencies.cn;
     write(
       'package.json',
@@ -255,7 +255,7 @@ export function prepareShadcn(root, system, { preset, base, components = [], des
     adaptations: [
       'Scope theme CSS and declare required tokens explicitly.',
       'Review all package dependencies, helper files, fonts, and icons.',
-      'Rewrite imports into the target system and contain portals.',
+      'Rewrite component imports into the target system, shared helpers to #studio/runtime, and contain portals.',
       'Document components and verify examples, modes, and a representative prototype.',
     ],
   };

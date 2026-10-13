@@ -92,8 +92,9 @@ export function editDeclaration(text, changes) {
 }
 
 // Prepare all reads before applying any changes. Same-folder renames prevent truncated files.
-export function applySetupChanges(changes) {
+export function applySetupChanges(changes, { beforeWrite, validateFile } = {}) {
   const unchanged = (file, content) => {
+    validateFile?.(file);
     if (!fs.lstatSync(file).isFile() || fs.readFileSync(file, 'utf8') !== content)
       throw new Error(`${file} changed. Review the setup plan again.`);
   };
@@ -111,26 +112,35 @@ export function applySetupChanges(changes) {
   }
   const applied = [];
   try {
-    for (const change of changes) {
+    for (const [index, change] of changes.entries()) {
+      beforeWrite?.(change, index);
       unchanged(change.file, change.before);
       atomicWrite(change.file, change.after);
       applied.push(change);
     }
   } catch (error) {
-    const failures = [];
+    const failures = [],
+      restored = [],
+      remaining = [];
     for (const change of applied.reverse()) {
       try {
         unchanged(change.file, change.after);
         atomicWrite(change.file, change.before);
+        restored.push(change.file);
       } catch (rollbackError) {
         failures.push(rollbackError);
+        remaining.push(change.file);
       }
     }
-    if (failures.length)
-      throw new AggregateError(
+    if (failures.length) {
+      const failure = new AggregateError(
         [error, ...failures],
         'Setup failed and some files could not be restored. Inspect the files before retrying.',
       );
+      Object.assign(failure, { restored, remaining });
+      throw failure;
+    }
+    Object.assign(error, { restored, remaining });
     throw error;
   }
 }

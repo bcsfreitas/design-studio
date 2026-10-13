@@ -6,7 +6,7 @@ The Documentation module owns the human Manual at `/documentation/manual`. The s
 
 Human chapters live in `src/platform/modules/documentation/pages/*.md`. Each requires `title` and numeric `order` frontmatter. Optional `description` supplies a summary; `section` groups navigation. The filename supplies its slug; `index.md` opens at the Manual root.
 
-The module scans its chapters through its optional `build.ts` ([build hook](../../context/modules.md#capability-files)), which supplies the manifest's Manual data, the folder the dev server watches, and the chapters the Documentation surface can edit.
+The module scans its canonical chapter folder through its optional `build.ts` ([build hook](../../context/modules.md#capability-files)), which supplies the manifest's Manual data, the folder the dev server watches, and the chapters the Documentation surface can edit. Discovery does not depend on module registry initialization.
 
 A capability chapter declares `module: <id>`. Discovery includes it only when the module is installed and enabled. Disabling or removing the capability preserves the chapter but hides its reading route, navigation, and search target. Unassociated chapters remain available while Manual is enabled.
 
@@ -14,7 +14,7 @@ Invalid metadata produces a local warning and fails strict builds. Source mode k
 
 ## Context and Skills sources
 
-The shared browser uses registered owners from the manifest: Platform and enabled modules. Each owner's README entry renders its canonical README when present; without one it displays discovered context and skills. Additional top-level module contracts remain accessible under that owner.
+The shared browser uses registered owners from the manifest: Platform and enabled modules. Navigation selects documents from each owner's catalog group, rather than directory ancestry. Each owner's README entry renders its canonical README when present; without one it displays discovered context and skills. Additional top-level module contracts remain accessible under that owner.
 
 The instruction browser has fixed Platform and Modules section headings. Each owner lists its README, context documents, and skill entry documents directly, without Context or Skills folder layers. Icons identify the source type. Document, Context, or Skill labels appear on hover or keyboard focus. Row backgrounds appear on hover or keyboard focus, and the selected document retains its background and distinct text styling. README stays explicitly named; other entries use human-readable names. Module branches collapse, remember choices while browsing, and open for the current document. One Search control filters owners, entries, types, and source paths. Matching branches open temporarily; clearing the search restores expansion choices.
 

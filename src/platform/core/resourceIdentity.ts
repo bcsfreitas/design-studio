@@ -58,46 +58,12 @@ export type IdentityMetadata = {
   write(source: string, id: ResourceId): string;
 };
 
-const checked = (values: string[]): ResourceId | null => {
+export const identityFromDeclarations = (values: readonly string[]): ResourceId | null => {
   if (values.length > 1) throw new Error('An artifact must declare its resource identity only once.');
   return values.length ? resourceId(values[0]) : null;
 };
 const bomOf = (source: string) => (source.startsWith('\uFEFF') ? '\uFEFF' : '');
 const newlineOf = (source: string) => (source.includes('\r\n') ? '\r\n' : '\n');
-
-// Identity is recognized only in the leading comment region, never in code strings.
-export const viewIdentity: IdentityMetadata = {
-  read(source) {
-    const header = /^\uFEFF?(?:\s|\/\*[\s\S]*?\*\/|\/\/[^\r\n]*)*/.exec(source)?.[0] ?? '';
-    const tags = [...header.matchAll(/@studio-id\b([^\r\n]*)/g)];
-    return checked(tags.map(match => /^\s+([^\s*]+)(?:\s*\*\/)?\s*$/.exec(match[1])?.[1] ?? ''));
-  },
-  write(source, id) {
-    resourceId(id);
-    const current = this.read(source);
-    if (current === id) return source;
-    if (current) return source.replace(/(@studio-id\s+)[^\s*]+/, `$1${id}`);
-    const bom = bomOf(source);
-    return `${bom}/** @studio-id ${id} */${newlineOf(source)}${source.slice(bom.length)}`;
-  },
-};
-
-export const diagramIdentity: IdentityMetadata = {
-  read(source) {
-    const header = /^\uFEFF?(?:\s|%%[^\r\n]*)*/.exec(source)?.[0] ?? '';
-    return checked(
-      [...header.replace(/^\uFEFF/, '').matchAll(/^[ \t]*%%\s*@studio-id\b([^\r\n]*)/gm)].map(match => match[1].trim()),
-    );
-  },
-  write(source, id) {
-    resourceId(id);
-    const current = this.read(source);
-    if (current === id) return source;
-    if (current) return source.replace(/(%%\s*@studio-id\s+)[^\r\n]+/, `$1${id}`);
-    const bom = bomOf(source);
-    return `${bom}%% @studio-id ${id}${newlineOf(source)}${source.slice(bom.length)}`;
-  },
-};
 
 function frontmatterRegion(source: string) {
   const opening = /^\uFEFF?---\r?\n/.exec(source);
@@ -115,7 +81,7 @@ export const markdownIdentity: IdentityMetadata = {
     const values = [...source.slice(region.start, region.end).matchAll(/^studioId:[ \t]*([^\r\n]*)/gm)].map(match =>
       match[1].trim().replace(/^(['"])(.*)\1$/, '$2'),
     );
-    return checked(values);
+    return identityFromDeclarations(values);
   },
   write(source, id) {
     resourceId(id);
@@ -156,7 +122,7 @@ export function jsonIdentity(source: string): ResourceId | null {
   return id === undefined ? null : resourceId(id);
 }
 
-export const canvasIdentity: IdentityMetadata = {
+export const jsonIdentityMetadata: IdentityMetadata = {
   read: jsonIdentity,
   write(source, id) {
     resourceId(id);

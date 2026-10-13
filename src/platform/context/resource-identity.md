@@ -4,6 +4,8 @@ description: Permanent source identities, filesystem parity, relationship resolu
 toc: true
 ---
 
+Format adapters belong to their modules: View's leading comments, Diagrams' Mermaid comments, and Canvas's JSON declaration. Generic platform identity operations use the adapter declared by each file type. The platform owns ID validation, unambiguous declaration validation, Markdown frontmatter, and generic JSON metadata.
+
 Design Studio uses source identities independent of location, ownership, and naming. This work preserves filesystem-based prototype authoring and system dependency contracts.
 
 ## Implemented foundation

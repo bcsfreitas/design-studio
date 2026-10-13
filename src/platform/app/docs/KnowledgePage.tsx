@@ -14,7 +14,7 @@ import SystemContentPage from '@/platform/modules/systems/content/SystemContentP
 import DocumentationHeader from './DocumentationHeader';
 import DocumentationNavItem from './DocumentationNavItem';
 import { markdownPath } from './referenceLinks';
-import { NotFound } from '@/platform/app/shell/App';
+import { NotFound } from '@/platform/app/shell/NotFound';
 
 const guidanceExpansion = new Map<string, boolean>();
 
@@ -86,12 +86,13 @@ export default function KnowledgePage() {
       manifest.systemContent.filter(p => p.owner && p.owner.kind !== 'system').map(p => [p.owner!.id, p.owner!]),
     ).values(),
   ];
-  const references = (root: string) =>
-    manifest.platformReferences.flatMap(g => g.references).filter(r => r.source.startsWith('/' + root.slice(4) + '/'));
   const ownerTree = (navOwner: (typeof owners)[number]) => {
     const ownerMatch =
       matches(navOwner.label) || matches(navOwner.root) || (navOwner.kind === 'module' && matches('Modules'));
-    const docs = references(navOwner.root).filter(r => ownerMatch || matches(r.title) || matches(r.source));
+    const groupId = navOwner.kind === 'platform' ? 'core' : navOwner.id.slice('module.'.length);
+    const docs = (manifest.platformReferences.find(group => group.id === groupId)?.references ?? []).filter(
+      r => ownerMatch || matches(r.title) || matches(r.source),
+    );
     const entries = manifest.systemContent
       .filter(proto => proto.owner?.id === navOwner.id)
       .flatMap(proto =>

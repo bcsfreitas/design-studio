@@ -89,7 +89,11 @@ test('prototype import allowlist includes its system and rejects unrelated local
       modules: [],
       prototypeDirs: [],
     });
-    guard.configResolved({ command: 'build' });
+    guard.buildStart.call({
+      error(message) {
+        throw new Error(message);
+      },
+    });
     for (const [target, allowed] of [
       ['src/systems/product/components/button/index.ts', true],
       ['src/lib/store.ts', true],
@@ -249,7 +253,7 @@ test('create and rename preserve addresses, file errors recover, and system remo
       // Exercise both shared-source handlers with current grants, including revocation.
       const configBeforePermissions = fs.readFileSync('studio.config.json', 'utf8');
       const permissionConfig = JSON.parse(configBeforePermissions);
-      fs.writeFileSync('contributors/permission-admin.json', JSON.stringify({ formatVersion: 1, studioId: createResourceId(), name: 'Permission Admin', email: '', github: '', welcomeDismissed: false }));
+      fs.writeFileSync('contributors/permission-admin.json', JSON.stringify({ formatVersion: 2, studioId: createResourceId(), name: 'Permission Admin', email: '', github: '', preferences: { onboarding: { welcomeDismissed: false } } }));
       permissionConfig.usage = 'team'; permissionConfig.admins = [JSON.parse(fs.readFileSync('contributors/permission-admin.json')).studioId];
       const ownerContributorIdentity = JSON.parse(fs.readFileSync('contributors/samples.json')).studioId;
       permissionConfig.systemMaintainers[defaultIdentity] = [ownerContributorIdentity];
@@ -262,13 +266,41 @@ test('create and rename preserve addresses, file errors recover, and system remo
       const documentationDenied = await sourceRequest('/documentation', {action:'write', path:'src/platform/README.md', content:'# Unauthorized'});
       assert.equal(documentationDenied.statusCode, 403);
       const themePath = 'src/systems/product/styles/theme.css';
-      const themeRead = await sourceRequest('/system-source', {action:'read', path:themePath});
+      const themeRead = await sourceRequest('/systems/source', {action:'read', systemId:defaultIdentity, path:'styles/theme.css'});
       assert.equal(themeRead.statusCode, 200);
       const theme = JSON.parse(themeRead.body);
-      const themeSaved = await sourceRequest('/system-source', {action:'write', path:themePath, base:theme.version, content:theme.content});
+      const themeSaved = await sourceRequest('/systems/source', {action:'write', systemId:defaultIdentity, path:'styles/theme.css', base:theme.version, content:theme.content});
       assert.equal(themeSaved.statusCode, 200, themeSaved.body);
+      const genericComponent = await sourceRequest('/op', {contributor:'systems', prototype:'product', op:'rename', path:'button', name:'unsafe-button'});
+      assert.equal(genericComponent.statusCode, 400);
+      assert.ok(!fs.existsSync('src/systems/product/components/unsafe-button'));
+      fs.renameSync(themePath, themePath + '.ordinary'); fs.symlinkSync(path.basename(themePath) + '.ordinary', themePath);
+      try { assert.equal((await sourceRequest('/systems/source', {action:'read', systemId:defaultIdentity, path:'styles/theme.css'})).statusCode, 404); }
+      finally { fs.unlinkSync(themePath); fs.renameSync(themePath + '.ordinary', themePath); }
+
+      const conflict = await sourceRequest('/systems/source', {action:'write', systemId:defaultIdentity, path:'styles/theme.css', base:'stale', content:theme.content});
+      assert.equal(conflict.statusCode, 409);
+      const escape = await sourceRequest('/systems/source', {action:'read', systemId:defaultIdentity, path:'../marketing/system.ts'});
+      assert.equal(escape.statusCode, 400);
+      const stale = await sourceRequest('/systems/source', {action:'read', systemId:createResourceId(), path:'styles/theme.css'});
+      assert.equal(stale.statusCode, 404);
+      const marketingFile = 'src/systems/marketing/system.ts';
+      const marketingSource = fs.readFileSync(marketingFile, 'utf8');
+      const marketingIdentity = readDeclaration(marketingSource).value.studioId;
+      fs.writeFileSync(marketingFile, marketingSource.replace(/status: ["']active["']/, 'status: "archived"'));
+      assert.equal(readDeclaration(fs.readFileSync(marketingFile, 'utf8')).value.status, 'archived');
+      try { assert.equal((await sourceRequest('/systems/source', {action:'write', systemId:marketingIdentity, path:'styles/theme.css', content:'Unauthorized', base:'stale'})).statusCode, 404); }
+      finally { fs.writeFileSync(marketingFile, marketingSource); }
+
+      const skillMade = await sourceRequest('/systems/skill', {systemId:defaultIdentity, name:'beta-owned-skill', description:'Check the Systems route.'});
+      assert.equal(skillMade.statusCode, 200, skillMade.body);
+      assert.ok(JSON.parse(skillMade.body).manifest.systemContent.some(p => p.artifacts?.some(i => i.path === 'beta-owned-skill/SKILL.md')));
+      const docsMade = await sourceRequest('/systems/component-docs', {systemId:defaultIdentity, component:'button'});
+      assert.equal(docsMade.statusCode, 200, docsMade.body);
+      const inventory = JSON.parse(docsMade.body).manifest;
+      assert.ok(inventory.systems.product);
       permissionConfig.systemMaintainers[defaultIdentity] = []; writePermissionConfig();
-      const themeDenied = await sourceRequest('/system-source', {action:'write', path:themePath, base:theme.version, content:theme.content});
+      const themeDenied = await sourceRequest('/systems/source', {action:'write', systemId:defaultIdentity, path:'styles/theme.css', base:theme.version, content:theme.content});
       assert.equal(themeDenied.statusCode, 403);
       fs.writeFileSync('studio.config.json', configBeforePermissions); fs.unlinkSync('contributors/permission-admin.json');
 
