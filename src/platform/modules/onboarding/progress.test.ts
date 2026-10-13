@@ -8,6 +8,7 @@ import { claimWelcome } from './node/progress.js';
 import server from './server.ts';
 import { contributorPreferenceProblems } from '../../core/modules/preferences.ts';
 import { readContributors } from '../../node/lib/contributors.js';
+import { writeProfiles } from '../../node/lib/fixtures/contributors.js';
 import onboarding from './module.ts';
 const check = ({ root }: { root: string }) =>
   contributorPreferenceProblems(readContributors(root).contributors, [onboarding]);
@@ -66,36 +67,27 @@ const fixture = (t: { after: (fn: () => void) => void }) => {
     path.join(root, 'studio.config.json'),
     JSON.stringify({ ...JSON.parse(fs.readFileSync('studio.config.json', 'utf8')), modules: { onboarding: true } }),
   );
-  fs.writeFileSync(
-    path.join(root, 'contributors/owner.json'),
-    JSON.stringify({ name: 'Owner', extra: 'keep', preferences: { onboarding: { welcomeDismissed: false } } }),
-  );
-  fs.writeFileSync(
-    path.join(root, 'contributors/newcomer.json'),
-    JSON.stringify({
-      name: 'Newcomer',
-      email: 'new@example.test',
-      custom: { keep: true },
-      preferences: { onboarding: { welcomeDismissed: false } },
-    }),
-  );
+  writeProfiles(root, {
+    owner: { name: 'Owner', extra: 'keep' },
+    newcomer: { name: 'Newcomer', email: 'new@example.test', custom: { keep: true } },
+  });
   return root;
 };
 
 test('each contributor gets Welcome once and keeps their own progress across restarts', t => {
   const root = fixture(t);
+  const beforeOwner = JSON.parse(fs.readFileSync(path.join(root, 'contributors/owner.json'), 'utf8'));
+  const beforeNewcomer = JSON.parse(fs.readFileSync(path.join(root, 'contributors/newcomer.json'), 'utf8'));
   assert.equal(claimWelcome(root, 'owner'), true);
   assert.equal(claimWelcome(root, 'owner'), false);
   assert.equal(claimWelcome(root, 'newcomer'), true);
   assert.equal(claimWelcome(root, 'newcomer'), false);
   assert.deepEqual(JSON.parse(fs.readFileSync(path.join(root, 'contributors/newcomer.json'), 'utf8')), {
-    name: 'Newcomer',
-    email: 'new@example.test',
-    custom: { keep: true },
+    ...beforeNewcomer,
     preferences: { onboarding: { welcomeDismissed: true } },
   });
   const owner = JSON.parse(fs.readFileSync(path.join(root, 'contributors/owner.json'), 'utf8'));
-  assert.deepEqual(owner, { name: 'Owner', extra: 'keep', preferences: { onboarding: { welcomeDismissed: true } } });
+  assert.deepEqual(owner, { ...beforeOwner, preferences: { onboarding: { welcomeDismissed: true } } });
   const other = fixture(t);
   assert.equal(claimWelcome(other, 'owner'), true);
 });
@@ -128,7 +120,8 @@ test('progress preserves other roster entries and honors explicit false', t => {
 test('invalid, unknown and linked profiles are preserved', t => {
   const root = fixture(t);
   const file = path.join(root, 'contributors/newcomer.json');
-  fs.writeFileSync(file, '{"name":"Newcomer","preferences":{"onboarding":{"welcomeDismissed":"yes"}}}');
+  const valid = JSON.parse(fs.readFileSync(file, 'utf8'));
+  fs.writeFileSync(file, JSON.stringify({ ...valid, preferences: { onboarding: { welcomeDismissed: 'yes' } } }));
   assert.throws(() => claimWelcome(root, 'newcomer'), /as boolean/);
   assert.match(fs.readFileSync(file, 'utf8'), /"yes"/);
   assert.throws(() => claimWelcome(root, '../elsewhere'), /Invalid contributor/);
@@ -188,12 +181,14 @@ test('missing declarations fail validation and runtime without changing the prof
   const root = fixture(t);
   assert.deepEqual(check({ root }), []);
   const file = path.join(root, 'contributors/newcomer.json');
-  const source = '{"name":"Newcomer"}';
+  const valid = JSON.parse(fs.readFileSync(file, 'utf8'));
+  const { preferences, ...identity } = valid;
+  const source = JSON.stringify(identity);
   fs.writeFileSync(file, source);
   assert.match(check({ root }).join(' '), /newcomer.*declare a preference object/);
-  assert.throws(() => claimWelcome(root, 'newcomer'), /declare a preference object/i);
+  assert.throws(() => claimWelcome(root, 'newcomer'), /declare preferences as module namespace objects/i);
   assert.equal(fs.readFileSync(file, 'utf8'), source);
-  fs.writeFileSync(file, '{"name":"Newcomer","preferences":{"onboarding":{"welcomeDismissed":true}}}');
+  fs.writeFileSync(file, JSON.stringify({ ...valid, preferences: { onboarding: { welcomeDismissed: true } } }));
   assert.deepEqual(check({ root }), []);
   assert.equal(claimWelcome(root, 'newcomer'), false);
 });

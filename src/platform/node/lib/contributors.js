@@ -24,7 +24,7 @@ export function contributorProfileProblems(
 ) {
   const problems = [];
   if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
-    problems.push(`${file} should be { "name": ..., "github": ..., "email": ... }.`);
+    problems.push(`${file} must be an object with name, github, and email declarations.`);
     return problems;
   }
   const version = formatVersionProblem(entry.formatVersion, 'contributor', `${file}`);
