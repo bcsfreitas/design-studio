@@ -43,7 +43,7 @@ All platform knowledge and requirements live together in `context/`:
 - [Setup contributor](skills/setup-contributor/SKILL.md): join an existing studio.
 - [Manage modules](skills/manage-modules/SKILL.md): install or change capability availability.
 - [Maintain context](skills/maintain-context/SKILL.md): author shared knowledge and procedures.
-- [Maintain documentation](skills/maintain-documentation/SKILL.md): revise READMEs, coordinate Manual updates, and audit consistency.
+- [Maintain documentation](skills/maintain-documentation/SKILL.md): revise READMEs, coordinate Manual updates, and audit relevance and consistency with subtraction first.
 - [Check design system](skills/check-design-system/SKILL.md): review a surface against its applicable design system using source checks and rendered evidence.
 
 ## Maintain the instruction set
