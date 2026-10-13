@@ -30,7 +30,7 @@ A prototype imports only React and React DOM by package name. Icons come from th
 
 Keep experiments local until an authorized shared change moves them into the system.
 
-After writing new prototype artifact files directly, run `pnpm studio identify src/prototypes/<key>/<prototype> --json` to preview missing identity assignments, then `--yes` to apply. Preserve existing identity metadata when editing. System context and helpers do not need artifact IDs.
+For new directly authored artifacts, preview and apply [identity assignment](../../../../context/resource-identity.md#direct-authoring-and-verification). Preserve existing identity metadata when editing.
 
 ## Verify and save
 

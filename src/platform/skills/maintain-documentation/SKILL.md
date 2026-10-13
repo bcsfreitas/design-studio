@@ -1,6 +1,6 @@
 ---
 name: maintain-documentation
-description: "Revise owner READMEs, coordinate Manual updates, or audit consistency across contracts, context, and skills after platform changes. Use maintain-context to author context or task procedures."
+description: "Revise owner READMEs, coordinate Manual updates, or audit relevance and consistency across contracts, context, and skills. Use maintain-context to author context or task procedures."
 ---
 
 ## Establish scope
@@ -20,6 +20,12 @@ Identify the audience, requested outcome, and affected behavior. Preserve curren
 5. Check metadata, local links, anchors, optional-module conditions, and rendered content. Run repository checks appropriate to the changes.
 
 For an audit, report actionable findings with file locations and recommended corrections. Do not imply that an audit request authorizes unrelated implementation.
+
+## Refine by subtraction
+
+For each rule or passage, ask what meaningful decision it changes and whether code, types, command help, or another authoritative source answers it more reliably. Recommend remove, simplify, or keep, with evidence. Prefer conditional task reads over universal obligations.
+
+Preserve product intent, unusual constraints, and behavioral guarantees that code alone does not explain. Keep historical evidence clearly separate from current instructions. Distinguish stored reference material from required task reading; do not remove useful reference merely to reduce its size or claim performance gains without measurement.
 
 ## Agent guidance
 

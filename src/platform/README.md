@@ -43,7 +43,7 @@ All platform knowledge and requirements live together in `context/`:
 - [Setup contributor](skills/setup-contributor/SKILL.md): join an existing studio.
 - [Manage modules](skills/manage-modules/SKILL.md): install or change capability availability.
 - [Maintain context](skills/maintain-context/SKILL.md): author shared knowledge and procedures.
-- [Maintain documentation](skills/maintain-documentation/SKILL.md): revise READMEs, coordinate Manual updates, and audit consistency.
+- [Maintain documentation](skills/maintain-documentation/SKILL.md): revise READMEs, coordinate Manual updates, and audit relevance and consistency with subtraction first.
 - [Check design system](skills/check-design-system/SKILL.md): review a surface against its applicable design system using source checks and rendered evidence.
 
 ## Maintain the instruction set
@@ -58,7 +58,7 @@ Use existing commands for repeatable mechanics and skills for decisions and outc
 
 ## Implementation
 
-The [artifact service architecture](context/artifact-services-proposal.md) records the approved Systems routes, shared reference resolution, and presentation host boundaries.
+[Systems routes](modules/systems/README.md#local-owner-routes), [artifact resolution and hosting](context/file-types.md#artifact-resolution-and-host-declarations), and [Canvas hosting](modules/canvas/README.md#shared-artifact-host) define their respective service boundaries.
 
 `api/` is the public API that team modules and systems import as `#studio/*` ([Public API](context/modules.md#public-api)). `core/` holds shared APIs and runtime boundaries. `app/` holds the application shell and shared readers. `systems/` is the supplied system root; it holds [Studio's own interface system](systems/studio/README.md), while the team's systems live in `src/systems/`. `modules/` is the supplied module root; it holds the [modules](modules/README.md) the starter ships, while the team's own live in `src/modules/`. Markdown knowledge lives in Context; task procedures live in Skills.
 

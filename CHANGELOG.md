@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Platform context removes stale declarations, completed implementation plans, and duplicate architecture guidance. Agent skills select task-relevant contracts, with canonical identity procedures and portable publishing guidance. Preservation, authorization, API behavior, and verification requirements remain unchanged.
+
 - The API foundations refactor is closed. Preference writes use validated data snapshots without invoking accessors; declaration caches use physical file identity and isolated snapshots; asset subscribers fail independently, and each reader receives an independent copy. Deferred performance work and stopping criteria are recorded in the maintainer backlog.
 
 - Modules declare preference schemas and registration defaults. Contributor format version 2 stores module namespaces; authorized, versioned transactions preserve identity and unrelated data. Saved initialization plans transition retained profiles and prepare newly enabled modules. The updater does not initialize or rewrite profiles.

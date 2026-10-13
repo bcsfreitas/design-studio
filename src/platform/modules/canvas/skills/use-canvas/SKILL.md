@@ -31,13 +31,9 @@ Use `describe` before and after changes. For live tools, use `context` when the 
 
 Prefer tools over manual JSON edits. They maintain element bindings and versions. Use `point` to identify an artifact when live access supports it.
 
-Create a canvas through the file menu or write this empty scene:
+Canvas tools edit existing scenes. Create a canvas through the file menu, or use the empty-scene `template` from this module's [file-type declaration](../../type.ts) for direct authoring.
 
-```json
-{"type":"excalidraw","version":2,"studioVersion":1,"elements":[],"appState":{"viewBackgroundColor":"#ffffff"},"files":{}}
-```
-
-After writing new prototype artifact files directly, run `pnpm studio identify src/prototypes/<key>/<prototype> --json` to preview missing identity assignments, then `--yes` to apply. Preserve existing identity metadata when editing. System context and helpers do not need artifact IDs.
+For new directly authored artifacts, preview and apply [identity assignment](../../../../context/resource-identity.md#direct-authoring-and-verification). Preserve existing identity metadata when editing.
 
 ## Verify
 

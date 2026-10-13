@@ -22,21 +22,17 @@ Checks help keep the shared studio consistent. Give your agent the warning or er
 | GitHub pull request | Scope review, asset sizes, selected regressions, production build, and the upgrade test. Platform proposals are flagged for review. |
 | Push to `main` | Scope authorization, asset sizes, selected regressions, and production build. Platform changes require an admin or maintainer role. |
 
-Ordinary builds use the same command in source clones and packaged studios. Publishing does not rerun maintainer regressions. The upstream **Checks and deployment** workflow (`.github/workflows/checks.yml`) runs **Selected regressions**, **Production build**, and `scope` concurrently; its required `build` check succeeds only when production and regressions pass, and the upgrade job passes for upstream pull requests. A failed, cancelled, or skipped required upgrade fails the gate. Pushes and downstream copies explicitly allow the intentionally omitted upgrade job. An authoring-only regression job succeeds after reporting that no platform tests are needed. The `scope` check remains independently required. A separate publishing workflow runs after successful upstream `main` checks and triggers the creator’s website deployment, which includes the public demo. This repository does not deploy its own Pages site. The required check names `scope` and `build` remain stable. Copies choose their own CI and publishing policy.
+Ordinary builds use the same command in source clones and installed studios. Publishing does not rerun maintainer regressions. CI requires `scope` and `build`; the latter includes selected regressions, production compilation, and upgrade acceptance for upstream pull requests. A failed, cancelled, or unexpectedly skipped required job fails the gate. Copies choose their own CI and publishing policy.
 
-The **Upgrade test** job exercises `pnpm studio update`, including dry-run and `--continue`, in separate fixture repositories. It preserves complete seed/team bytes and deletions, capability receipts, a root dependency, workspace system dependencies, binary content, and generated instructions. It verifies the exact release stamp and merge parents without changing the original branch or local tags. A real upstream conflict stops for review; a failed module check reports a committed update requiring repair. Frozen installation, synchronization, checks, and production compilation pass on the successful result.
+The [checks workflow](../../../.github/workflows/checks.yml) defines job dependencies. [Releasing](releasing.md) owns candidate acceptance; [project publishing](../../../CONTRIBUTING.md#project-repository-publishing) owns this repository's deployment.
 
-The `--from v0.3.0 --repair-runtime` rehearsal verifies preservation before explicitly applying a saved [runtime import repair](runtime-import-repair.md) plan. Customized helpers and ambiguous imports stop for manual resolution. Only planned bytes change, the second preview is empty, and the repaired studio passes frozen installation, checks, and production compilation. Use `--keep` for browser acceptance of retained empty views and themed overlays.
-
-Before public launch, both synthetic releases use the candidate foundation. After a supported public tag exists, CI also rehearses from that tag’s source. Historical pre-release tags are excluded. The required gate’s actual shell script has regression cases for success, failure, cancellation, and intentional omission. Main’s existing protected check names remain `scope` and `build`.
-
-Keep tests for failure-prone behavior and boundaries. Use synthetic fixtures instead of asserting the starter's sample content or visual token choices. Production integration tests end in `.integration.test.js` and run in the release tier. Optional module tests disappear with their module; plugin tests run only when the distribution source is present.
+Keep tests for failure-prone behavior and boundaries. Use synthetic fixtures instead of asserting the starter's sample content or visual token choices. Production integration tests end in `.integration.test.js` and run in the release tier. Optional module tests disappear with their module.
 
 See [Personal & team use](/documentation/manual/team) for how these checks fit the workflow. Configure branch protection and required checks to enforce the team's merge policy.
 
 ## Ownership map
 
-In a studio, any tracked path the map does not name is the team's own: `pnpm check`, `pnpm build`, and `pnpm ownership` list it and pass, so a team can add top-level files without editing `.studio/ownership.json`. They fail when two rules of different tiers claim a path equally or when the map cannot be read, since only upstream edits the map. The upstream project is stricter, as it is for `pnpm contract`: its CI `scope` job runs `pnpm ownership --strict`, which also fails on an unnamed path, and the upstream regression suite tests the same. A folder that is not a Git checkout skips the check in `pnpm check`. The mixed files, which today are only `package.json`, are listed and do not fail. This check reads the map and the tracked paths, not the contributor, so the personal-studio skip below applies to the contributor scope check only. See [Ownership and updates](ownership.md).
+See [Ownership and updates](ownership.md#path-map) for path tiers, unlisted files, and strict upstream validation. This check reads tracked paths and the ownership map, independently of contributor scope. A non-Git folder skips it.
 
 ## Platform contract
 
@@ -52,7 +48,7 @@ Upstream CI runs the released comparison and PR report. The release command runs
 
 ## Minimum sufficient verification
 
-Choose checks by changed behavior and dependencies. Do not rerun unrelated setup or distribution tests for ordinary authoring. Scope, ownership, permanent identity, asset sizes, harness consistency, metadata, dependency boundaries, types, production compilation, and output inspection remain required in CI. Tests and the production build run concurrently; deployment reuses that build output.
+Choose checks by changed behavior and dependencies. Do not rerun unrelated setup or production integration tests for ordinary authoring. Scope, ownership, permanent identity, asset sizes, harness consistency, metadata, dependency boundaries, types, production compilation, and output inspection remain required in CI. Tests and the production build run concurrently; deployment reuses that build output.
 
 The reviewed dependency map is `src/platform/node/check/test-groups.json`. Each retained test belongs to a group. `src/platform/node/check/test-selection.js` follows local transitive imports and supplements them with explicit source patterns for subprocesses, fixture reads, and globs. Patterns describe dependencies, not just the folder containing a test.
 
@@ -61,7 +57,6 @@ The reviewed dependency map is `src/platform/node/check/test-groups.json`. Each 
 | Runtime | Platform/module behavior, Studio UI, identity, permissions, source editing, and documentation readers. Platform, module, build, and shared script implementation selects this group. |
 | Setup | Configuration, onboarding, registration, system creation, and scoped identity CLI authoring. Shared core declarations, setup helpers, CLI code, and relevant module Node implementations select this group. |
 | Publishing | Disposable production builds verify runtime boundaries and disabled-capability exclusion. Build machinery, routing, shared core declarations, module registration, and source discovery select this group. |
-| Distribution | Plugin bootstrap, packaging, manifests, toolchain, and benchmark tooling. Plugin machinery and shared harness/skill inputs select this group. |
 
 Prototype content, non-Studio system content, contributor profiles, and public assets need production checks, without rerunning platform regressions. Studio's own system (`src/platform/systems/studio/`) is application code and selects runtime tests. Mixed changes take the union of affected groups. Both paths of renames participate. Removed non-authoring files, unknown paths, unclassified tests, dependencies, infrastructure, configuration, and selection machinery trigger the full suite. Missing or invalid Git comparison data also triggers the full suite. An empty retained test inventory fails verification.
 
@@ -69,7 +64,7 @@ Use `pnpm test:changed <base> <head> --plan-only` to inspect the same decision l
 
 CI reports the groups, test-file count, and path reasons in the run summary. It plans before installing dependencies and skips regression dependency installation when no group is selected. The required names `scope` and `build` stay stable. A selector failure blocks the regression job and deployment rather than counting as an intentional omission.
 
-When adding tests, register their group and review transitive and indirect dependencies. Unknown tests run in the full suite until classified. Optional module and plugin removal removes their absent tests from discovery. Verify the selector with authoring, platform, shared helper, setup, packaging, rename, unknown, and failure cases when changing its rules. Measure CI timing after rollout; local timing does not establish provider queue or hosting latency.
+When adding tests, register their group and review transitive and indirect dependencies. Unknown tests run in the full suite until classified. Optional module removal removes its absent tests from discovery. Verify the selector with authoring, platform, shared helper, setup, packaging, rename, unknown, and failure cases when changing its rules. Measure CI timing after rollout; local timing does not establish provider queue or hosting latency.
 
 ## Respond to a check
 
@@ -94,10 +89,8 @@ Follow the guard’s linked guidance to reduce a flagged asset before committing
 
 This setup is the studio maintainer's responsibility.
 
-Personal studios skip team ownership checks, using the before-side configuration. Declaration, dependency, and asset checks still run. A proposed switch from team to personal cannot bypass team review.
+[Contributor scope](contributor-scope.md) defines authority and before-side review rules. Personal use skips team scope checks, but declaration, dependency, asset, and permanent-identity checks still apply. A proposed usage or grant change cannot authorize itself.
 
-Resource identity checks run before that personal-mode exception. They inspect committed trees or staged blobs rather than trusting the working tree. Permanent IDs cannot be replaced or removed in place, retained prototype owners cannot change through a source edit, and an identified artifact cannot transfer between prototypes without an explicit transfer policy. Moves within the same prototype and fresh identities for copies are supported. Identity errors fail CI even when platform review is requested; local hooks report them for correction.
-
-Pull requests in team studios run checks and flag changes outside the contributor’s assigned scope for review. Direct pushes accept prototype ownership, assigned active system work, and studio Admin authority from the before-side configuration and profiles. Proposed identity or grant changes cannot authorize themselves. Repository `admin` and `maintain` accounts can also make shared changes.
+Identity checks inspect staged or committed source and protect [retained identities and containment](resource-identity.md#direct-authoring-and-verification). Identity errors fail CI even for reviewed proposals; local hooks report them for correction.
 
 These checks do not prevent an unauthorized Git push by themselves. Configure GitHub branch protection, required checks, and the team's review process.

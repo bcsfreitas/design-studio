@@ -8,7 +8,7 @@ Publish when people need a shared viewing URL. The studio maintainer chooses the
 
 ## What the build provides
 
-Use Node 24 and pnpm 12, as declared in `mise.toml` and `package.json`. Run `pnpm install --frozen-lockfile`, then `pnpm build`. This validates the manifest, module boundaries, types, and production compilation and writes a static site to `dist/`. Tests are separate: `pnpm test:changed <base> <head>` runs groups selected by the [verification policy](checks.md#minimum-sufficient-verification); `pnpm test` is the focused development suite; `pnpm build:release` adds the full maintainer regressions. The site includes active prototypes, design-system pages, the system context, and the Manual when enabled.
+Use the toolchain declared in `mise.toml` and `package.json`. Run `pnpm install --frozen-lockfile`, then `pnpm build`. This validates the manifest, module boundaries, types, and production compilation and writes a static site to `dist/`. Tests are separate: `pnpm test:changed <base> <head>` runs groups selected by the [verification policy](checks.md#minimum-sufficient-verification); `pnpm test` is the focused development suite; `pnpm build:release` adds the full maintainer regressions. The site includes active prototypes, design-system pages, the system context, and the Manual when enabled.
 
 Archived prototypes are excluded from the production build. Individual items cannot be archived. Archive content you want to keep locally without including it in the site.
 
@@ -21,10 +21,6 @@ Archived prototypes are excluded from the production build. Individual items can
 Interactive views still run in the browser. The published site does not provide a shared editing backend or an agent service.
 
 ## Choose a deployment process
-
-The ongoing public demo is included in the creator’s website deployment on GitHub Pages at [itspatmorgan.com/design-studio-demo](https://itspatmorgan.com/design-studio-demo/). ChatGPT Sites demonstrates and validates an optional publishing workflow; it does not replace that public demo. Real teams can use Vercel, Cloudflare, Netlify, or their existing static hosting infrastructure. The host changes deployment, access and caching configuration; it does not change Studio's local authoring model or require a separate application architecture.
-
-For a Sites publishing demonstration, use a clone containing approved learning examples. When your agent has native Sites tools, publish the local studio through the Sites source workflow. Preserve the exact Site project identity in `.openai/hosting.json`, retain Git release ancestry, and use the studio's pinned mise environment for source commits, hooks and `pnpm build`. Configure static output as `dist` and `not_found_handling: "single-page-application"`; the demo's root-origin build uses `/`. Native Sites registration starts private. Set public access only for an authorized public demo; preserve the audience when updating. Save the matching source commit and build archive, deploy that saved version, and require a successful native deployment result. An expected URL or saved version alone is not publication. Republish updates to the same project and verify the viewer's direct links and assets.
 
 The platform provides a portable static build. Configure a publishing workflow for the chosen host. Document repository-specific deployment configuration in its maintainer guidance. This project’s configuration is in [Contributing](../../../CONTRIBUTING.md#project-repository-publishing).
 
@@ -73,8 +69,6 @@ Configure caching at the chosen host:
 | Other public files | Choose a policy for their actual update frequency. |
 
 Publish complete output atomically when supported. Retain previous hashed assets during rollout when the host allows it. Do not return HTML for missing asset URLs; use the app fallback only for application routes.
-
-Sites' static SPA fallback also returns HTML with HTTP 200 for missing asset URLs. Treat this as a provider limitation when evaluating a deployment. Verify that every referenced asset loads, check browser errors, and test direct-link reloads after publication. Hosts with configurable rewrite rules should preserve asset 404 responses.
 
 The production page installs recovery before its entry module loads. A missing entry or lazy chunk can trigger one refresh with a cache-busting query while preserving the route, search, and hash. Retries are bounded for one minute, including when browser storage is unavailable. Offline failures do not trigger automatic refresh. Recovery helps with replaced assets but does not repair a missing upload or incorrect base path. Hosts with a Content Security Policy must allow the generated inline bootstrap, for example through its hash.
 

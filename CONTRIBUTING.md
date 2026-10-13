@@ -33,7 +33,9 @@ Use fictional sample data. Do not commit credentials, local environment files, p
 
 The ongoing [public demo](https://itspatmorgan.com/design-studio-demo/) is included in the GitHub Pages deployment of `itspatmorgan/itspatmorgan.github.io`. The website's `/design-studio/` product page and `/design-studio-demo/` interactive demo are separate paths. This source repository does not deploy its own Pages site.
 
-An isolated ChatGPT Sites fixture validates the optional publishing workflow with approved learning examples. Native Sites updates reuse that fixture's project identity and URL.
+An isolated ChatGPT Sites fixture validates the optional publishing workflow with approved learning examples. Native Sites updates reuse that fixture's project identity in `.openai/hosting.json` and its URL. Use native Sites tools with static output `dist`, SPA fallback, and the root base path. Retain release ancestry and use the pinned mise environment. Deploy the saved source commit and matching build archive, and verify a successful native deployment result and the actual viewer. Set public access only when authorized; preserve the audience on updates.
+
+The fixture's SPA fallback returns HTML with HTTP 200 for missing assets. Verify referenced assets, browser errors, and direct-link reloads after publication. This provider behavior does not replace the portable [hosting requirements](src/platform/context/publishing.md#serve-updates-reliably).
 
 For any host, install with Node 24 and pnpm 12, run `pnpm build`, and publish `dist/`. Use `pnpm test` for focused regressions or `pnpm build:release` for full release verification. `pnpm build:inspect` reports startup asset size and requests. Your chosen host owns routing, caching, access, and deployment configuration.
 
