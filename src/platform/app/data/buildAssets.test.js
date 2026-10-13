@@ -103,3 +103,50 @@ test('reconnect also supersedes failed in-flight requests', async t => {
   assert.deepEqual(await old, current);
   await assert.rejects(api.loadModuleAsset('disabled', 'report'), error => error.code === 'unavailable_asset');
 });
+
+test('each asset reader gets an independent deep copy while requests stay shared', async t => {
+  let calls = 0;
+  const value = { items: [{ label: 'original' }], nested: { keep: true } };
+  const api = await client(t, () => {
+    calls++;
+    return value;
+  });
+  const [first, second] = await Promise.all([
+    api.loadModuleAsset('team', 'report'),
+    api.loadModuleAsset('team', 'report'),
+  ]);
+  assert.notEqual(first, second);
+  first.items[0].label = 'changed';
+  first.items.push({ label: 'added' });
+  first.nested.keep = false;
+  assert.deepEqual(second, value);
+  assert.deepEqual(await api.loadModuleAsset('team', 'report'), value);
+  assert.equal(calls, 1);
+});
+
+test('failing subscribers cannot block healthy owners on watch changes or reconnects', async t => {
+  const errors = [];
+  t.mock.method(console, 'error', (...args) => errors.push(args));
+  const api = await client(t, () => ({ ready: true }));
+  let sameOwner = 0,
+    otherOwner = 0;
+  api.subscribeModuleAsset('team', 'report', () => {
+    throw new Error('sync failure');
+  });
+  api.subscribeModuleAsset('team', 'report', async () => {
+    throw new Error('async failure');
+  });
+  api.subscribeModuleAsset('team', 'report', () => sameOwner++);
+  api.subscribeModuleAsset('other', 'report', () => otherOwner++);
+  assert.doesNotThrow(() => api.emit('vite:ws:connect'));
+  await Promise.resolve();
+  assert.equal(sameOwner, 1);
+  assert.equal(otherOwner, 1);
+  assert.equal(errors.length, 2);
+  assert.doesNotThrow(() => api.emit('studio:asset', { key: 'team/report' }));
+  await Promise.resolve();
+  assert.equal(sameOwner, 2);
+  assert.equal(otherOwner, 1);
+  assert.equal(errors.length, 4);
+  assert.ok(errors.every(args => args[0].includes('team/report')));
+});

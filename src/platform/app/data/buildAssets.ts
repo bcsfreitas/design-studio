@@ -9,7 +9,7 @@ export async function loadModuleAsset<T = unknown>(module: string, asset: string
   const key = module + '/' + asset,
     url = assets[key];
   if (!url) throw new ClientError('unavailable_asset', `Build asset ${key} is unavailable.`);
-  return (await cache.read(key)) as T;
+  return structuredClone(await cache.read(key)) as T;
 }
 export function subscribeModuleAsset(module: string, asset: string, listener: () => void): () => void {
   const key = module + '/' + asset;
@@ -21,15 +21,26 @@ export function subscribeModuleAsset(module: string, asset: string, listener: ()
     if (!set.size) listeners.delete(key);
   };
 }
+function notifySubscribers(key: string, subscribers: Set<() => void>) {
+  const failed = (error: unknown) => console.error(`Build asset ${key} subscriber failed.`, error);
+  for (const notify of [...subscribers]) {
+    try {
+      void Promise.resolve(notify()).catch(failed);
+    } catch (error) {
+      failed(error);
+    }
+  }
+}
 if (import.meta.hot) {
   const changed = ({ key }: { key: string }) => {
     cache.invalidate(key);
-    listeners.get(key)?.forEach(notify => notify());
+    const subscribers = listeners.get(key);
+    if (subscribers) notifySubscribers(key, subscribers);
   };
   const connected = () => {
     // Custom watch events are not replayed after a disconnected socket.
     cache.invalidateAll();
-    listeners.forEach(subscribers => subscribers.forEach(notify => notify()));
+    for (const [key, subscribers] of [...listeners]) notifySubscribers(key, subscribers);
   };
   import.meta.hot.on('studio:asset', changed);
   import.meta.hot.on('vite:ws:connect', connected);
