@@ -21,7 +21,7 @@ This skill applies to prototype Markdown when Documents is enabled. Format and r
 
 Write the file directly for the person. The local app discovers it and reflects edits.
 
-After writing new prototype artifact files directly, run `pnpm studio identify src/prototypes/<key>/<prototype> --json` to preview missing identity assignments, then `--yes` to apply. Preserve existing identity metadata when editing. System context and helpers do not need artifact IDs.
+For new directly authored artifacts, preview and apply [identity assignment](../../../../context/resource-identity.md#direct-authoring-and-verification). Preserve existing identity metadata when editing.
 
 ## Verify
 

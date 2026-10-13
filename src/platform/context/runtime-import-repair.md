@@ -174,21 +174,6 @@ import { cn, teamDensity } from '@/lib/utils';
 
 The diagnostic is `unsupported-export` at `teamDensity`. No diff is offered for this file. Preserve the custom helper in a team-owned location, update its consumer manually, then preview again. A namespace import or a customized legacy helper receives the same conservative treatment with its own reason code.
 
-## Ordered implementation and acceptance criteria
-
-Each step removes duplication or establishes one reusable boundary. Do not proceed past a failed acceptance criterion.
-
-| Step | Work | Acceptance criteria |
-| --- | --- | --- |
-| 1 | Define the fixed migration inventory and pure planner. | All four mappings above have fixtures. Aliased imports, re-exports, relative paths, BOM, CRLF, and comments preserve all unrelated bytes. No template replacement or whole-file formatting. Unknown constructs and customized helpers produce located manual diagnostics. |
-| 2 | Add preview CLI and saved-plan validation before runtime bootstrap. | Preview works with obsolete imports and a missing runtime manifest. Default and JSON output agree. No repository or Git mutation occurs. Output refuses overwrite. Malformed or tampered plans and unsupported selections fail clearly. |
-| 3 | Connect existing ownership, identity, permission, safe-path, and API policy. | Own-prototype and assigned-maintainer repairs succeed; another contributor's source and revoked grants fail. Both unchanged and customized seeds receive protection. Missing assignment/identity authority, disabled View, and invalid runtime destinations block application. No duplicate permission or environment tables. |
-| 4 | Apply reviewed edits using the shared transaction writer. | Stale bytes, mode, HEAD, authority inputs, added candidates, and destination inputs produce zero writes. Dirty targets, symlinks, hard links, traversal, duplicate paths, and forged out-of-scope changes fail. Injected later-write failure restores earlier writes; concurrent edits survive rollback. No Git mutation. |
-| 5 | Add a real old-source upgrade acceptance fixture. | Start from `v0.3.0` with unchanged and customized system components, a saved shadcn alias, retained empty views, and custom helper cases. Update alone preserves every seed/team byte and deletion, reports failed checks when obsolete imports remain, and creates no shims. Explicit repair yields only reviewed diffs. Manual cases require scoped replanning; no silent partial apply. |
-| 6 | Verify repaired runtime and document the available command. | After manual blockers are resolved and repair applied, `pnpm check`, `pnpm build`, and selected regressions pass in the upgraded fixture. Development and production render retained empty views and implemented views. Dialogs and tooltips portal into the assigned system's themed container. Artifact IDs, owners, assignments, source customizations, and binary files remain unchanged. A second preview has no repairs; applying an empty fresh plan changes nothing. |
-
-For the runtime acceptance fixture, retain a customized component handler and class, not just a comment. Include a modified helper that must be refused, then a separate explicit manual resolution. Verify preservation immediately after update, before performing repair, so repair cannot hide an updater regression. Use the existing upgrade fixture harness instead of adding another updater simulation.
-
 ## After an update reports failed verification
 
 An update can merge successfully, preserve retained files, and then fail checks or the production build because those files use obsolete imports. Stay on the update branch. Preview repair, resolve manual cases, preserve those edits in a separate commit, and create a fresh plan. Apply the reviewed plan, run `pnpm check` and `pnpm build`, then review and commit the repair separately. Review the update branch before merging it into the team's branch.

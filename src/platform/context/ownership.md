@@ -72,7 +72,7 @@ If the merge commits but verification fails on retained obsolete imports, use th
 
 Workspace commands warn about stale dependencies instead of automatically installing before they run. This lets `pnpm studio update --continue` reach the updater while the merged manifests and lockfile still differ. After conflicts are resolved, the updater regenerates dependencies before its checks. Explicit frozen installs in CI and release acceptance still reject a mismatched lockfile.
 
-The update's base is Git's merge base with the release. New studios clone a tagged release with the starter's history, keep the starter as `upstream`, and start a local `main` branch. The default [installation guide](installing.md) uses this release clone directly. The separate plugin installer also records the tag's version and commit in `studio.lock.json` and commits that record on top of the release.
+The update's base is Git's merge base with the release. New studios clone a tagged release with the starter's history, keep the starter as `upstream`, and start a local `main` branch. The default [installation guide](installing.md) uses this release clone directly.
 
 Clone a release with its history for manual setup too. Updates need release ancestry; a ZIP download or shallow studio clone does not preserve the required history. Keep `upstream` for fetching releases. If you connect a private or company repository for your studio, use `origin` for that repository. Your team controls its access and when updates are reviewed and merged. Do not push studio work to the starter's `upstream`.
 

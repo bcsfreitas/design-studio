@@ -20,14 +20,9 @@ Code defines implemented behavior. Documentation explains that behavior and the 
 
 Associate a capability’s Manual chapter through `module: <id>` so disabling or removal hides the human chapter without relocating its source. Keep shared standards in platform context.
 
-File-backed navigation follows the [shared source workflow](source.md). Expose source editing through navigation and the common keyboard toggle. Keep source-file mappings explicit for generated pages or pages backed by several files.
-
 ## Write clearly
 
-Use ASD-STE100-inspired language with flexibility for our [personas](personas.md). This is a writing approach, not a claim of formal compliance.
-
 - Use familiar words and active voice. Address the reader directly when giving instructions.
-- Keep one main idea in each sentence. Aim for 20 words in instructions and 25 words in descriptions; split longer sentences when useful.
 - Use one term for one concept. Match labels, commands, paths, and configuration keys exactly.
 - State a condition before its action: “If Canvases is disabled, skip canvas verification.”
 - Use numbered steps when order matters. Use bullets for independent requirements or options.

@@ -72,19 +72,15 @@ Renderers cancel superseded asynchronous work logically. The child bridge additi
 | Canvas eviction, removal, or page departure | Dispose the embed and its lifecycle. Returning creates a fresh preview; its interaction state is not durable. |
 | Explicit adapter pause | Invalidate pending preparation, retain displayed output, and require fresh preparation after resume. Current page and canvas adapters do not use pause. |
 
-Canvas keeps its existing admission and eviction rules: at most one new preview per 150 ms, a target budget of 30 retained previews, and a visibility/grace policy that protects recently seen content. Visible or grace-protected previews can temporarily exceed the budget. Lifecycle information does not create another scheduling policy.
+[Canvas hosting](../modules/canvas/README.md#shared-artifact-host) owns admission and retention. Lifecycle information does not create another scheduling policy.
 
 ### Integration and inspection
 
 `lifecycleAttributes` exposes the same `data-artifact-*` phase, freshness, source/input/displayed revisions, and commit count across renderer boundaries. React previews retain their `data-preview-*` attributes and validated `studio:preview-state` event. Their new bubbling `studio:artifact-lifecycle` event includes artifact identity, session, runtime, surface, and lifecycle state. Non-iframe readers expose their own identity and revision attributes.
 
-A future inspector must associate findings with the artifact, runtime, and displayed input revision, then invalidate them when that evidence changes or becomes unknown. This contract does not provide component/prop/token mapping, write authorization, or cross-harness DOM access.
+Lifecycle evidence does not provide component/prop/token mapping, write authorization, or cross-harness DOM access.
 
 Agent activity is nullable and independent. Only an explicit integration supplies a named provider and `idle` or `working` state. File/build/render changes never infer activity. Current adapters supply no provider; chat and progress remain in the coding harness.
-
-### Decision references
-
-[Open CoDesign's source-editing contract](https://github.com/OpenCoworkAI/open-codesign/blob/main/SOURCE_EDITING.md) informs separate source and preview revisions, stale acknowledgements, and independent save outcomes. [OpenDesign's runtime state](https://github.com/nexu-io/open-design/blob/802708f6c9f294347ef777b1fda49b9cbe26ef72/packages/contracts/src/runtime/preview-runtime-state.ts) and [preview observability](https://github.com/nexu-io/open-design/blob/802708f6c9f294347ef777b1fda49b9cbe26ef72/packages/contracts/src/runtime/preview-observability.ts) inform explicit, bounded evidence. Its [refresh service](https://github.com/nexu-io/open-design/blob/802708f6c9f294347ef777b1fda49b9cbe26ef72/apps/daemon/src/live-artifacts/refresh-service.ts) prepares a candidate before committing it and bounds refresh execution. Studio applies these patterns through its existing repository and React runtime rather than adopting their daemon or persistent refresh store.
 
 ## Source ownership
 

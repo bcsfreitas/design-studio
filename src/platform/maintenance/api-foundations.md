@@ -13,7 +13,11 @@ The closing patch is limited to four reproduced defects: accessor-driven prefere
 
 The closing verification passed 549 release tests, production compilation, contract compatibility, formatting, and development/production workflows. Contributor-owned source fingerprints were unchanged. The refactor is closed. New findings use normal maintenance triage. Reopen this milestone only for a demonstrated failure of its accepted supported workflows or contributor-data protection; an additional architecture observation alone does not reopen it.
 
-Authoritative contracts remain with [public API environments](../context/modules.md#environment-policy), [contributor preferences](../context/contributor-preferences.md), [build assets](../context/build-assets.md), [artifact services](../context/artifact-services-proposal.md), and [system services](../context/system-services.md).
+Authoritative contracts remain with [public API environments](../context/modules.md#environment-policy), [contributor preferences](../context/contributor-preferences.md), [build assets](../context/build-assets.md), [artifact resolution and hosting](../context/file-types.md#artifact-resolution-and-host-declarations), [Systems routes](../modules/systems/README.md#local-owner-routes), and [system services](../context/system-services.md).
+
+## Design references
+
+The lifecycle design drew on [Open CoDesign's separate source and preview revisions](https://github.com/OpenCoworkAI/open-codesign/blob/main/SOURCE_EDITING.md) and OpenDesign's pinned [runtime state](https://github.com/nexu-io/open-design/blob/802708f6c9f294347ef777b1fda49b9cbe26ef72/packages/contracts/src/runtime/preview-runtime-state.ts), [observability](https://github.com/nexu-io/open-design/blob/802708f6c9f294347ef777b1fda49b9cbe26ef72/packages/contracts/src/runtime/preview-observability.ts), and [bounded refresh service](https://github.com/nexu-io/open-design/blob/802708f6c9f294347ef777b1fda49b9cbe26ef72/apps/daemon/src/live-artifacts/refresh-service.ts). These are historical references, not Studio contracts or required task reads.
 
 ## Deferred improvements
 

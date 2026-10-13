@@ -6,9 +6,9 @@ toc: true
 
 Format adapters belong to their modules: View's leading comments, Diagrams' Mermaid comments, and Canvas's JSON declaration. Generic platform identity operations use the adapter declared by each file type. The platform owns ID validation, unambiguous declaration validation, Markdown frontmatter, and generic JSON metadata.
 
-Design Studio uses source identities independent of location, ownership, and naming. This work preserves filesystem-based prototype authoring and system dependency contracts.
+Design Studio uses source identities independent of location, ownership, and naming.
 
-## Implemented foundation
+## Identity guarantees
 
 Prototype and system public routes use permanent IDs. Source metadata, assignments, ownership, default selection, archive/rebuild relationships, and central grants persist IDs. Browser and Node readers resolve them to current source locations without a mutable-name fallback. Reads, builds, and ordinary saves never invent identities.
 
@@ -26,7 +26,7 @@ Prototypes and systems remain the two principal collections. Prototype artifacts
 
 The identity format is sixteen lowercase Crockford base32 characters. The alphabet is `0123456789abcdefghjkmnpqrstvwxyz`. Ten cryptographically random bytes provide 80 bits, encoded without truncating a UUID or deriving identity from content, name, time, or owner.
 
-For independent uniform generation, the probability of any collision among n IDs is bounded by `n(n-1)/(2 × 2^80)`. At one million IDs this is approximately `4.14 × 10^-13`; at ten million it is approximately `4.14 × 10^-11`. Validation must still detect duplicates in the retained studio inventory, including archived work and disabled installed file types. These figures describe accidental collision, not authentication or access control.
+Validation detects duplicates in the retained inventory, including archived work and disabled installed file types. Identity is not authentication or access control.
 
 `src/platform/core/resourceIdentity.ts` owns the format and metadata mechanics. File-type declarations expose their adapter through `FileTypeSpec.identity`.
 
@@ -52,7 +52,7 @@ An artifact may move between folders in its prototype without changing its ID or
 
 ## Routes and generated resolution
 
-The agreed prototype routes are:
+Prototype routes are:
 
 ```text
 /prototypes
@@ -66,7 +66,7 @@ System routes use `/systems/<system-id>` followed by existing surface names or s
 
 The generated manifest resolves identities to current locations and relationships. It is a derived inventory, not another authoring location. Browser and Node resolution share types and rules. Published lookup preserves lazy artifact loading and excludes unavailable publication content. Unknown identities must not become filesystem paths or silently resolve to another resource.
 
-The target resolution flow keeps the authoring tree visible while public references use identity:
+The resolution flow keeps the authoring tree visible while public references use identity:
 
 ```mermaid
 flowchart LR
@@ -84,7 +84,7 @@ flowchart LR
   SystemFolder --> Contracts[Named system surfaces and dependency paths]
 ```
 
-This is a full cutover before public release. Existing readable routes do not receive compatibility aliases. Stored references use permanent URLs. Copied permanent URLs resolve independently of browser history state. Hosting must continue serving the app fallback for direct routes and configured base paths. See [Publishing](publishing.md).
+Readable routes have no compatibility aliases. Stored references use permanent URLs. Copied permanent URLs resolve independently of browser history state. Hosting must continue serving the app fallback for direct routes and configured base paths. See [Publishing](publishing.md).
 
 ## Ownership and authority
 
@@ -92,7 +92,7 @@ Prototype metadata declares `ownerContributorId` and a required `systemId` (or `
 
 Admin and system maintainer grants, system assignments, archive provenance, and rebuild source/target relationships refer to permanent identities. `resourceReferences.ts` supplies a strict, read-only projection from persisted IDs to current source selectors and the inverse serializer for managed mutations. Unknown, malformed, duplicate, or wrong-kind identities fail resolution. Runtime readers use that projection; CI resolves grants against the before-side Git tree. Readable source keys remain distinct from those identities. Local operations, CLI inspection, agent guidance, and CI must interpret authority consistently and evaluate proposed authority changes against existing authority.
 
-Future prototype-specific collaborator grants can extend this model. Collaborator controls and permissions are not part of the current refactor. Identity is not web authentication or filesystem isolation. Runtime dependency boundaries remain independent of human authority.
+Identity is not web authentication or filesystem isolation. Runtime dependency boundaries remain independent of human authority.
 
 `readPersistedStudioConfig` supplies a fresh strict Node reader with separate persisted declarations and resolved source selectors. The Vite resource-directory plugin supplies only contributor and system ID/location mappings, excluding names, emails, and profile preferences. The browser projects persisted configuration through that directory; the generated directory itself does not evaluate grants.
 
@@ -114,10 +114,6 @@ An ordinary rename or move needs no new identity assignment. Preserve the leadin
 
 Verify permanent addresses independently of source dependencies. Regression coverage includes identity adapters, scoped parent lookup, copying/remapping, source moves and repair, system lifecycle, grant revocation and before-side CI authority, missing/malformed/duplicate metadata, preview tampering and stale inventories, rollback failures, lazy publication, disabled capabilities, and deployment under a base path. Review rendered navigation, embeds, source mode, and direct refreshes. A successful build alone does not establish dependency integrity.
 
-Comments, revision history, authentication, a database, collaborator UI, and canvas frame selection are deferred. A future `?frame=<element-id>` selection can extend a canvas's permanent route after Excalidraw frame persistence is verified.
+## Installed system identity
 
-## Cutover decisions
-
-The system installation policy is to allocate a new ID for each installed system instance. Package origin and version remain separate provenance; renaming or upgrading that installation preserves its ID. Installing the same package in another studio allocates a different ID. A repository fork retains its source IDs. The person delegated this choice, and this is the selected approach.
-
-The person explicitly chose a full cutover before public release. No legacy browser-route aliases are required. Older stored links need separate reconciliation before importing pilot work; unsupported references must be surfaced for review. New public links use the permanent routes exclusively.
+The system installation policy is to allocate a new ID for each installed system instance. Package origin and version remain separate provenance; renaming or upgrading that installation preserves its ID. Installing the same package in another studio allocates a different ID. A repository fork retains its source IDs.

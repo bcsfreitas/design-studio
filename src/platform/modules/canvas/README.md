@@ -45,7 +45,7 @@ Canvas declares `systemUsage: 'independent'`. Its scene remains readable locally
 | `useCanvasFile.ts` | Saving and taking in changes: debounce, one save at a time, base version and conflict merge, retry with backoff, flush on leaving |
 | `mergeRemote.ts` | Merging a changed file into unsaved edits |
 | `embeds.tsx` | How an artifact renders on a canvas; sizing rules for new ones; culling off-screen ones |
-| `liveViews.ts` | Which previews stay mounted (30 at most; one new every 150 ms) |
+| `liveViews.ts` | Preview admission and retention |
 | `opening.ts` | The bounded opening wait and shared renderer readiness inspection |
 | `CanvasOpening.tsx` | The shared opening lifecycle and status surface for pages and document embeds |
 | `camera.ts` | Where a canvas opens: where you left it, or fitted to its content |
@@ -74,4 +74,4 @@ Retained view and diagram embeds use the [shared artifact lifecycle contract](..
 
 ## Shared artifact host
 
-Canvas uses the common artifact resolver for sizing, opening readiness, and agent metadata. `ArtifactHost` owns frames, cards, pending rendering, lazy format preparation, and error containment. Canvas owns its scene, dimensions, inert interaction, overview label, camera, admission interval, target budget, visibility margins, and retention grace. Hiding an admitted preview changes layout/paint visibility without unmounting it or replacing its readiness evidence.
+Canvas uses the common artifact resolver for sizing, opening readiness, and agent metadata. `ArtifactHost` owns frames, cards, pending rendering, lazy format preparation, and error containment. Canvas owns its scene, dimensions, inert interaction, overview label, camera, and retention policy. Admission allows one new preview per 150 ms, with a target budget of 30 retained previews and a five-second retention grace. Visible or grace-protected previews can temporarily exceed the budget. Hiding an admitted preview changes layout/paint visibility without unmounting it or replacing its readiness evidence.

@@ -22,7 +22,7 @@ Prototypes access public libraries through `@module/<id>`. They cannot import pr
 
 Views offers the renderer-free `emptyView` sentinel through `@module/view`; its [empty-view contract](../modules/view/README.md#empty-views) owns creation and rendering behavior.
 
-Every module declares `requires`, the oldest platform version it works with, such as `requires: '0.2.0'`. Supplied modules use `requires: '0.3.0'` for the current declaration fields, browser identity entry, and build contributions. A module without one fails validation. An incompatible module is disabled and reported by checks.
+Every module declares `requires`, the oldest platform version it works with. Read each module's declaration for its requirement. A module without one fails validation. An incompatible module is disabled and reported by checks.
 
 ## Public API
 

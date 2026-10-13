@@ -1,10 +1,10 @@
 ---
 title: Format versions
-description: The version stamped in each stored format, how it is validated, and where the first migration will go.
+description: Stored format versions, validation, and explicit migration of retained files.
 toc: true
 ---
 
-Some files hold the team's work and outlive any one release: the studio's settings, each prototype's metadata, and each contributor's profile. Each declares the version of its format as a top-level `formatVersion`, so the first format change after release can upgrade files it recognizes by their version instead of guessing from their shape.
+Some files hold the team's work and outlive any one release: the studio's settings, each prototype's metadata, and each contributor's profile. Each declares a top-level `formatVersion`, so migrations recognize their input instead of guessing from its shape.
 
 ## Versioned formats
 
@@ -29,24 +29,14 @@ A file with no `formatVersion`, or a value other than the current version, is a 
 
 Writers keep the field. Settings writes are read-modify-write of the parsed file, so the field stays where it is. Creation writes the current version: `pnpm new` and the New prototype button (from the template), `pnpm join`, and fixtures. Registering a system changes `studio.config.json` and keeps its version.
 
-Before the first release, every checked-in file and fixture is stamped and there is no migration. A pre-release studio adds `"formatVersion": 1` by hand.
+## Explicit migration
 
-## Where a migration goes
+Builds and ordinary saves never upgrade stored formats. Unknown future versions are refused. A format change updates `FORMAT_VERSIONS` and follows the [release compatibility policy](releasing.md#versions).
 
-There is no migration registry yet, because there is nothing to migrate from. When a format first changes after release:
-
-1. Raise its entry in `FORMAT_VERSIONS` and bump `PLATFORM_VERSION`, since the contract snapshot changes with it.
-2. Add the migration beside the validator that reads the format. It takes a file at version N and returns the file at N + 1, and it is the only code that reads version N. Chain the steps from the file's version up to the current one.
-3. Run migrations in an explicit command, such as a `pnpm studio` subcommand with a preview and `--yes`, as other source migrations do. Builds and ordinary saves never rewrite a file to a new version.
-4. Make the validator accept the previous version only to point at that command. Anything else stays an error.
-5. Name the step in the release notes and add the new version to a fixture so the upgrade test covers it.
-
-Keep each migration's input check strict. A file with an unknown future version is refused, never guessed at.
+Contributor format version 2 introduces declared module namespaces. Version 1 profiles use the explicit [preference initialization workflow](contributor-preferences.md); changing only their version does not initialize required state.
 
 ## Related contracts
 
 - [Studio configuration](config.md) defines `studio.config.json`.
 - [Resource identity](resource-identity.md) defines the permanent IDs the same files carry.
 - [Ownership and updates](ownership.md) defines how seed and team files change during an update.
-
-Contributor format version 2 introduces declared module namespaces. Version 1 profiles use the explicit [preference initialization workflow](contributor-preferences.md); changing only their version does not initialize required state.
