@@ -340,3 +340,34 @@ test('accessors cannot run or delete persisted preference fields', t => {
   }
   assert.equal(calls, 0);
 });
+
+test('declaration snapshots share physical file identity and isolate native exports', async t => {
+  const root = fixture(t);
+  declarations(root);
+  const alias = root + '-alias';
+  fs.symlinkSync(root, alias);
+  t.after(() => fs.rmSync(alias, { force: true }));
+  const { installedModuleDeclaration } = await import('./installed-module-declarations.js');
+  const { createRequire } = await import('node:module');
+  const first = installedModuleDeclaration(root, 'onboarding');
+  const native = createRequire(import.meta.url)(path.join(root, 'src/platform/modules/onboarding/module.ts')).default;
+  native.preferences.defaults.welcomeDismissed = true;
+  first.spec.preferences.defaults.welcomeDismissed = true;
+  assert.equal(installedModuleDeclaration(alias, 'onboarding').spec.preferences.defaults.welcomeDismissed, false);
+  const current = readContributorPreferences(root, { actor: 'sam', module: 'onboarding' });
+  const profile = path.join(root, 'contributors/sam.json'),
+    source = fs.readFileSync(profile, 'utf8');
+  fs.appendFileSync(path.join(root, 'src/platform/modules/onboarding/module.ts'), '\n// source changed\n');
+  for (const directory of [root, alias])
+    assert.throws(
+      () =>
+        updateContributorPreferences(directory, {
+          actor: 'sam',
+          module: 'onboarding',
+          base: current.version,
+          value: { welcomeDismissed: true },
+        }),
+      error => error.status === 409,
+    );
+  assert.equal(fs.readFileSync(profile, 'utf8'), source);
+});

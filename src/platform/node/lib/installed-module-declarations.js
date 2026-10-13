@@ -10,9 +10,10 @@ import { discoverModuleFolders } from './module-folders.js';
 const require = createRequire(import.meta.url);
 const loaded = new Map();
 function load(root, { id, dir }) {
-  const file = path.resolve(root, dir, 'module.ts');
-  if (fs.lstatSync(file).isSymbolicLink() || !fs.lstatSync(file).isFile())
-    throw new Error(`${file}: installed declarations must use ordinary files.`);
+  const declared = path.resolve(root, dir, 'module.ts');
+  if (fs.lstatSync(declared).isSymbolicLink() || !fs.lstatSync(declared).isFile())
+    throw new Error(`${declared}: installed declarations must use ordinary files.`);
+  const file = fs.realpathSync(declared);
   const source = createHash('sha256').update(fs.readFileSync(file)).digest('hex');
   const cached = loaded.get(file);
   if (cached && cached.source !== source)
@@ -20,7 +21,7 @@ function load(root, { id, dir }) {
       new Error(`${file}: declaration changed; restart the process before reading or writing preferences.`),
       { status: 409 },
     );
-  if (!cached) loaded.set(file, { source, spec: require(file).default });
+  if (!cached) loaded.set(file, { source, spec: structuredClone(require(file).default) });
   return { id, dir, spec: structuredClone(loaded.get(file).spec) };
 }
 
