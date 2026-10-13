@@ -58,6 +58,8 @@ Explore the examples, then describe the idea you want to build. You can customiz
 
 Keep Design Studio locally or put it in your own private or company repository. You control access to that repository and decide when to take new Design Studio releases. The project does not need access to your environment. Ask your agent to help connect your repository and review updates; the [installation guide](src/platform/context/installing.md#keep-your-own-repository-and-choose-when-to-update) includes prompts for both.
 
+You have the source code, so you can change and extend your own instance to fit your needs. If something works well, share it with the community so others can try it. The core project is curated by Patrick Morgan, who may bring proven ideas into the platform after vetting them. See [Contributing](CONTRIBUTING.md) for local customization, community sharing, and the core contribution policy.
+
 Work individually in Personal mode, or use Team mode to register contributors and assign access within the local Design Studio. Teammates share source changes through Git. Engineers can inspect the prototype's code and supporting context when you hand off the work.
 
 ## Publish a viewing site
@@ -78,7 +80,7 @@ Design Studio is in early beta. Feedback about installation, agent workflows, an
 - [Modules](src/platform/context/modules.md) — extending its capabilities.
 - [Ownership and updates](src/platform/context/ownership.md) — keeping your work as the platform changes.
 - [Report an issue](https://github.com/itspatmorgan/design-studio/issues) — bugs, questions, and feature requests.
-- [Contributing](CONTRIBUTING.md) — development and contribution guidance.
+- [Contributing](CONTRIBUTING.md) — customize locally and share what works.
 - [Changelog](CHANGELOG.md) — what's changed.
 
 Created by **[Patrick Morgan](https://itspatmorgan.com)**. Follow the thinking behind the work at [Unknown Arts](https://www.unknownarts.com/).

@@ -19,7 +19,7 @@ A seed file belongs to the studio once installed, including an unchanged copy. I
 
 Ownership applies to the entire merge result, including files Git merges without conflict. The studio's pre-update map protects existing seed and team paths during that update, even if the release changes their tier. Incoming rules govern new paths and other upstream changes. New seed paths use the release's complete copy, without transplanting edits from a renamed old seed. New team-owned paths are not imported from upstream. An unlisted studio path is team-owned. Generated paths take the release's copy or deletion before regeneration. Skill adapters and their receipt instead retain the studio's input for synchronization, which replaces managed entries while preserving team-authored or modified entries. Upstream and mixed paths use Git's merge; their conflicts remain for review.
 
-Prefer team and seed paths for studio-specific work. If an upstream path must change, keep the edit small and record why, so the next update conflict is easy to resolve. A change that would help other studios belongs in the upstream project.
+Prefer team and seed paths for studio-specific work. If an upstream path must change, keep the edit small and record why, so the next update conflict is easy to resolve. If a change helps other studios, consider sharing it with the community. The core project selectively adopts vetted ideas; see [Contributing](../../../CONTRIBUTING.md) for that process.
 
 ## Path map
 

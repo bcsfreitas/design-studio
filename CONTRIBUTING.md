@@ -1,16 +1,26 @@
 # Contributing
 
-Design Studio is an early beta. The current priority is a reliable local workflow: studio initialization, contributor onboarding, prototypes and their file types, design systems, and the system content. Portable static publishing is part of the workflow; each studio chooses and configures its own host.
+Design Studio is an early beta, and you get the source code to make it your own. The encouraged contribution flow is to build on your local instance, share what works with the community, and let useful ideas inform the core project over time.
+
+The project is not currently seeking public contributors to the core. Patrick Morgan reaches out privately to selected potential collaborators and vets changes before bringing them into the maintained platform.
 
 For local setup, follow [Install Design Studio](src/platform/context/installing.md) and the [Manual](src/platform/modules/documentation/pages/index.md). Coding agents should start with [AGENTS.md](AGENTS.md), which points to platform context, principles, personas, and task skills.
 
-## Proposing a change
+## Customize your own studio
 
-Open an issue for a substantial feature or architectural change before investing in an implementation. Small fixes can go straight to a pull request. Describe the problem, the resulting behavior, and how you verified it. Include screenshots for visible changes.
+If you want to change or improve Design Studio, start by making that change in your own instance. You can adapt the interface, workflows, modules, design systems, tooling, and agent guidance to fit your needs. Local customization does not need approval from the core project.
 
-Create a branch in your fork and submit a pull request to `main`. Changes to the platform, systems, system content, tooling, and configuration need maintainer review. Prototype changes follow the contributor ownership requirements in [Contributor scope](src/platform/context/contributor-scope.md); when building a new prototype, use `pnpm new "Prototype Name"`.
+Keep your work in your own repository and choose when to take upstream releases. [Ownership and updates](src/platform/context/ownership.md) explains which paths keep updates simple and how local platform edits are merged. Within a shared studio, follow your team's permissions and the [contributor ownership requirements](src/platform/context/contributor-scope.md).
 
-The [API foundations closure and backlog](src/platform/maintenance/api-foundations.md) records the completed refactor’s stopping criteria and deferred performance measurements. Further findings follow normal maintenance triage.
+## Share what works
+
+If a customization proves useful, share it with the community in a form others can learn from or try: a repository, module, walkthrough, or example. Explain the problem it solves, show the resulting behavior, and describe how you verified it. Include screenshots for visible changes and enough setup information for someone else to use it.
+
+Community experiments can remain independently maintained. As ideas gain use and demonstrate value, Patrick may consider adapting and formalizing them in the core project. Sharing a change does not imply that it will be included upstream.
+
+Bugs, questions, and feedback are welcome through [GitHub issues](https://github.com/itspatmorgan/design-studio/issues). Core code contributions are coordinated directly with Patrick before a pull request is prepared. Only changes he has fully vetted and is confident belong in the core become part of the maintained platform.
+
+The [API foundations closure and backlog](src/platform/maintenance/api-foundations.md) records completed work and deferred measurements for core maintenance.
 
 ## Checking your work
 
