@@ -41,6 +41,8 @@ Use fictional sample data. Do not commit credentials, local environment files, p
 
 ## Project repository publishing
 
+The starter uses Parker Moss, a fictional sample contributor with a bundled illustrated avatar. Maintainer profiles and personal prototypes stay local through checkout-specific Git exclusions. Upstream CI and the release command check that distributed source contains only sample profiles and no personal grants or local contributor work. Build releases from a clean clone; see [Maintainer workspace and distributed source](src/platform/context/releasing.md#maintainer-workspace-and-distributed-source).
+
 The ongoing [public demo](https://itspatmorgan.com/design-studio-demo/) is included in the GitHub Pages deployment of `itspatmorgan/itspatmorgan.github.io`. The website's `/design-studio/` product page and `/design-studio-demo/` interactive demo are separate paths. This source repository does not deploy its own Pages site.
 
 An isolated ChatGPT Sites fixture validates the optional publishing workflow with approved learning examples. Native Sites updates reuse that fixture's project identity in `.openai/hosting.json` and its URL. Use native Sites tools with static output `dist`, SPA fallback, and the root base path. Retain release ancestry and use the pinned mise environment. Deploy the saved source commit and matching build archive, and verify a successful native deployment result and the actual viewer. Set public access only when authorized; preserve the audience on updates.

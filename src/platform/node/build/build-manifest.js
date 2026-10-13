@@ -236,6 +236,8 @@ function readPrototype(dir, contributorKey, id, out, contributors, policy = 'own
         : (contributors[contributorKey]?.name ?? ''),
       ...(!maintained && contributors[contributorKey]?.sample === true && { contributorSample: true }),
       ...(!maintained &&
+        contributors[contributorKey]?.avatar && { contributorAvatar: contributors[contributorKey].avatar }),
+      ...(!maintained &&
         typeof contributors[contributorKey]?.github === 'string' &&
         contributors[contributorKey].github.trim() && {
           contributorGithub: contributors[contributorKey].github.trim(),

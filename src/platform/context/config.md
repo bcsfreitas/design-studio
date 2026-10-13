@@ -42,6 +42,12 @@ Keep shared choices in `studio.config.json`. Contributor profiles live in `contr
 
 CLI and settings controls use current readable source keys for selection. Managed saves serialize relationships as permanent IDs. The `systems` registration list describes source locations; it is intentionally separate from `defaultSystem`, Admin IDs, and maintainer grants. Unknown IDs are errors. See [Resource identity](resource-identity.md).
 
+Profiles may declare `avatar`, a relative image path inside `public/`, such as `images/person.svg`. Supported extensions are SVG, PNG, JPEG, and WebP. Path segments use letters, numbers, underscores, and dashes; absolute paths, remote URLs, and traversal are rejected. The referenced file must exist. Gallery cards prefer this image over a GitHub photo.
+
+The starter's fictional Parker Moss profile owns the shipped examples and declares `sample: true`. New users register their own identity with `pnpm join`; the sample profile is not their registration. The starter has no Admin or system maintainer grants. In personal mode, the registered local contributor has Admin access without adding a grant to shared configuration.
+
+Upstream maintainers may keep a real profile and prototype folder excluded through `.git/info/exclude`. These ordinary local files are read by Studio but are absent from commits and clones. Exclusions are specific to the maintainer's checkout; installed team studios can commit their real contributor roster normally. Release and public-demo source checks enforce the [starter distribution policy](releasing.md#maintainer-workspace-and-distributed-source).
+
 ## Configuration fields
 
 | Setting | Declaration |

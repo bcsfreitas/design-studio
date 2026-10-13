@@ -39,6 +39,12 @@ export function contributorProfileProblems(
     if (typeof entry[field] !== 'string')
       problems.push(`${file}: declare ${field} as a string. Use an empty string when unavailable.`);
   if (
+    entry.avatar !== undefined &&
+    (typeof entry.avatar !== 'string' ||
+      !/^(?:[a-zA-Z0-9_-]+\/)*[a-zA-Z0-9_-]+\.(svg|png|jpe?g|webp)$/i.test(entry.avatar))
+  )
+    problems.push(`${file}: avatar must be a relative image path inside public/, such as images/person.svg.`);
+  if (
     !identityOnly &&
     !(initializingPreferences && entry.preferences === undefined) &&
     (!entry.preferences ||
@@ -86,6 +92,8 @@ export function readContributors(root = ROOT, { initializingPreferences = false,
     );
     if (!entry || typeof entry !== 'object' || Array.isArray(entry)) continue;
     contributors[key] = entry;
+    if (typeof entry.avatar === 'string' && !fs.existsSync(path.join(root, 'public', entry.avatar)))
+      problems.push(`contributors/${file}: avatar public/${entry.avatar} is missing.`);
   }
   for (const [key, entry] of Object.entries(contributors)) {
     if (entry?.sample !== undefined && entry.sample !== true)

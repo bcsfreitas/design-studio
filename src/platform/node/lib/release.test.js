@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { starterDistributionProblems } from './starter-distribution.js';
 import {
   applyRelease,
   releasedChangelog,
@@ -138,4 +139,31 @@ test('a failing check restores the files and makes no commit or tag', () => {
   assert.equal(git('rev-parse', 'HEAD'), before);
   assert.equal(git('status', '--porcelain'), '');
   assert.equal(git('tag'), '');
+});
+
+test('release refuses ignored local contributor files, including files added after planning', () => {
+  const { dir, git, write } = checkout();
+  const plan = releasePlan(dir, '0.2.1');
+  fs.appendFileSync(path.join(dir, '.git/info/exclude'), '\n/contributors/local.json\n/src/prototypes/local/\n');
+  write('contributors/local.json', JSON.stringify({ name: 'Local Person' }));
+  write('src/prototypes/local/draft/meta.json', '{}');
+  assert.equal(git('status', '--porcelain'), '');
+  assert.match(releasePlan(dir, '0.2.1').problems.join('\n'), /clean checkout/);
+  const { run, ran } = scripts(dir);
+  assert.throws(() => applyRelease(dir, plan, { run }), /contributors\/local.json/);
+  assert.deepEqual(ran, []);
+  assert.equal(git('tag'), '');
+});
+
+test('upstream distribution permits fictional samples and refuses personal identities and grants', () => {
+  const { dir, git, write } = checkout();
+  write('contributors/samples.json', JSON.stringify({ name: 'Fictional Person', sample: true, email: '', github: '' }));
+  write('studio.config.json', JSON.stringify({ usage: 'personal', admins: [], systemMaintainers: {} }));
+  git('add', 'contributors', 'studio.config.json');
+  assert.deepEqual(starterDistributionProblems(dir), []);
+  write('contributors/samples.json', JSON.stringify({ name: 'Real Person', email: '', github: 'real-person' }));
+  assert.match(starterDistributionProblems(dir).join('\n'), /fictional sample contributors/);
+  write('contributors/samples.json', JSON.stringify({ name: 'Fictional Person', sample: true, email: '', github: '' }));
+  write('studio.config.json', JSON.stringify({ usage: 'personal', admins: ['person-id'], systemMaintainers: {} }));
+  assert.match(starterDistributionProblems(dir).join('\n'), /no Admin/);
 });

@@ -18,7 +18,7 @@ export default function PrototypeCard({ prototype: p }: { prototype: PrototypeIn
       archived={p.status === 'archived'}
       meta={
         <>
-          <ContributorAvatar name={nameOf(p)} github={p.contributorGithub} />
+          <ContributorAvatar name={nameOf(p)} github={p.contributorGithub} avatar={p.contributorAvatar} />
           <span className='truncate'>{nameOf(p).split(' ')[0]}</span>
           {p.created && <span>· {formatDate(p.created)}</span>}
         </>

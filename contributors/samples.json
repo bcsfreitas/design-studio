@@ -1,9 +1,10 @@
 {
   "formatVersion": 2,
-  "name": "Patrick Morgan",
-  "github": "itspatmorgan",
+  "name": "Parker Moss",
+  "github": "",
   "email": "",
-  "welcomeDismissed": true,
+  "sample": true,
+  "avatar": "images/parker-moss.jpg",
   "studioId": "62bhewkp605tb9y6",
   "preferences": {
     "onboarding": {

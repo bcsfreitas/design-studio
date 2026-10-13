@@ -10,6 +10,14 @@ A release is a tagged commit on the upstream `main`, named `v<version>`. Studios
 
 `PLATFORM_VERSION` (`src/platform/core/modules/index.ts`) is the version of the public contract, and the tag uses the same number. The first supported public baseline is `v0.3.0`; historical pre-release versions impose no compatibility requirement. After that baseline, while the version is `0.x`, raise the minor version when a stable signature or referenced type, runtime requirement/package list, or stored format version changes, and the patch version otherwise. `pnpm contract --released` compares against the preceding supported release independently of the editable snapshot. A module's `requires` names the oldest version it works with; a module created with `pnpm studio create-module` requires the version it was created with, so a release never edits the module template. The supplied modules keep the `requires` they declare.
 
+## Maintainer workspace and distributed source
+
+The upstream starter tracks fictional sample contributors, examples, and systems. A maintainer's real contributor profile and personal prototypes remain local, excluded using `.git/info/exclude`. Personal mode gives the resolved registered maintainer Admin access; do not commit that profile's ID into shared configuration.
+
+Run acceptance and cut releases from a separate clean clone on `main`, with full history and the upstream repository as `origin`. Install its pinned dependencies and run the checks below there. Do not copy the maintainer's local profiles, private prototypes, or existing build output into it. `node src/platform/node/check/check-starter.js` rejects local files even if Git ignores them. The release command checks this before making any changes and rechecks when applying a plan.
+
+Upstream CI runs the same distribution check. The public website checks out the exact passing Studio commit in a fresh `studio-source` directory and builds there, so it does not use the maintainer's local files or `dist/`. Installed studios and their own publishing workflows may include real contributors; this is an upstream distribution policy only. Previous commits and tags retain their historical contents.
+
 ## Cut a release
 
 1. Merge everything the release includes into `main`, and make sure each change has a line under `## Unreleased` in `CHANGELOG.md`. Freeze the candidate and record its commit with these command results:
@@ -21,6 +29,7 @@ A release is a tagged commit on the upstream `main`, named `v<version>`. Studios
    pnpm check
    pnpm contract --released
    pnpm ownership --strict
+   node src/platform/node/check/check-starter.js
    pnpm test:release
    node src/platform/node/check/upgrade-test.js
    pnpm build
@@ -55,6 +64,7 @@ The release commit goes to `main` directly, so the person pushing needs the righ
 
 - Requires a valid semver version that is greater than or equal to the current `PLATFORM_VERSION`. Equal is allowed, so a version bumped during development (the first release, `0.2.0`, was set before it was cut) is released without another bump. A leading `v` is accepted.
 - Refuses unless the checkout is on `main` with no uncommitted or untracked changes and matches `origin/main` after a fetch, the `## Unreleased` section exists and has notes, and neither the checkout nor `origin` has the tag yet.
+- Checks the starter distribution before planning and again before applying: local contributor/prototype files, including ignored files, cannot enter the release build. Tracked profiles must be fictional samples with empty email and GitHub declarations; starter configuration must use personal mode without Admin or system maintainer grants.
 - Sets `PLATFORM_VERSION` and runs `pnpm contract --update`, so the contract snapshot records the version.
 - Renames `## Unreleased` to `## <version> (<YYYY-MM-DD>)`, using the local date, and starts a new empty `## Unreleased` section above it.
 - Runs `pnpm check`, `pnpm contract --released`, and `pnpm build`. If any step fails, or a step changes a file other than the three the release edits, it restores those files and stops with nothing committed.

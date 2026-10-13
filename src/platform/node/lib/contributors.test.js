@@ -34,6 +34,24 @@ test('profile validation catches missing declarations and ambiguous identities',
   for (const field of ['name', 'email', 'github', 'preferences']) assert.ok(problems.some(p => p.includes(field)));
 });
 
+test('local avatars must name an existing public image without traversal or remote URLs', t => {
+  const root = fixture(t);
+  fs.mkdirSync(path.join(root, 'public/images'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'public/images/person.svg'), '<svg xmlns="http://www.w3.org/2000/svg"/>');
+  writeProfiles(root, { person: { name: 'Person', avatar: 'images/person.svg' } });
+  assert.deepEqual(readContributors(root).problems, []);
+  for (const avatar of [
+    '../private.svg',
+    '/images/person.svg',
+    'https://example.com/person.svg',
+    'images/missing.svg',
+    42,
+  ]) {
+    writeProfiles(root, { person: { name: 'Person', avatar } });
+    assert.match(readContributors(root).problems.join('\n'), /avatar/);
+  }
+});
+
 test('linked profiles, invalid keys, and non-object profiles are rejected', t => {
   const root = fixture(t);
   writeProfiles(root, { sam: { name: 'Sam' } });

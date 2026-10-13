@@ -55,7 +55,7 @@ The first available artifact in navigation order opens by default, including art
 
 Contributor details come from `contributors/<key>.json`.
 
-Gallery cards use the contributor's registered `github` username to load a profile photo. Initials appear while it loads, when no GitHub account is registered, or if the image is unavailable. Photo loading is optional and requires no GitHub authentication.
+Gallery cards prefer the contributor's optional `avatar`, a relative image path inside `public/`, and otherwise use their registered `github` username to load a profile photo. Public avatar paths respect the site's base path and work offline. Initials appear while an image loads or if no image is available. GitHub photo loading is optional and requires no authentication. [Studio configuration](../../context/config.md#local-roles-and-contributors) owns profile validation.
 
 Deleting a prototype moves its folder to the Trash and shows a confirmation toast. From the Prototypes index, deletion preserves the current page and filters. From an open prototype, it returns to the Prototypes index.
 

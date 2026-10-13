@@ -26,6 +26,7 @@ export type PrototypeInfo = {
   contributor: string; // display name, from contributor profiles
   contributorSample?: true; // the contributor profile is marked "sample": true (the shipped sample author)
   contributorGithub?: string; // registered GitHub account, for optional profile photos
+  contributorAvatar?: string; // relative image path in public/, preferred over a GitHub photo
   created: string | null;
   system: string | null; // resolved source key; null means custom styling
   systemId?: string | null; // permanent assignment identity; system is its resolved source selector

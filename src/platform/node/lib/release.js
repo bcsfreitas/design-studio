@@ -5,6 +5,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import semver from 'semver';
+import { starterDistributionProblems } from './starter-distribution.js';
 
 export const VERSION_FILE = 'src/platform/core/modules/index.ts';
 export const CHANGELOG_FILE = 'CHANGELOG.md';
@@ -48,6 +49,7 @@ export function releasePlan(cwd, input, { today = localDate() } = {}) {
     }
   };
   const problems = [];
+  problems.push(...starterDistributionProblems(cwd));
   const version = semver.valid(String(input ?? '').replace(/^v/, ''));
   const current = platformVersionOf(fs.readFileSync(path.join(cwd, VERSION_FILE), 'utf8'));
   if (!version) problems.push(`${JSON.stringify(input ?? '')} is not a semver version like 0.2.1.`);
@@ -85,6 +87,8 @@ export function releasePlan(cwd, input, { today = localDate() } = {}) {
 // Applies a plan. `run(command, args)` runs a command in the checkout and throws when it fails. Files are restored if
 // a step fails before the commit, so a failed release leaves main as it was.
 export function applyRelease(cwd, plan, { run, log = console.log }) {
+  const distributionProblems = starterDistributionProblems(cwd);
+  if (distributionProblems.length) throw new Error(distributionProblems.join('\n'));
   const git = (...args) => execFileSync('git', args, { cwd, encoding: 'utf8' }).trim();
   const files = [VERSION_FILE, CHANGELOG_FILE, CONTRACT_FILE];
   const edit = (file, change) => {

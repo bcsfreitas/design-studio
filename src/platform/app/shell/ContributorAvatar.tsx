@@ -1,13 +1,15 @@
 import { Avatar, AvatarImage, AvatarFallback } from '@/platform/systems/studio/components/avatar';
 
-// GitHub photos enhance the byline; initials remain available offline or after a failed load.
+// Local illustrations or GitHub photos enhance the byline; initials survive failed image loads.
 export function ContributorAvatar({
   name,
   github,
+  avatar,
   size = 'sm',
 }: {
   name?: string;
   github?: string;
+  avatar?: string;
   size?: 'sm' | 'default' | 'lg';
 }) {
   const initials = name?.trim()
@@ -20,10 +22,11 @@ export function ContributorAvatar({
         .toUpperCase()
     : '?';
   const account = github?.trim();
-  const photo =
+  const githubPhoto =
     account && /^[a-z0-9](?:[a-z0-9-]{0,37}[a-z0-9])?$/i.test(account)
       ? `https://github.com/${encodeURIComponent(account)}.png?size=80`
       : undefined;
+  const photo = avatar ? `${import.meta.env.BASE_URL}${avatar}` : githubPhoto;
   return (
     <Avatar size={size} aria-hidden>
       {photo && <AvatarImage key={photo} src={photo} alt='' referrerPolicy='no-referrer' />}
