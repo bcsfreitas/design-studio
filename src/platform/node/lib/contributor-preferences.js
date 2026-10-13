@@ -94,12 +94,13 @@ export function readContributorPreferences(root, { actor, contributor = actor, m
 }
 export function updateContributorPreferences(root, { actor, contributor = actor, module, base, value }) {
   const schema = schemaFor(root, module);
-  validate(value, schema, module);
+  let snapshot;
   try {
-    serializeJson(value);
+    snapshot = JSON.parse(serializeJson(value));
   } catch (error) {
     throw fail(error.message, 422);
   }
+  validate(snapshot, schema, module);
   const profile = transactPreferenceProfile(root, actor, {
     contributor,
     base,
@@ -109,7 +110,7 @@ export function updateContributorPreferences(root, { actor, contributor = actor,
         ...profile,
         preferences: {
           ...profile.preferences,
-          [module]: { ...profile.preferences[module], ...structuredClone(value) },
+          [module]: { ...profile.preferences[module], ...snapshot },
         },
       };
     },

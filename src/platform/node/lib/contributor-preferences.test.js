@@ -306,3 +306,37 @@ test('a loaded declaration edit rejects writes until restart instead of silently
   );
   assert.equal(fs.readFileSync(file, 'utf8'), source);
 });
+
+test('accessors cannot run or delete persisted preference fields', t => {
+  const root = fixture(t);
+  declarations(root);
+  const file = path.join(root, 'contributors/sam.json');
+  const profile = JSON.parse(fs.readFileSync(file));
+  profile.preferences.onboarding.custom = 'keep me';
+  fs.writeFileSync(file, JSON.stringify(profile));
+  const source = fs.readFileSync(file, 'utf8');
+  const current = readContributorPreferences(root, { actor: 'sam', module: 'onboarding' });
+  let calls = 0;
+  for (const value of [
+    {
+      welcomeDismissed: true,
+      get custom() {
+        calls++;
+        return undefined;
+      },
+    },
+    {
+      get welcomeDismissed() {
+        calls++;
+        return true;
+      },
+    },
+  ]) {
+    assert.throws(
+      () => updateContributorPreferences(root, { actor: 'sam', module: 'onboarding', base: current.version, value }),
+      error => error.status === 422,
+    );
+    assert.equal(fs.readFileSync(file, 'utf8'), source);
+  }
+  assert.equal(calls, 0);
+});

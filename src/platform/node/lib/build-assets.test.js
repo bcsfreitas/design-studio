@@ -154,3 +154,31 @@ test('global invalidation supersedes in-flight work as well as completed values'
   assert.deepEqual(await first, { key: 'pending', generation: 3 });
   assert.deepEqual(await cache.read('complete'), { key: 'complete', generation: 4 });
 });
+
+test('JSON serialization rejects accessors without invoking them and preserves literal data keys', () => {
+  let calls = 0;
+  for (const value of [
+    {
+      get number() {
+        calls++;
+        return NaN;
+      },
+    },
+    Object.defineProperty({}, 'toJSON', {
+      get() {
+        calls++;
+        return () => null;
+      },
+    }),
+    Object.defineProperty([], '0', {
+      get() {
+        calls++;
+        return 'changed';
+      },
+    }),
+  ])
+    assert.throws(() => serializeBuildAsset(value), /accessors/);
+  assert.equal(calls, 0);
+  const data = JSON.parse('{"__proto__":{"keep":true},"array":[1,null,false]}');
+  assert.deepEqual(JSON.parse(serializeBuildAsset(data)), data);
+});

@@ -6,7 +6,7 @@ toc: true
 
 An enabled module can contribute `assets` from `build.ts`, alongside its manifest contribution. Each named asset declares `load({root, enabled})` and 1–64 repository-relative `watch` patterns. Names use lowercase letters, digits, and dashes. Watches use ordinary relative paths or Node glob patterns; absolute paths, traversal, and negation are rejected. Include every source dependency that affects the result, including shared types and compiler configuration. Module declaration changes require a server restart.
 
-Asset values must contain JSON primitives, arrays, and plain objects. Undefined values, nonfinite numbers, functions, cycles, and special object instances fail clearly. Do not include secrets or private contributor data: production assets are public viewing data.
+Asset values must contain JSON primitives, arrays, and plain objects. Undefined values, nonfinite numbers, functions, cycles, special object instances, and accessors fail clearly. Serialization uses one validated data snapshot without invoking getters or serialization hooks. Do not include secrets or private contributor data: production assets are public viewing data.
 
 Development validates declarations without computing values. The first request starts computation, and concurrent requests share it. Successful work is cached until a watched addition, change, or deletion. Invalidation during computation prevents publishing the old generation. Superseded successes and failures both follow the latest generation. Current failures reject all waiting callers and remain retryable on a subsequent request. Server and browser caches use the same environment-neutral generation primitive. The shared server route accepts same-origin GET requests only.
 

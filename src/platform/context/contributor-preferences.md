@@ -14,7 +14,7 @@ Registration writes defaults for enabled, compatible modules. The shared checker
 
 The service uses the same root-aware executable declaration loader as the runtime catalog. Ordinary transactions resolve only the selected module; initialization inspects all installed declarations. Installed declaration changes and their helper changes require a process restart. Source changes in a loaded declaration reject transactions rather than using a stale schema. Installation previews retain their separate safe data parser.
 
-The service validates the current installed schema and enabled state, rejects symbolic paths and stale source, and updates only the selected namespace. Omitted fields, including unknown fields inside that namespace, retain their current values. Submitted values must be JSON; this API does not delete fields. Shared setup transactions provide atomic replacement and rollback. Other namespaces, identity, and custom fields remain intact.
+The service validates the current installed schema and enabled state, rejects symbolic paths and stale source, and updates only the selected namespace. Omitted fields, including unknown fields inside that namespace, retain their current values. Submitted values are serialized into one validated data snapshot before schema validation and writing. Accessors are rejected without invoking them. Submitted values must be JSON; this API does not delete fields. Shared setup transactions provide atomic replacement and rollback. Other namespaces, identity, and custom fields remain intact.
 
 ## Explicit initialization
 
