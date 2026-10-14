@@ -57,7 +57,7 @@ The adapter understands syntax and returns source text. Platform callbacks resol
 
 Installed adapters remain available for source maintenance when their runtime module is disabled, like retained identity adapters. Removal removes the grammar but preserves authored content; unknown source is not guessed or rewritten. Duplicate extension ownership is a check error.
 
-Views owns code and CSS source adapters. Text files owns the shared Markdown grammar, including system knowledge and retained Documents source. Canvas owns Excalidraw links and scene update rules. Ordinary Markdown moves and copied permanent links preserve prose and fenced examples. Prototype-name migration retains its existing legacy-address behavior.
+Views owns code and CSS source adapters. Text files owns the shared Markdown grammar, including system knowledge and retained Documents source. Canvas owns Excalidraw links and scene update rules. Ordinary Markdown moves and copied permanent links preserve prose and fenced examples. Prototype renaming preserves permanent IDs and browser links.
 
 ## Artifact capabilities
 

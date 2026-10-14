@@ -1,6 +1,6 @@
 # Prototype contract
 
-Application mutations use the public `#studio/data` clients. They own successful manifest application and refresh; UI callers own navigation and notices. Create, copy, and rename receipts contain permanent IDs and current source locations. File-operation receipts include an artifact ID when the resulting path is an artifact. Systems-specific file creation remains internal until it moves to Systems routes.
+Application mutations use the public `#studio/data` clients. They own successful manifest application and refresh; UI callers own navigation and notices. Create, copy, and rename receipts contain permanent IDs and current source locations. File-operation receipts include an artifact ID when the resulting path is an artifact. Systems owns system-source and creation routes.
 
 This reference owns prototype files, metadata, links, dependency boundaries, and deployment status. Agent operating behavior belongs in the [build-prototype skill](skills/build-prototype/SKILL.md).
 
