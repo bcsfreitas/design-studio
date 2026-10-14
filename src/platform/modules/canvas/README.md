@@ -1,9 +1,11 @@
 # Canvas contract
 
-A page to arrange things on: live views and diagrams, and cards for documents from its own prototype, beside sticky
-notes, text, and arrows. It's [Excalidraw](https://github.com/excalidraw/excalidraw) with the app's
+A page to arrange things on: live views and diagrams, and cards for documents from its own prototype, beside native
+Excalidraw text, shapes, and arrows. It's [Excalidraw](https://github.com/excalidraw/excalidraw) with the app's
 look, and its design comes from Design Studio's canvas. Agent contract: `src/platform/modules/canvas/skills/use-canvas/SKILL.md`.
 Human orientation: [Prototypes & systems](/documentation/manual/prototypes#what-belongs-in-a-prototype).
+
+Native Excalidraw tools are the authoring default, including text for screen annotations. The example sticky note in the Library demonstrates a reusable library asset; use it when wanted rather than as the standard annotation treatment.
 
 **This folder is a self-contained file type.** Core never imports it (`src/platform/node/check/check-modules.js`),
 so the app runs with or without it. Canvas doesn't import another file type either: it asks the

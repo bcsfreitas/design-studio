@@ -95,7 +95,7 @@ Imports, relative document links, and assets still depend on file locations. Stu
 
 **Documents** use Markdown and can preview artifacts from the same prototype. Mermaid diagrams can also appear inside a document without the standalone Diagrams module. Documents and diagrams use Studio's reading style.
 
-**Canvases** use Excalidraw. Draw with the toolbar; press **N** for a sticky note. Drag an artifact from navigation onto the canvas, or copy its link and paste over the canvas.
+**Canvases** use Excalidraw. Use the native toolbar tools to draw, connect, and annotate; press **T** for text. The Library offers optional reusable assets, including an example sticky note. Drag an artifact from navigation onto the canvas, or copy its link and paste over the canvas.
 
 View and diagram previews follow their source. Documents and other canvases appear as link cards. Open the original to interact or edit. Canvas annotations do not automatically change screens.
 

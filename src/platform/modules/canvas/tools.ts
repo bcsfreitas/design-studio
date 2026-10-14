@@ -110,14 +110,14 @@ export const TOOLS: ToolDef[] = [
       'Make things. Pass { elements: [...] } (or one element). Each has a `type`; see help("create") for the types. Placement: x and y, or `below`, `rightOf` (an id or @ref), or `section`. With none, it goes below everything. `align` sets how it lines up with what it is beside: "start" (left edge under something, top edge beside it) or "center" (centered on it). `rightOf` centers by default, so arrows between things of different heights run straight; `below` aligns left. The result lists `warnings` if something landed on top of something else. `ref` names it, so later elements in the same call can use @name.',
     args: {
       elements: 'a list of elements to make',
-      type: 'note, text, rectangle, ellipse, diamond, arrow, line, artifact, or section',
+      type: 'text, rectangle, ellipse, diamond, arrow, line, artifact, section, or note',
       align: '"start" or "center", with below / rightOf',
       ...STYLE_ARGS,
     },
     example: {
       elements: [
         { type: 'artifact', artifact: 'lofi/main', ref: 'main' },
-        { type: 'note', text: 'Retry keeps the draft', below: '@main', color: 'pink' },
+        { type: 'text', text: 'Retry keeps the draft', below: '@main', width: 480 },
         { type: 'rectangle', text: 'Payment', rightOf: '@main', color: 'blue', ref: 'pay' },
         { type: 'arrow', from: '@main', to: '@pay', text: 'continue' },
       ],
@@ -183,18 +183,8 @@ export const TOOLS: ToolDef[] = [
 ];
 
 const ELEMENT_TYPES: Record<string, { summary: string; args: Record<string, string>; example: unknown }> = {
-  note: {
-    summary: 'A sticky note: a square you write on. Use it for annotations, questions, and what to look at.',
-    args: {
-      text: 'what it says. It wraps to the note, and the note gets taller if the text needs it',
-      color: 'yellow (default), pink, blue, or green',
-      width: 'default 200',
-      height: 'default 200 (taller if the text needs it)',
-    },
-    example: { type: 'note', text: 'Retry keeps the draft', color: 'pink', below: '@main' },
-  },
   text: {
-    summary: 'Plain text with no box: a heading or a label.',
+    summary: 'Native Excalidraw text with no box: the default for annotations, headings, and labels.',
     args: {
       text: 'what it says (\\n for a new line). A line longer than 560 wraps to that width',
       width: 'wrap to this width (20 to 4000), for a paragraph',
@@ -202,6 +192,17 @@ const ELEMENT_TYPES: Record<string, { summary: string; args: Record<string, stri
       ...STYLE_ARGS,
     },
     example: { type: 'text', text: 'Onboarding flow', fontSize: 28, x: 0, y: -80 },
+  },
+  note: {
+    summary:
+      'An optional sticky note, like the example Library asset. Prefer native text for screen annotations unless a sticky note is wanted.',
+    args: {
+      text: 'what it says. It wraps to the note, and the note gets taller if the text needs it',
+      color: 'yellow (default), pink, blue, or green',
+      width: 'default 200',
+      height: 'default 200 (taller if the text needs it)',
+    },
+    example: { type: 'note', text: 'Retry keeps the draft', color: 'pink', below: '@main' },
   },
   rectangle: {
     summary: 'A rectangle, ellipse or diamond, with an optional label inside. Boxes for steps, groups, and states.',

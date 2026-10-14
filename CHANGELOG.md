@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- The Feedback Inbox engineering handoff canvas uses native Excalidraw text for its screen annotations. Canvas guidance, the Manual, and tool examples prefer native drawing and text tools; the example sticky note remains an optional Library asset.
+
 - v0.4.0 establishes the first supported public baseline. Studio-owned settings, prototype metadata, contributor profiles, and contract snapshots start at version 1 with their current shapes. Earlier development tags are not compatibility commitments. Remove contributor legacy mappings and the pre-launch runtime-import repair command; current-module preference initialization and future release compatibility checks remain. Installation guidance targets v0.4.0. Release publication requires explicit maintainer direction.
 
 - Parker Moss is the fictional author of the shipped examples, with an offline illustrated avatar. His profile and prototypes use the `parker` source key while retaining their permanent IDs and links. Contributor profiles support local public images. Upstream distribution checks keep real maintainer profiles, personal grants, and ignored local contributor work out of release builds and the public demo source.

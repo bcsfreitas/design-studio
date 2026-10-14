@@ -2,6 +2,7 @@
   "type": "excalidraw",
   "version": 2,
   "studioVersion": 1,
+  "studioId": "ve0mrkhtpskee28e",
   "elements": [
     {
       "autoResize": true,
@@ -70,8 +71,7 @@
       "versionNonce": 854535900,
       "width": 458,
       "x": 110,
-      "y": 240,
-      "updated": 1791474936292
+      "y": 240
     },
     {
       "boundElements": [
@@ -100,8 +100,7 @@
       "versionNonce": 1653945180,
       "width": 458,
       "x": 808,
-      "y": 240,
-      "updated": 1791474936292
+      "y": 240
     },
     {
       "boundElements": [
@@ -126,8 +125,7 @@
       "versionNonce": 1757179249,
       "width": 458,
       "x": 1506,
-      "y": 240,
-      "updated": 1791474936292
+      "y": 240
     },
     {
       "boundElements": [
@@ -258,144 +256,6 @@
       "y": 386.5
     },
     {
-      "backgroundColor": "#ffec99",
-      "boundElements": [
-        {
-          "id": "muotyuwbvpkipq",
-          "type": "text"
-        }
-      ],
-      "frameId": "muotyuwbxj6vi",
-      "height": 200,
-      "id": "muotyuwbbhkzf2",
-      "index": "a9",
-      "roughness": 0,
-      "seed": 11763973,
-      "strokeColor": "#ecd67a",
-      "strokeWidth": 1,
-      "type": "rectangle",
-      "version": 4,
-      "versionNonce": 1877442229,
-      "width": 200,
-      "x": 110,
-      "y": 582
-    },
-    {
-      "autoResize": true,
-      "boundElements": [],
-      "containerId": "muotyuwbbhkzf2",
-      "fontFamily": 6,
-      "fontSize": 20,
-      "frameId": "muotyuwbxj6vi",
-      "height": 150,
-      "id": "muotyuwbvpkipq",
-      "index": "aA",
-      "lineHeight": 1.25,
-      "originalText": "1 Land on the Overview. The key numbers are at the top: open issues, new, high priority, resolved.",
-      "seed": 533673568,
-      "text": "1 Land on the\nOverview. The key\nnumbers are at the\ntop: open issues,\nnew, high priority,\nresolved.",
-      "textAlign": "left",
-      "type": "text",
-      "version": 4,
-      "versionNonce": 1436918745,
-      "verticalAlign": "top",
-      "width": 177.42,
-      "x": 120,
-      "y": 592
-    },
-    {
-      "backgroundColor": "#ffec99",
-      "boundElements": [
-        {
-          "id": "muotyuwb12g5jy",
-          "type": "text"
-        }
-      ],
-      "frameId": "muotyuwbxj6vi",
-      "height": 220,
-      "id": "muotyuwb6sk0uh",
-      "index": "aB",
-      "roughness": 0,
-      "seed": 373226518,
-      "strokeColor": "#ecd67a",
-      "strokeWidth": 1,
-      "type": "rectangle",
-      "version": 7,
-      "versionNonce": 1293029585,
-      "width": 200,
-      "x": 808,
-      "y": 582
-    },
-    {
-      "autoResize": true,
-      "boundElements": [],
-      "containerId": "muotyuwb6sk0uh",
-      "fontFamily": 6,
-      "fontSize": 20,
-      "frameId": "muotyuwbxj6vi",
-      "height": 200,
-      "id": "muotyuwb12g5jy",
-      "index": "aC",
-      "lineHeight": 1.25,
-      "originalText": "2 Click a number. The feedback inbox opens already filtered, with a bar that says what's showing, and Clear.",
-      "seed": 1728733980,
-      "text": "2 Click a number.\nThe feedback\ninbox opens\nalready filtered,\nwith a bar that\nsays what's\nshowing, and\nClear.",
-      "textAlign": "left",
-      "type": "text",
-      "version": 9,
-      "versionNonce": 1648617007,
-      "verticalAlign": "top",
-      "width": 162.86,
-      "x": 818,
-      "y": 592
-    },
-    {
-      "backgroundColor": "#ffec99",
-      "boundElements": [
-        {
-          "id": "muotyuwbqbydvj",
-          "type": "text"
-        }
-      ],
-      "frameId": "muotyuwbxj6vi",
-      "height": 200,
-      "id": "muotyuwbv68ttf",
-      "index": "aD",
-      "roughness": 0,
-      "seed": 216974753,
-      "strokeColor": "#ecd67a",
-      "strokeWidth": 1,
-      "type": "rectangle",
-      "version": 4,
-      "versionNonce": 1747547042,
-      "width": 200,
-      "x": 1506,
-      "y": 582
-    },
-    {
-      "autoResize": true,
-      "boundElements": [],
-      "containerId": "muotyuwbv68ttf",
-      "fontFamily": 6,
-      "fontSize": 20,
-      "frameId": "muotyuwbxj6vi",
-      "height": 125,
-      "id": "muotyuwbqbydvj",
-      "index": "aE",
-      "lineHeight": 1.25,
-      "originalText": "3 Click a row to open it. Status and priority save as soon as they change.",
-      "seed": 1321085910,
-      "text": "3 Click a row to\nopen it. Status and\npriority save as\nsoon as they\nchange.",
-      "textAlign": "left",
-      "type": "text",
-      "version": 4,
-      "versionNonce": 852125643,
-      "verticalAlign": "top",
-      "width": 176.18,
-      "x": 1516,
-      "y": 592
-    },
-    {
       "boundElements": [],
       "height": 662,
       "id": "muotyuwbxj6vi",
@@ -432,8 +292,7 @@
       "versionNonce": 317185073,
       "width": 458,
       "x": 110,
-      "y": 1032,
-      "updated": 1791474936292
+      "y": 1032
     },
     {
       "boundElements": [
@@ -458,8 +317,7 @@
       "versionNonce": 1124160114,
       "width": 458,
       "x": 808,
-      "y": 1032,
-      "updated": 1791474936292
+      "y": 1032
     },
     {
       "boundElements": [
@@ -526,98 +384,6 @@
       "y": 1178.5
     },
     {
-      "backgroundColor": "#ffec99",
-      "boundElements": [
-        {
-          "id": "muotyuwbqm9jsk",
-          "type": "text"
-        }
-      ],
-      "frameId": "muotyuwbnrb2zb",
-      "height": 200,
-      "id": "muotyuwb8e7xwe",
-      "index": "aK",
-      "roughness": 0,
-      "seed": 1843342809,
-      "strokeColor": "#ecd67a",
-      "strokeWidth": 1,
-      "type": "rectangle",
-      "version": 4,
-      "versionNonce": 1464249447,
-      "width": 200,
-      "x": 110,
-      "y": 1374
-    },
-    {
-      "autoResize": true,
-      "boundElements": [],
-      "containerId": "muotyuwb8e7xwe",
-      "fontFamily": 6,
-      "fontSize": 20,
-      "frameId": "muotyuwbnrb2zb",
-      "height": 75,
-      "id": "muotyuwbqm9jsk",
-      "index": "aL",
-      "lineHeight": 1.25,
-      "originalText": "+ New feedback opens a panel. Title is required.",
-      "seed": 1389778705,
-      "text": "+ New feedback\nopens a panel.\nTitle is required.",
-      "textAlign": "left",
-      "type": "text",
-      "version": 4,
-      "versionNonce": 1627864736,
-      "verticalAlign": "top",
-      "width": 152.26,
-      "x": 120,
-      "y": 1384
-    },
-    {
-      "backgroundColor": "#ffec99",
-      "boundElements": [
-        {
-          "id": "muotyuwbs4wg3u",
-          "type": "text"
-        }
-      ],
-      "frameId": "muotyuwbnrb2zb",
-      "height": 200,
-      "id": "muotyuwbpquhg",
-      "index": "aM",
-      "roughness": 0,
-      "seed": 876768711,
-      "strokeColor": "#ecd67a",
-      "strokeWidth": 1,
-      "type": "rectangle",
-      "version": 4,
-      "versionNonce": 23244511,
-      "width": 200,
-      "x": 808,
-      "y": 1374
-    },
-    {
-      "autoResize": true,
-      "boundElements": [],
-      "containerId": "muotyuwbpquhg",
-      "fontFamily": 6,
-      "fontSize": 20,
-      "frameId": "muotyuwbnrb2zb",
-      "height": 175,
-      "id": "muotyuwbs4wg3u",
-      "index": "aN",
-      "lineHeight": 1.25,
-      "originalText": "Add with no title shows the error and stays open. With a title it closes, and the item is at the top as New.",
-      "seed": 746060910,
-      "text": "Add with no title\nshows the error\nand stays open.\nWith a title it\ncloses, and the\nitem is at the top\nas New.",
-      "textAlign": "left",
-      "type": "text",
-      "version": 4,
-      "versionNonce": 229492532,
-      "verticalAlign": "top",
-      "width": 158.5,
-      "x": 818,
-      "y": 1384
-    },
-    {
       "boundElements": [],
       "height": 662,
       "id": "muotyuwbnrb2zb",
@@ -649,8 +415,7 @@
       "versionNonce": 897252809,
       "width": 458,
       "x": 110,
-      "y": 1824,
-      "updated": 1791474936292
+      "y": 1824
     },
     {
       "boundElements": [],
@@ -670,100 +435,7 @@
       "versionNonce": 896961670,
       "width": 458,
       "x": 808,
-      "y": 1824,
-      "updated": 1791474936292
-    },
-    {
-      "backgroundColor": "#ffec99",
-      "boundElements": [
-        {
-          "id": "muotyuwbww9vsu",
-          "type": "text"
-        }
-      ],
-      "frameId": "muotyuwb19a556",
-      "height": 200,
-      "id": "muotyuwbheje5p",
-      "index": "aR",
-      "roughness": 0,
-      "seed": 142493551,
-      "strokeColor": "#ecd67a",
-      "strokeWidth": 1,
-      "type": "rectangle",
-      "version": 4,
-      "versionNonce": 210863078,
-      "width": 200,
-      "x": 110,
-      "y": 2166
-    },
-    {
-      "autoResize": true,
-      "boundElements": [],
-      "containerId": "muotyuwbheje5p",
-      "fontFamily": 6,
-      "fontSize": 20,
-      "frameId": "muotyuwb19a556",
-      "height": 75,
-      "id": "muotyuwbww9vsu",
-      "index": "aS",
-      "lineHeight": 1.25,
-      "originalText": "No feedback at all: a message and a way to add some.",
-      "seed": 219874509,
-      "text": "No feedback at all:\na message and a\nway to add some.",
-      "textAlign": "left",
-      "type": "text",
-      "version": 4,
-      "versionNonce": 1440531524,
-      "verticalAlign": "top",
-      "width": 175.14,
-      "x": 120,
-      "y": 2176
-    },
-    {
-      "backgroundColor": "#ffec99",
-      "boundElements": [
-        {
-          "id": "muotyuwb3ar1k0",
-          "type": "text"
-        }
-      ],
-      "frameId": "muotyuwb19a556",
-      "height": 200,
-      "id": "muotyuwbfn9tzj",
-      "index": "aT",
-      "roughness": 0,
-      "seed": 1675542233,
-      "strokeColor": "#ecd67a",
-      "strokeWidth": 1,
-      "type": "rectangle",
-      "version": 4,
-      "versionNonce": 984185448,
-      "width": 200,
-      "x": 808,
-      "y": 2166
-    },
-    {
-      "autoResize": true,
-      "boundElements": [],
-      "containerId": "muotyuwbfn9tzj",
-      "fontFamily": 6,
-      "fontSize": 20,
-      "frameId": "muotyuwb19a556",
-      "height": 125,
-      "id": "muotyuwb3ar1k0",
-      "index": "aU",
-      "lineHeight": 1.25,
-      "originalText": "A search or filter that finds nothing says so. Clear or change it to see items again.",
-      "seed": 1733815180,
-      "text": "A search or filter\nthat finds nothing\nsays so. Clear or\nchange it to see\nitems again.",
-      "textAlign": "left",
-      "type": "text",
-      "version": 4,
-      "versionNonce": 326326897,
-      "verticalAlign": "top",
-      "width": 166.82,
-      "x": 818,
-      "y": 2176
+      "y": 1824
     },
     {
       "boundElements": [],
@@ -797,8 +469,7 @@
       "versionNonce": 1358860961,
       "width": 458,
       "x": 110,
-      "y": 2616,
-      "updated": 1791474936292
+      "y": 2616
     },
     {
       "boundElements": [],
@@ -818,100 +489,7 @@
       "versionNonce": 988330174,
       "width": 458,
       "x": 808,
-      "y": 2616,
-      "updated": 1791474936292
-    },
-    {
-      "backgroundColor": "#ffec99",
-      "boundElements": [
-        {
-          "id": "muotyuwcfp3x37",
-          "type": "text"
-        }
-      ],
-      "frameId": "muotyuwc6v5rmt",
-      "height": 200,
-      "id": "muotyuwc3ayemr",
-      "index": "aY",
-      "roughness": 0,
-      "seed": 1811976173,
-      "strokeColor": "#ecd67a",
-      "strokeWidth": 1,
-      "type": "rectangle",
-      "version": 4,
-      "versionNonce": 502854546,
-      "width": 200,
-      "x": 110,
-      "y": 2958
-    },
-    {
-      "autoResize": true,
-      "boundElements": [],
-      "containerId": "muotyuwc3ayemr",
-      "fontFamily": 6,
-      "fontSize": 20,
-      "frameId": "muotyuwc6v5rmt",
-      "height": 125,
-      "id": "muotyuwcfp3x37",
-      "index": "aZ",
-      "lineHeight": 1.25,
-      "originalText": "Edit opens a dialog with the same form, filled in. Save updates the item in place.",
-      "seed": 910924201,
-      "text": "Edit opens a dialog\nwith the same\nform, filled in.\nSave updates the\nitem in place.",
-      "textAlign": "left",
-      "type": "text",
-      "version": 4,
-      "versionNonce": 1360522996,
-      "verticalAlign": "top",
-      "width": 179.5,
-      "x": 120,
-      "y": 2968
-    },
-    {
-      "backgroundColor": "#ffec99",
-      "boundElements": [
-        {
-          "id": "muotyuwc3erqrg",
-          "type": "text"
-        }
-      ],
-      "frameId": "muotyuwc6v5rmt",
-      "height": 200,
-      "id": "muotyuwcfdjvrj",
-      "index": "aa",
-      "roughness": 0,
-      "seed": 1848592910,
-      "strokeColor": "#ecd67a",
-      "strokeWidth": 1,
-      "type": "rectangle",
-      "version": 4,
-      "versionNonce": 757719809,
-      "width": 200,
-      "x": 808,
-      "y": 2958
-    },
-    {
-      "autoResize": true,
-      "boundElements": [],
-      "containerId": "muotyuwcfdjvrj",
-      "fontFamily": 6,
-      "fontSize": 20,
-      "frameId": "muotyuwc6v5rmt",
-      "height": 125,
-      "id": "muotyuwc3erqrg",
-      "index": "ab",
-      "lineHeight": 1.25,
-      "originalText": "The row menu can Mark resolved, which closes an item from the list. Off once resolved.",
-      "seed": 1517543902,
-      "text": "The row menu can\nMark resolved,\nwhich closes an\nitem from the list.\nOff once resolved.",
-      "textAlign": "left",
-      "type": "text",
-      "version": 4,
-      "versionNonce": 458400312,
-      "verticalAlign": "top",
-      "width": 173.89,
-      "x": 818,
-      "y": 2968
+      "y": 2616
     },
     {
       "boundElements": [],
@@ -945,54 +523,7 @@
       "versionNonce": 1757518085,
       "width": 458,
       "x": 110,
-      "y": 3408,
-      "updated": 1791474936292
-    },
-    {
-      "backgroundColor": "#ffec99",
-      "boundElements": [
-        {
-          "id": "muotyuwcj2ovfy",
-          "type": "text"
-        }
-      ],
-      "frameId": "muotyuwc68u4hy",
-      "height": 200,
-      "id": "muotyuwcymubj3",
-      "index": "ae",
-      "roughness": 0,
-      "seed": 603754157,
-      "strokeColor": "#ecd67a",
-      "strokeWidth": 1,
-      "type": "rectangle",
-      "version": 4,
-      "versionNonce": 1562709410,
-      "width": 200,
-      "x": 110,
-      "y": 3750
-    },
-    {
-      "autoResize": true,
-      "boundElements": [],
-      "containerId": "muotyuwcymubj3",
-      "fontFamily": 6,
-      "fontSize": 20,
-      "frameId": "muotyuwc68u4hy",
-      "height": 125,
-      "id": "muotyuwcj2ovfy",
-      "index": "af",
-      "lineHeight": 1.25,
-      "originalText": "Delete on the detail asks first. Confirming returns to the feedback inbox.",
-      "seed": 2122676042,
-      "text": "Delete on the\ndetail asks first.\nConfirming returns\nto the feedback\ninbox.",
-      "textAlign": "left",
-      "type": "text",
-      "version": 4,
-      "versionNonce": 1387870337,
-      "verticalAlign": "top",
-      "width": 177.42,
-      "x": 120,
-      "y": 3760
+      "y": 3408
     },
     {
       "boundElements": [],
@@ -1007,12 +538,211 @@
       "width": 1018,
       "x": 50,
       "y": 3348
+    },
+    {
+      "autoResize": false,
+      "fontFamily": 6,
+      "fontSize": 20,
+      "frameId": "muotyuwbxj6vi",
+      "height": 50,
+      "id": "mv8r5pn8s0cime",
+      "lineHeight": 1.25,
+      "originalText": "1 Land on the Overview. The key numbers are at the top: open issues, new, high priority, resolved.",
+      "seed": 142307170,
+      "text": "1 Land on the Overview. The key numbers are at\nthe top: open issues, new, high priority, resolved.",
+      "textAlign": "left",
+      "type": "text",
+      "version": 1,
+      "versionNonce": 1575680680,
+      "verticalAlign": "top",
+      "width": 458,
+      "x": 110,
+      "y": 582
+    },
+    {
+      "autoResize": false,
+      "fontFamily": 6,
+      "fontSize": 20,
+      "frameId": "muotyuwbxj6vi",
+      "height": 75,
+      "id": "mv8r5pn87hhjfi",
+      "lineHeight": 1.25,
+      "originalText": "2 Click a number. The feedback inbox opens already filtered, with a bar that says what's showing, and Clear.",
+      "seed": 1015142395,
+      "text": "2 Click a number. The feedback inbox opens\nalready filtered, with a bar that says what's\nshowing, and Clear.",
+      "textAlign": "left",
+      "type": "text",
+      "version": 1,
+      "versionNonce": 1541608082,
+      "verticalAlign": "top",
+      "width": 458,
+      "x": 808,
+      "y": 582
+    },
+    {
+      "autoResize": false,
+      "fontFamily": 6,
+      "fontSize": 20,
+      "frameId": "muotyuwbxj6vi",
+      "height": 50,
+      "id": "mv8r5pn9a02mx2",
+      "lineHeight": 1.25,
+      "originalText": "3 Click a row to open it. Status and priority save as soon as they change.",
+      "seed": 691941308,
+      "text": "3 Click a row to open it. Status and priority save\nas soon as they change.",
+      "textAlign": "left",
+      "type": "text",
+      "version": 1,
+      "versionNonce": 1395434647,
+      "verticalAlign": "top",
+      "width": 458,
+      "x": 1506,
+      "y": 582
+    },
+    {
+      "autoResize": false,
+      "fontFamily": 6,
+      "fontSize": 20,
+      "frameId": "muotyuwbnrb2zb",
+      "height": 25,
+      "id": "mv8r5pn9qa3j9l",
+      "lineHeight": 1.25,
+      "originalText": "+ New feedback opens a panel. Title is required.",
+      "seed": 1420012742,
+      "text": "+ New feedback opens a panel. Title is required.",
+      "textAlign": "left",
+      "type": "text",
+      "version": 1,
+      "versionNonce": 1768824125,
+      "verticalAlign": "top",
+      "width": 458,
+      "x": 110,
+      "y": 1374
+    },
+    {
+      "autoResize": false,
+      "fontFamily": 6,
+      "fontSize": 20,
+      "frameId": "muotyuwbnrb2zb",
+      "height": 75,
+      "id": "mv8r5pn9ijxptq",
+      "lineHeight": 1.25,
+      "originalText": "Add with no title shows the error and stays open. With a title it closes, and the item is at the top as New.",
+      "seed": 1916410420,
+      "text": "Add with no title shows the error and stays\nopen. With a title it closes, and the item is at the\ntop as New.",
+      "textAlign": "left",
+      "type": "text",
+      "version": 1,
+      "versionNonce": 714260089,
+      "verticalAlign": "top",
+      "width": 458,
+      "x": 808,
+      "y": 1374
+    },
+    {
+      "autoResize": false,
+      "fontFamily": 6,
+      "fontSize": 20,
+      "frameId": "muotyuwb19a556",
+      "height": 50,
+      "id": "mv8r5pn9hbb00d",
+      "lineHeight": 1.25,
+      "originalText": "No feedback at all: a message and a way to add some.",
+      "seed": 1769233385,
+      "text": "No feedback at all: a message and a way to add\nsome.",
+      "textAlign": "left",
+      "type": "text",
+      "version": 1,
+      "versionNonce": 603504095,
+      "verticalAlign": "top",
+      "width": 458,
+      "x": 110,
+      "y": 2166
+    },
+    {
+      "autoResize": false,
+      "fontFamily": 6,
+      "fontSize": 20,
+      "frameId": "muotyuwb19a556",
+      "height": 50,
+      "id": "mv8r5pn92fizk4",
+      "lineHeight": 1.25,
+      "originalText": "A search or filter that finds nothing says so. Clear or change it to see items again.",
+      "seed": 691001762,
+      "text": "A search or filter that finds nothing says so.\nClear or change it to see items again.",
+      "textAlign": "left",
+      "type": "text",
+      "version": 1,
+      "versionNonce": 1888323874,
+      "verticalAlign": "top",
+      "width": 458,
+      "x": 808,
+      "y": 2166
+    },
+    {
+      "autoResize": false,
+      "fontFamily": 6,
+      "fontSize": 20,
+      "frameId": "muotyuwc6v5rmt",
+      "height": 50,
+      "id": "mv8r5pn9iiur7a",
+      "lineHeight": 1.25,
+      "originalText": "Edit opens a dialog with the same form, filled in. Save updates the item in place.",
+      "seed": 1936236276,
+      "text": "Edit opens a dialog with the same form, filled in.\nSave updates the item in place.",
+      "textAlign": "left",
+      "type": "text",
+      "version": 1,
+      "versionNonce": 1273777216,
+      "verticalAlign": "top",
+      "width": 458,
+      "x": 110,
+      "y": 2958
+    },
+    {
+      "autoResize": false,
+      "fontFamily": 6,
+      "fontSize": 20,
+      "frameId": "muotyuwc6v5rmt",
+      "height": 50,
+      "id": "mv8r5pn9z1gj2l",
+      "lineHeight": 1.25,
+      "originalText": "The row menu can Mark resolved, which closes an item from the list. Off once resolved.",
+      "seed": 828225707,
+      "text": "The row menu can Mark resolved, which closes\nan item from the list. Off once resolved.",
+      "textAlign": "left",
+      "type": "text",
+      "version": 1,
+      "versionNonce": 450345007,
+      "verticalAlign": "top",
+      "width": 458,
+      "x": 808,
+      "y": 2958
+    },
+    {
+      "autoResize": false,
+      "fontFamily": 6,
+      "fontSize": 20,
+      "frameId": "muotyuwc68u4hy",
+      "height": 50,
+      "id": "mv8r5pn9ue17rg",
+      "lineHeight": 1.25,
+      "originalText": "Delete on the detail asks first. Confirming returns to the feedback inbox.",
+      "seed": 299319217,
+      "text": "Delete on the detail asks first. Confirming\nreturns to the feedback inbox.",
+      "textAlign": "left",
+      "type": "text",
+      "version": 1,
+      "versionNonce": 616302832,
+      "verticalAlign": "top",
+      "width": 458,
+      "x": 110,
+      "y": 3750
     }
   ],
   "appState": {
     "viewBackgroundColor": "#ffffff",
     "gridSize": 20
   },
-  "files": {},
-  "studioId": "ve0mrkhtpskee28e"
+  "files": {}
 }
