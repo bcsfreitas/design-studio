@@ -68,7 +68,7 @@ STUDIO_BASE_PATH=/design-studio-demo/ pnpm preview
 
 See [Publishing](src/platform/context/publishing.md) for portable hosting, direct-link routing, and access requirements.
 
-Maintainers record the public launch checks in [v0.3.0 acceptance](.github/releases/v0.3.0-acceptance.md) and follow [Releasing](src/platform/context/releasing.md) to cut the tag.
+Maintainers record the public launch checks in [v0.4.0 acceptance](.github/releases/v0.4.0-acceptance.md) and follow [Releasing](src/platform/context/releasing.md) to cut the tag.
 
 ## License
 

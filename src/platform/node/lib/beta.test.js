@@ -251,7 +251,7 @@ test('create and rename preserve addresses, file errors recover, and system remo
       // Exercise both shared-source handlers with current grants, including revocation.
       const configBeforePermissions = fs.readFileSync('studio.config.json', 'utf8');
       const permissionConfig = JSON.parse(configBeforePermissions);
-      fs.writeFileSync('contributors/permission-admin.json', JSON.stringify({ formatVersion: 2, studioId: createResourceId(), name: 'Permission Admin', email: '', github: '', preferences: { onboarding: { welcomeDismissed: false } } }));
+      fs.writeFileSync('contributors/permission-admin.json', JSON.stringify({ formatVersion: 1, studioId: createResourceId(), name: 'Permission Admin', email: '', github: '', preferences: { onboarding: { welcomeDismissed: false } } }));
       permissionConfig.usage = 'team'; permissionConfig.admins = [JSON.parse(fs.readFileSync('contributors/permission-admin.json')).studioId];
       const ownerContributorIdentity = JSON.parse(fs.readFileSync('contributors/parker.json')).studioId;
       permissionConfig.systemMaintainers[defaultIdentity] = [ownerContributorIdentity];

@@ -28,7 +28,7 @@ export function contributorProfileProblems(
     return problems;
   }
   const version = formatVersionProblem(entry.formatVersion, 'contributor', `${file}`);
-  if (version && !identityOnly && !(initializingPreferences && entry.formatVersion === 1)) problems.push(version);
+  if (version && !identityOnly) problems.push(version);
   if (typeof entry.name !== 'string' || !entry.name.trim()) problems.push(`${file}: declare a nonempty name.`);
   try {
     jsonIdentity(source);

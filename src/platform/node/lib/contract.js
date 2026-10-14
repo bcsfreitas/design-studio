@@ -83,8 +83,8 @@ export function apiProblems(root = ROOT) {
   ];
 }
 
-export const SNAPSHOT_VERSION = 2;
-export const FIRST_PUBLIC_RELEASE = '0.3.0';
+export const SNAPSHOT_VERSION = 1;
+export const FIRST_PUBLIC_RELEASE = '0.4.0';
 
 export function computeContract(root = ROOT) {
   const names = Object.fromEntries(

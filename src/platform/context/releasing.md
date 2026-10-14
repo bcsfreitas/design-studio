@@ -8,7 +8,7 @@ A release is a tagged commit on the upstream `main`, named `v<version>`. Studios
 
 ## Versions
 
-`PLATFORM_VERSION` (`src/platform/core/modules/index.ts`) is the version of the public contract, and the tag uses the same number. The first supported public baseline is `v0.3.0`; historical pre-release versions impose no compatibility requirement. After that baseline, while the version is `0.x`, raise the minor version when a stable signature or referenced type, runtime requirement/package list, or stored format version changes, and the patch version otherwise. `pnpm contract --released` compares against the preceding supported release independently of the editable snapshot. A module's `requires` names the oldest version it works with; a module created with `pnpm studio create-module` requires the version it was created with, so a release never edits the module template. The supplied modules keep the `requires` they declare.
+`PLATFORM_VERSION` (`src/platform/core/modules/index.ts`) is the version of the public contract, and the tag uses the same number. The first supported public baseline is `v0.4.0`; historical pre-release versions impose no compatibility requirement. After that baseline, while the version is `0.x`, raise the minor version when a stable signature or referenced type, runtime requirement/package list, or stored format version changes, and the patch version otherwise. `pnpm contract --released` compares against the preceding supported release independently of the editable snapshot. A module's `requires` names the oldest version it works with; a module created with `pnpm studio create-module` requires the version it was created with, so a release never edits the module template. The supplied modules keep the `requires` they declare.
 
 ## Maintainer workspace and distributed source
 
@@ -19,6 +19,8 @@ Run acceptance and cut releases from a separate clean clone on `main`, with full
 Upstream CI runs the same distribution check. The public website checks out the exact passing Studio commit in a fresh `studio-source` directory and builds there, so it does not use the maintainer's local files or `dist/`. Installed studios and their own publishing workflows may include real contributors; this is an upstream distribution policy only. Previous commits and tags retain their historical contents.
 
 ## Cut a release
+
+Prepare the candidate and review its changes, release notes, checks, and limitations with the maintainer. Cutting the real release and publishing its commit or tag require the maintainer’s explicit direction. Candidate preparation and a dry run do not authorize publication.
 
 1. Merge everything the release includes into `main`, and make sure each change has a line under `## Unreleased` in `CHANGELOG.md`. Freeze the candidate and record its commit with these command results:
 
@@ -40,20 +42,20 @@ Upstream CI runs the same distribution check. The public website checks out the 
 2. On a clean `main` that matches `origin/main`, preview the release:
 
    ```sh
-   pnpm release 0.3.0 --dry-run
+   pnpm release 0.4.0 --dry-run
    ```
 
    The dry run prints the version change, the changelog heading, the checks, the commit and tag it would make, and the release notes, and changes nothing. It lists every reason the release can't go ahead.
 3. Cut it:
 
    ```sh
-   pnpm release 0.3.0
+   pnpm release 0.4.0
    ```
 
 4. Review the commit and the tag, then push both together with the command the script prints:
 
    ```sh
-   git push --atomic origin main v0.3.0
+   git push --atomic origin main v0.4.0
    ```
 
 The release commit goes to `main` directly, so the person pushing needs the right to push to `main`.

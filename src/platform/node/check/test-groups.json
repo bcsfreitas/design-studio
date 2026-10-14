@@ -50,7 +50,6 @@
         "src/platform/node/lib/release.test.js",
         "src/platform/node/lib/lock.test.js",
         "src/platform/node/lib/studio-update.test.js",
-        "src/platform/node/lib/runtime-import-repair.test.js",
         "src/platform/node/lib/file-type-declarations.test.js",
         "src/platform/modules/canvas/tools.test.ts",
         "src/platform/modules/systems/content/content.test.ts",

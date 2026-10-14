@@ -1,10 +1,10 @@
 {
-  "snapshotVersion": 2,
+  "snapshotVersion": 1,
   "platformVersion": "0.4.0",
   "formatVersions": {
     "config": 1,
     "prototype": 1,
-    "contributor": 2
+    "contributor": 1
   },
   "api": {
     "#studio/module": {
@@ -1513,7 +1513,7 @@
     },
     "#studio/module.ModuleSpec.PreferenceSpec": {
       "stability": "stable",
-      "signature": "{ defaults: Record<string, string | number | boolean>; fields: Record<string, \"string\" | \"number\" | \"boolean\">; legacy?: Record<string, string>; }"
+      "signature": "{ defaults: Record<string, string | number | boolean>; fields: Record<string, \"string\" | \"number\" | \"boolean\">; }"
     },
     "#studio/system.SystemIntro.DesignSystem": {
       "stability": "stable",

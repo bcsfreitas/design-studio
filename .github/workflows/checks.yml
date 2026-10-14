@@ -153,11 +153,8 @@ jobs:
       - name: Rehearse the actual update command
         run: |
           node src/platform/node/check/upgrade-test.js
-          if git rev-parse -q --verify refs/tags/v0.3.0 >/dev/null; then
-            node src/platform/node/check/upgrade-test.js --from v0.3.0 --repair-runtime
-          fi
           RELEASE=$(git tag --list 'v*' --sort=-v:refname | node --input-type=module -e "import fs from 'node:fs'; import semver from 'semver'; import {FIRST_PUBLIC_RELEASE} from './src/platform/node/lib/contract.js'; console.log(fs.readFileSync(0,'utf8').trim().split('\n').find(tag => semver.valid(tag.slice(1)) && !semver.prerelease(tag.slice(1)) && semver.gte(tag.slice(1), FIRST_PUBLIC_RELEASE)) ?? '')")
-          if [ -n "$RELEASE" ] && [ "$RELEASE" != "v0.3.0" ]; then
+          if [ -n "$RELEASE" ]; then
             node src/platform/node/check/upgrade-test.js --from "$RELEASE"
           fi
   # Keep the existing required check name. A successful bundle alone cannot pass it.

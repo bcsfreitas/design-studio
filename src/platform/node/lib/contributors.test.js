@@ -95,7 +95,7 @@ test('a profile without the current formatVersion is a problem that names the fi
   const profile = JSON.parse(fs.readFileSync(file, 'utf8'));
   delete profile.formatVersion;
   fs.writeFileSync(file, JSON.stringify(profile));
-  assert.match(readContributors(root).problems.join('\n'), /contributors\/sam\.json: add "formatVersion": 2/);
+  assert.match(readContributors(root).problems.join('\n'), /contributors\/sam\.json: add "formatVersion": 1/);
   fs.writeFileSync(file, JSON.stringify({ ...profile, formatVersion: 3 }));
   assert.match(readContributors(root).problems.join('\n'), /contributors\/sam\.json: formatVersion is 3/);
 });

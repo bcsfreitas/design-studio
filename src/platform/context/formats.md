@@ -33,7 +33,7 @@ Writers keep the field. Settings writes are read-modify-write of the parsed file
 
 Builds and ordinary saves never upgrade stored formats. Unknown future versions are refused. A format change updates `FORMAT_VERSIONS` and follows the [release compatibility policy](releasing.md#versions).
 
-Contributor format version 2 introduces declared module namespaces. Version 1 profiles use the explicit [preference initialization workflow](contributor-preferences.md); changing only their version does not initialize required state.
+The public baseline uses version 1 for settings, prototype metadata, and contributor profiles. Contributor profiles declare module preference namespaces. Earlier development shapes are not supported formats; changing a version number alone does not make an obsolete shape valid. The [preference initialization workflow](contributor-preferences.md) adds namespaces for installed modules using current declarations.
 
 ## Related contracts
 

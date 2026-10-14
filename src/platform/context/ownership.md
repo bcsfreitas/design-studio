@@ -54,7 +54,7 @@ Upstream releases are tags named `v<version>` on the Design Studio project ([Rel
 | Command | What it does |
 | --- | --- |
 | `pnpm studio update --dry-run` | Shows the installed release, the target release, the commit range, and the files the release changes that the studio changed too, with each one's tier and what the update does to it. Changes nothing but the fetched tag refs. |
-| `pnpm studio update [version]` | Updates to the latest release, or to `version` (`0.3.0` or `v0.3.0`). |
+| `pnpm studio update [version]` | Updates to the latest release, or to `version` (`0.4.0` or `v0.4.0`). |
 | `pnpm studio update --continue` | Finishes an update after a person resolves its conflicts. |
 
 The update:
@@ -68,7 +68,7 @@ The update:
 
 It never pushes and never changes the branch it started from. It runs before the studio runtime loads, so a studio whose settings don't validate can still update.
 
-If the merge commits but verification fails on retained obsolete imports, use the separate [Runtime import repair](runtime-import-repair.md#after-an-update-reports-failed-verification) workflow. The updater does not rewrite contributor-owned imports or apply a repair plan.
+If verification fails after the merge commits, inspect the reported errors and review necessary changes to retained content. The updater does not rewrite contributor-owned imports or initialize preferences.
 
 Workspace commands warn about stale dependencies instead of automatically installing before they run. This lets `pnpm studio update --continue` reach the updater while the merged manifests and lockfile still differ. After conflicts are resolved, the updater regenerates dependencies before its checks. Explicit frozen installs in CI and release acceptance still reject a mismatched lockfile.
 
@@ -85,7 +85,7 @@ A studio without shared release history cannot use the update command, including
 ```json
 {
   "lockfileVersion": 1,
-  "platform": { "version": "0.3.0", "commit": "<full commit id of the v0.3.0 tag>" },
+  "platform": { "version": "0.4.0", "commit": "<full commit id of the v0.4.0 tag>" },
   "modules": {},
   "systems": {}
 }

@@ -12,7 +12,7 @@ function fixture(t) {
   fs.writeFileSync(
     path.join(root, 'contributors/sam.json'),
     JSON.stringify({
-      formatVersion: 2,
+      formatVersion: 1,
       studioId: '0123456789abcdef',
       name: 'Sam',
       email: '',
@@ -77,7 +77,7 @@ function declarations(root) {
     file,
     JSON.stringify({
       ...profile,
-      formatVersion: 2,
+      formatVersion: 1,
       email: '',
       github: '',
       preferences: { ...profile.preferences, onboarding: { welcomeDismissed: false } },
@@ -118,13 +118,12 @@ test('public namespace writes validate declarations and cannot change identities
   assert.equal(profile.studioId, '0123456789abcdef');
   assert.deepEqual(profile.preferences.research, { keep: 3 });
 });
-test('initialization previews legacy state, revalidates saved plans, and preserves disabled state', t => {
+test('initialization previews current namespaces, revalidates saved plans, and preserves disabled state', t => {
   const root = fixture(t);
   declarations(root);
   const file = path.join(root, 'contributors/sam.json');
   const profile = JSON.parse(fs.readFileSync(file));
   delete profile.preferences.onboarding;
-  profile.formatVersion = 1;
   profile.welcomeDismissed = true;
   fs.writeFileSync(file, JSON.stringify(profile));
   const before = fs.readFileSync(file, 'utf8');
@@ -136,7 +135,8 @@ test('initialization previews legacy state, revalidates saved plans, and preserv
     error => error.status === 409,
   );
   applyContributorPreferences(root, 'sam', planContributorPreferences(root, 'sam'));
-  assert.equal(readPreferenceProfile(root, 'sam').profile.preferences.onboarding.welcomeDismissed, true);
+  assert.equal(readPreferenceProfile(root, 'sam').profile.preferences.onboarding.welcomeDismissed, false);
+  assert.equal(readPreferenceProfile(root, 'sam').profile.welcomeDismissed, true);
   assert.deepEqual(planContributorPreferences(root, 'sam').edits, []);
   const configFile = path.join(root, 'studio.config.json');
   const config = JSON.parse(fs.readFileSync(configFile));
@@ -146,7 +146,7 @@ test('initialization previews legacy state, revalidates saved plans, and preserv
   assert.deepEqual(planContributorPreferences(root, 'sam', 'onboarding').edits, []);
   config.modules.onboarding = true;
   fs.writeFileSync(configFile, JSON.stringify(config));
-  assert.equal(readContributorPreferences(root, { actor: 'sam', module: 'onboarding' }).value.welcomeDismissed, true);
+  assert.equal(readContributorPreferences(root, { actor: 'sam', module: 'onboarding' }).value.welcomeDismissed, false);
   config.usage = 'team';
   config.admins = [];
   fs.writeFileSync(configFile, JSON.stringify(config));
@@ -203,7 +203,7 @@ test('ordinary preferences reject unsupported formats and invalid envelopes with
   const file = path.join(root, 'contributors/sam.json');
   const profile = JSON.parse(fs.readFileSync(file));
   for (const change of [
-    { formatVersion: 1 },
+    { formatVersion: 2 },
     { formatVersion: 999 },
     { formatVersion: undefined },
     { preferences: [] },

@@ -17,8 +17,6 @@ export const CORE_PAGE_KEYS = ['settings'] as const;
 export type PreferenceSpec = {
   defaults: Record<string, string | number | boolean>;
   fields: Record<string, 'string' | 'number' | 'boolean'>;
-  // Explicit transition from old top-level fields. Initialization retains those fields for human review.
-  legacy?: Record<string, string>;
 };
 export function preferenceProblems(value: unknown, schema: PreferenceSpec): string[] {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return ['declare a preference object'];
@@ -169,19 +167,9 @@ export function moduleProblems(spec: unknown, folder: string, dir = `${TEAM_MODU
         ([field, type]) => !/^[a-zA-Z][a-zA-Z0-9]*$/.test(field) || !['boolean', 'string', 'number'].includes(type),
       ) ||
       preferenceProblems(p.defaults, p).length ||
-      Object.keys(p.defaults).some(field => !Object.hasOwn(p.fields, field)) ||
-      (p.legacy !== undefined &&
-        (!p.legacy ||
-          typeof p.legacy !== 'object' ||
-          Array.isArray(p.legacy) ||
-          Object.entries(p.legacy).some(
-            ([field, old]) =>
-              !Object.hasOwn(p.fields, field) || typeof old !== 'string' || !/^[a-zA-Z][a-zA-Z0-9]*$/.test(old),
-          )))
+      Object.keys(p.defaults).some(field => !Object.hasOwn(p.fields, field))
     )
-      problems.push(
-        `${where}: preferences need required primitive fields, matching explicit defaults, and valid legacy mappings.`,
-      );
+      problems.push(`${where}: preferences need required primitive fields, matching explicit defaults.`);
   }
   if (m.hosts !== undefined) {
     if (!Array.isArray(m.hosts)) problems.push(`${where}: hosts must be a list of host declarations.`);

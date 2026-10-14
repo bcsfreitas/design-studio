@@ -23,8 +23,6 @@ import { systemPackage, systemDependencyProblems } from '../lib/system-dependenc
 //   context <prototype-folder> [--json] inspect assignment, rebuild target, scope, and guidance paths; never writes
 //   identity-audit [--json]             inspect existing/missing IDs, including retained types; never writes
 //   identify <prototype-folder> [--yes] assign missing IDs within one owned prototype
-//   repair-runtime-imports [paths] [--out <plan>]  preview retained runtime import repairs;
-//   repair-runtime-imports --apply <plan> [--yes]  revalidate, then explicitly apply the saved plan
 //   check                             pnpm check, and what has changed from the original of a module you added
 //   update [version] [--dry-run]      take an upstream release on a new studio-update/v<version> branch;
 //   update --continue                 finish one after resolving conflicts (src/platform/node/cli/studio-update.js)
@@ -935,7 +933,7 @@ const commands = {
 };
 if (!command || !Object.hasOwn(commands, command)) {
   console.error(
-    `Usage: pnpm studio <command>\n  ${[...Object.keys(commands), 'update', 'identity-audit', 'identify', 'repair-runtime-imports'].join(', ')}\nSee the top of src/platform/node/cli/studio-runtime.js for what each does.`,
+    `Usage: pnpm studio <command>\n  ${[...Object.keys(commands), 'update', 'identity-audit', 'identify'].join(', ')}\nSee the top of src/platform/node/cli/studio-runtime.js for what each does.`,
   );
   process.exit(command ? 1 : 0);
 }

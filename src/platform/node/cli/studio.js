@@ -4,5 +4,4 @@ if (['identity-audit', 'identify'].includes(command)) await import('./studio-ide
 // Updating must work whatever state the studio's settings are in, so it does not load the runtime.
 else if (command === 'update') await import('./studio-update.js');
 else if (command === 'preferences') await import('./studio-preferences.js');
-else if (command === 'repair-runtime-imports') await import('./studio-runtime-repair.js');
 else await import('./studio-runtime.js');

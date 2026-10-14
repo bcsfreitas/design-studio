@@ -2,13 +2,15 @@
 
 ## Unreleased
 
+- Prepare v0.4.0 as the first supported public baseline. Studio-owned settings, prototype metadata, contributor profiles, and contract snapshots start at version 1 with their current shapes. Earlier development tags are not compatibility commitments. Remove contributor legacy mappings and the pre-launch runtime-import repair command; current-module preference initialization and future release compatibility checks remain. Installation guidance targets v0.4.0. Release publication requires explicit maintainer direction.
+
 - Parker Moss is the fictional author of the shipped examples, with an offline illustrated avatar. His profile and prototypes use the `parker` source key while retaining their permanent IDs and links. Contributor profiles support local public images. Upstream distribution checks keep real maintainer profiles, personal grants, and ignored local contributor work out of release builds and the public demo source.
 
 - Platform context removes stale declarations, completed implementation plans, and duplicate architecture guidance. Agent skills select task-relevant contracts, with canonical identity procedures and portable publishing guidance. Preservation, authorization, API behavior, and verification requirements remain unchanged.
 
 - The API foundations refactor is closed. Preference writes use validated data snapshots without invoking accessors; declaration caches use physical file identity and isolated snapshots; asset subscribers fail independently, and each reader receives an independent copy. Deferred performance work and stopping criteria are recorded in the maintainer backlog.
 
-- Modules declare preference schemas and registration defaults. Contributor format version 2 stores module namespaces; authorized, versioned transactions preserve identity and unrelated data. Saved initialization plans transition retained profiles and prepare newly enabled modules. The updater does not initialize or rewrite profiles.
+- Modules declare preference schemas and registration defaults. Contributor format version 1 stores module namespaces; authorized, versioned transactions preserve identity and unrelated data. Saved initialization plans transition retained profiles and prepare newly enabled modules. The updater does not initialize or rewrite profiles.
 
 - Enabled modules declare dependency optimization and lazy JSON build assets. Canvas no longer has a Vite configuration branch. Systems props use the shared asset transport, cache, dependency watches, and production emission instead of a bespoke endpoint and virtual module.
 
@@ -24,11 +26,10 @@
 
 - Module clients throw `ClientError` with a machine-readable code, HTTP status when available, and a display message. Onboarding uses the shared client, preserves its persistence fallback and 422 suppression, and reports malformed successful replies.
 
-- `pnpm studio repair-runtime-imports` previews retained utility and empty-view import repairs. Explicit application revalidates a saved plan, current contributor authority, source bytes, and safe paths; custom helpers require manual resolution. Repair stays separate from the updater. The v0.3.0 upgrade fixture verifies preservation before repair and production compilation afterward.
 
 - Views owns the experimental `emptyView` runtime sentinel through `@module/view`. Prototype and file creation share its source template; the old shared sentinel path and duplicate prototype view scaffold are removed. Empty-state presentation remains in the View host.
 
-- Shared class and overlay helpers now use the experimental `#studio/runtime` API. System components, prototype helpers, and hosts share its portal context; the old utility files and saved shadcn aliases are removed. Empty views retain their existing sentinel until the separate View runtime contract.
+- Shared class and overlay helpers now use the experimental `#studio/runtime` API. System components, prototype helpers, and hosts share its portal context; the old utility files and saved shadcn aliases are removed.
 
 - Public API entries now declare their executable environments in one policy shared by checks and the development/build import guard. Transitive imports and re-exports cannot relay application services into Node tooling or prototype runtime, or bypass team code's public boundary. Explicit type-only imports remain erased, and Node-capable entries are exercised in a fresh process.
 

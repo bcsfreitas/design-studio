@@ -6,7 +6,7 @@
 export const FORMAT_VERSIONS = {
   config: 1,
   prototype: 1,
-  contributor: 2,
+  contributor: 1,
 } as const;
 
 export type FormatName = keyof typeof FORMAT_VERSIONS;

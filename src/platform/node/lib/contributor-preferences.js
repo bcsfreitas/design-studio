@@ -6,7 +6,6 @@ import {
 } from './installed-module-declarations.js';
 import { compatible, moduleProblems, preferenceProblems } from '../../core/modules/index.ts';
 import { serializeJson } from '../../core/json.ts';
-import { FORMAT_VERSIONS } from '../../core/formats.ts';
 import { studioRole, isEnabled } from '../../core/config.ts';
 import { readPersistedStudioConfig } from './persisted-studio-config.js';
 import { readContributors, contributorProfileProblems } from './contributors.js';
@@ -130,8 +129,6 @@ export function planContributorPreferences(root, actor, requestedModule) {
     throw fail('Select an installed compatible module with a preference declaration.', 422);
   const edits = [];
   for (const [contributor, profile] of Object.entries(contributors)) {
-    if (![1, FORMAT_VERSIONS.contributor].includes(profile.formatVersion))
-      throw fail(`Unsupported profile version for ${contributor}.`, 422);
     const current = readPreferenceProfile(root, contributor, contributor, { initializingPreferences: true });
     const next = structuredClone(profile);
     if (next.preferences === undefined) next.preferences = {};
@@ -139,15 +136,12 @@ export function planContributorPreferences(root, actor, requestedModule) {
       throw fail(`${contributor}: invalid preferences envelope.`, 422);
     for (const spec of installed) {
       if (!spec.preferences || !compatible(spec)) continue;
-      const legacy = Object.entries(spec.preferences.legacy ?? {}).filter(([, old]) => Object.hasOwn(profile, old));
-      if (!(isEnabled(config, spec.id) || requestedModule === spec.id || legacy.length)) continue;
+      if (!(isEnabled(config, spec.id) || requestedModule === spec.id)) continue;
       if (!Object.hasOwn(next.preferences, spec.id)) {
         next.preferences[spec.id] = structuredClone(spec.preferences.defaults);
-        for (const [field, old] of legacy) next.preferences[spec.id][field] = profile[old];
       }
       validate(next.preferences[spec.id], spec.preferences, spec.id);
     }
-    next.formatVersion = FORMAT_VERSIONS.contributor;
     const after = JSON.stringify(next, null, 2) + '\n';
     if (JSON.stringify(next) !== JSON.stringify(profile))
       edits.push({ contributor, file: path.relative(root, current.file), before: current.source, after });

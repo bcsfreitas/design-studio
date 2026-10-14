@@ -4,7 +4,7 @@ export default {
   id: 'onboarding',
   label: 'Welcome',
   version: '0.1.0',
-  requires: '0.3.0',
+  requires: '0.4.0',
   description: 'A first-run welcome that helps people explore their studio and start their first prototype.',
   optional: true,
   settings: { group: 'team', order: 0 },
@@ -12,7 +12,6 @@ export default {
   preferences: {
     defaults: { welcomeDismissed: false },
     fields: { welcomeDismissed: 'boolean' },
-    legacy: { welcomeDismissed: 'welcomeDismissed' },
   },
   instructions: [
     {

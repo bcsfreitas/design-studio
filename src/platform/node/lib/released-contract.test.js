@@ -8,13 +8,13 @@ import { computeContract, SNAPSHOT_FILE } from './contract.js';
 import { releasedBaseline, releasedProblems } from './released-contract.js';
 const base = computeContract();
 // Exercise the first public baseline independently of the candidate version.
-base.platformVersion = '0.3.0';
-const baseline = () => ({ tag: 'v0.3.0', snapshot: structuredClone(base) });
+base.platformVersion = '0.4.0';
+const baseline = () => ({ tag: 'v0.4.0', snapshot: structuredClone(base) });
 
 test('the public launch starts without historical pre-release compatibility', () => {
   assert.deepEqual(releasedProblems(base, null), []);
   assert.match(
-    releasedProblems({ ...base, platformVersion: '0.3.1' }, null)[0],
+    releasedProblems({ ...base, platformVersion: '0.4.1' }, null)[0],
     /No preceding supported public release/,
   );
 });
@@ -38,14 +38,14 @@ test('refreshing a future snapshot or a patch bump cannot conceal stable changes
     },
   ]) {
     const now = structuredClone(base);
-    now.platformVersion = '0.3.1';
+    now.platformVersion = '0.4.1';
     change(now);
     assert.match(releasedProblems(now, baseline())[0], /require a minor version increase/);
-    now.platformVersion = '0.4.0';
+    now.platformVersion = '0.5.0';
     assert.deepEqual(releasedProblems(now, baseline()), []);
   }
   const experimental = structuredClone(base);
-  experimental.platformVersion = '0.3.1';
+  experimental.platformVersion = '0.4.1';
   experimental.api['#studio/data'].contribution.signature = '() => undefined';
   assert.deepEqual(releasedProblems(experimental, baseline()), []);
 });
@@ -67,21 +67,22 @@ test('tag selection ignores old layouts, excludes the candidate tag and rejects 
   };
   commit('not a supported snapshot');
   git('tag', 'v0.2.1');
+  git('tag', 'v0.3.0');
   assert.equal(releasedBaseline(root), null);
   commit(JSON.stringify(base));
-  git('tag', 'v0.3.0');
+  git('tag', 'v0.4.0');
   fs.writeFileSync(path.join(root, 'uncommitted.txt'), 'candidate work');
-  assert.equal(releasedBaseline(root, '0.3.0').tag, 'v0.3.0', 'dirty source must compare against the tagged HEAD');
+  assert.equal(releasedBaseline(root, '0.4.0').tag, 'v0.4.0', 'dirty source must compare against the tagged HEAD');
   fs.rmSync(path.join(root, 'uncommitted.txt'));
-  commit(JSON.stringify({ ...base, platformVersion: '0.3.1' }));
-  git('tag', 'v0.3.1');
-  assert.equal(releasedBaseline(root).tag, 'v0.3.0', 'candidate own tag is excluded');
+  commit(JSON.stringify({ ...base, platformVersion: '0.4.1' }));
+  git('tag', 'v0.4.1');
+  assert.equal(releasedBaseline(root).tag, 'v0.4.0', 'candidate own tag is excluded');
   fs.writeFileSync(path.join(root, 'marker.txt'), 'next');
   git('add', '.');
   git('commit', '-q', '--no-verify', '-m', 'Later');
-  assert.equal(releasedBaseline(root).tag, 'v0.3.1');
-  commit(JSON.stringify({ ...base, platformVersion: '0.4.0', snapshotVersion: 1 }));
-  git('tag', 'v0.4.0');
+  assert.equal(releasedBaseline(root).tag, 'v0.4.1');
+  commit(JSON.stringify({ ...base, platformVersion: '0.5.0', snapshotVersion: 999 }));
+  git('tag', 'v0.5.0');
   fs.writeFileSync(path.join(root, 'marker.txt'), 'later');
   git('add', '.');
   git('commit', '-q', '--no-verify', '-m', 'Later again');
@@ -106,7 +107,7 @@ test('the actual CLI refuses a refreshed patch snapshot against its public tag',
   const module = path.join(root, 'src/platform/core/modules/index.ts');
   fs.writeFileSync(
     module,
-    fs.readFileSync(module, 'utf8').replace(/PLATFORM_VERSION = '[^']+'/, "PLATFORM_VERSION = '0.3.0'"),
+    fs.readFileSync(module, 'utf8').replace(/PLATFORM_VERSION = '[^']+'/, "PLATFORM_VERSION = '0.4.0'"),
   );
   execFileSync(process.execPath, ['src/platform/node/check/check-contract.js', '--update'], {
     cwd: root,
@@ -114,15 +115,15 @@ test('the actual CLI refuses a refreshed patch snapshot against its public tag',
   });
   git('add', '.');
   git('commit', '-q', '--no-verify', '-m', 'Synthetic public baseline');
-  git('tag', 'v0.3.0');
+  git('tag', 'v0.4.0');
   fs.writeFileSync(path.join(root, 'uncommitted.txt'), 'candidate work');
-  assert.equal(releasedBaseline(root, '0.3.0').tag, 'v0.3.0', 'dirty source must compare against the tagged HEAD');
+  assert.equal(releasedBaseline(root, '0.4.0').tag, 'v0.4.0', 'dirty source must compare against the tagged HEAD');
   fs.rmSync(path.join(root, 'uncommitted.txt'));
   fs.writeFileSync(
     module,
     fs
       .readFileSync(module, 'utf8')
-      .replace("PLATFORM_VERSION = '0.3.0'", "PLATFORM_VERSION = '0.3.1'")
+      .replace("PLATFORM_VERSION = '0.4.0'", "PLATFORM_VERSION = '0.4.1'")
       .replace('description?: string;', 'description?: string | number;'),
   );
   const cli = ['src/platform/node/check/check-contract.js'];
@@ -130,5 +131,5 @@ test('the actual CLI refuses a refreshed patch snapshot against its public tag',
   execFileSync(process.execPath, cli, { cwd: root, stdio: 'pipe' });
   const result = spawnSync(process.execPath, [...cli, '--released'], { cwd: root, encoding: 'utf8' });
   assert.equal(result.status, 1, result.stdout + result.stderr);
-  assert.match(result.stderr, /against v0.3.0 require a minor version increase/);
+  assert.match(result.stderr, /against v0.4.0 require a minor version increase/);
 });
