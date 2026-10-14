@@ -8,7 +8,7 @@ const root = fileURLToPath(new URL('../../../../', import.meta.url));
 const args = process.argv.slice(3);
 const value = name => args[args.indexOf(name) + 1];
 try {
-  const actor = resolveContributor(readContributors(root, { initializingPreferences: true }).contributors);
+  const actor = resolveContributor(readContributors(root).contributors);
   if (args.includes('--plan') && !args.includes('--apply')) {
     const plan = planContributorPreferences(root, actor, args.includes('--module') ? value('--module') : undefined);
     fs.writeFileSync(path.resolve(value('--plan')), JSON.stringify(plan, null, 2) + '\n', { flag: 'wx' });

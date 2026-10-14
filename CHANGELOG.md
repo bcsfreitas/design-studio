@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Prepare v0.4.0 as the first supported public baseline. Studio-owned settings, prototype metadata, contributor profiles, and contract snapshots start at version 1 with their current shapes. Earlier development tags are not compatibility commitments. Remove contributor legacy mappings and the pre-launch runtime-import repair command; current-module preference initialization and future release compatibility checks remain. Installation guidance targets v0.4.0. Release publication requires explicit maintainer direction.
+- v0.4.0 establishes the first supported public baseline. Studio-owned settings, prototype metadata, contributor profiles, and contract snapshots start at version 1 with their current shapes. Earlier development tags are not compatibility commitments. Remove contributor legacy mappings and the pre-launch runtime-import repair command; current-module preference initialization and future release compatibility checks remain. Installation guidance targets v0.4.0. Release publication requires explicit maintainer direction.
 
 - Parker Moss is the fictional author of the shipped examples, with an offline illustrated avatar. His profile and prototypes use the `parker` source key while retaining their permanent IDs and links. Contributor profiles support local public images. Upstream distribution checks keep real maintainer profiles, personal grants, and ignored local contributor work out of release builds and the public demo source.
 
@@ -10,7 +10,7 @@
 
 - The API foundations refactor is closed. Preference writes use validated data snapshots without invoking accessors; declaration caches use physical file identity and isolated snapshots; asset subscribers fail independently, and each reader receives an independent copy. Deferred performance work and stopping criteria are recorded in the maintainer backlog.
 
-- Modules declare preference schemas and registration defaults. Contributor format version 1 stores module namespaces; authorized, versioned transactions preserve identity and unrelated data. Saved initialization plans transition retained profiles and prepare newly enabled modules. The updater does not initialize or rewrite profiles.
+- Modules declare preference schemas and registration defaults. Contributor format version 1 stores module namespaces; authorized, versioned transactions preserve identity and unrelated data. Saved initialization plans add defaults for newly enabled modules to current profiles. The updater does not initialize or rewrite profiles.
 
 - Enabled modules declare dependency optimization and lazy JSON build assets. Canvas no longer has a Vite configuration branch. Systems props use the shared asset transport, cache, dependency watches, and production emission instead of a bespoke endpoint and virtual module.
 
@@ -26,7 +26,6 @@
 
 - Module clients throw `ClientError` with a machine-readable code, HTTP status when available, and a display message. Onboarding uses the shared client, preserves its persistence fallback and 422 suppression, and reports malformed successful replies.
 
-
 - Views owns the experimental `emptyView` runtime sentinel through `@module/view`. Prototype and file creation share its source template; the old shared sentinel path and duplicate prototype view scaffold are removed. Empty-state presentation remains in the View host.
 
 - Shared class and overlay helpers now use the experimental `#studio/runtime` API. System components, prototype helpers, and hosts share its portal context; the old utility files and saved shadcn aliases are removed.
@@ -36,6 +35,8 @@
 - Restore the ongoing public demo links to the existing custom-domain GitHub Pages deployment. ChatGPT Sites is an optional publishing-workflow demonstration.
 
 ## 0.3.0 (2026-10-11)
+
+Historical development release. Its compatibility and format declarations were superseded before public launch; v0.4.0 establishes the supported baseline.
 
 - Public setup uses the v0.3.0 repository guide without a plugin installer, with explicit Codex, Claude Code and Cursor workspace entry points and recovery that preserves interrupted setup. ChatGPT Sites publishing is validated with an isolated demonstration; teams retain the portable static build for their own hosts. Publishing guidance covers same-Site updates and the provider's missing-asset SPA fallback limitation.
 

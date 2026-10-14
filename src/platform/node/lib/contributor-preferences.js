@@ -119,9 +119,9 @@ export function updateContributorPreferences(root, { actor, contributor = actor,
 
 // Admin-only, explicit initialization. The updater never calls this transaction.
 export function planContributorPreferences(root, actor, requestedModule) {
-  const { contributors, problems } = readContributors(root, { initializingPreferences: true });
+  const { contributors, problems } = readContributors(root);
   if (problems.length) throw fail(problems.join('\n'), 422);
-  const { config } = readPersistedStudioConfig(root, { initializingPreferences: true });
+  const { config } = readPersistedStudioConfig(root);
   if (studioRole(config, actor, Object.keys(contributors)) !== 'admin')
     throw fail('Only an Admin can initialize contributor preferences.', 403);
   const installed = preferenceDeclarations(root);
@@ -129,11 +129,8 @@ export function planContributorPreferences(root, actor, requestedModule) {
     throw fail('Select an installed compatible module with a preference declaration.', 422);
   const edits = [];
   for (const [contributor, profile] of Object.entries(contributors)) {
-    const current = readPreferenceProfile(root, contributor, contributor, { initializingPreferences: true });
+    const current = readPreferenceProfile(root, contributor, contributor);
     const next = structuredClone(profile);
-    if (next.preferences === undefined) next.preferences = {};
-    if (!next.preferences || typeof next.preferences !== 'object' || Array.isArray(next.preferences))
-      throw fail(`${contributor}: invalid preferences envelope.`, 422);
     for (const spec of installed) {
       if (!spec.preferences || !compatible(spec)) continue;
       if (!(isEnabled(config, spec.id) || requestedModule === spec.id)) continue;
@@ -160,13 +157,13 @@ export function applyContributorPreferences(root, actor, plan) {
   if (JSON.stringify(fresh) !== JSON.stringify(plan))
     throw fail('Preferences or declarations changed. Preview initialization again.', 409);
   const edits = plan.edits.map(edit => {
-    const current = readPreferenceProfile(root, edit.contributor, edit.contributor, { initializingPreferences: true });
+    const current = readPreferenceProfile(root, edit.contributor, edit.contributor);
     return { file: current.file, before: edit.before, after: edit.after };
   });
   applySetupChanges(edits, {
     validateFile: file => {
       const contributor = path.basename(file, '.json');
-      readPreferenceProfile(root, contributor, contributor, { initializingPreferences: true }).validateFile();
+      readPreferenceProfile(root, contributor, contributor).validateFile();
     },
   });
   return edits.length;

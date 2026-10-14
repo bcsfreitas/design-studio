@@ -206,6 +206,7 @@ test('ordinary preferences reject unsupported formats and invalid envelopes with
     { formatVersion: 2 },
     { formatVersion: 999 },
     { formatVersion: undefined },
+    { preferences: undefined },
     { preferences: [] },
     { preferences: { ...profile.preferences, other: [] } },
     { studioId: 'invalid' },
@@ -224,6 +225,10 @@ test('ordinary preferences reject unsupported formats and invalid envelopes with
           base: 'unused',
           value: { welcomeDismissed: true },
         }),
+      error => error.status === 422,
+    );
+    assert.throws(
+      () => planContributorPreferences(root, 'sam'),
       error => error.status === 422,
     );
     assert.equal(fs.readFileSync(file, 'utf8'), source);

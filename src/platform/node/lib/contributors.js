@@ -16,12 +16,7 @@ const readJson = file => {
   }
 };
 
-export function contributorProfileProblems(
-  entry,
-  source,
-  file,
-  { initializingPreferences = false, identityOnly = false } = {},
-) {
+export function contributorProfileProblems(entry, source, file, { identityOnly = false } = {}) {
   const problems = [];
   if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
     problems.push(`${file} must be an object with name, github, and email declarations.`);
@@ -46,20 +41,17 @@ export function contributorProfileProblems(
     problems.push(`${file}: avatar must be a relative image path inside public/, such as images/person.svg.`);
   if (
     !identityOnly &&
-    !(initializingPreferences && entry.preferences === undefined) &&
     (!entry.preferences ||
       typeof entry.preferences !== 'object' ||
       Array.isArray(entry.preferences) ||
       Object.values(entry.preferences).some(value => !value || typeof value !== 'object' || Array.isArray(value)))
   )
-    problems.push(
-      `${file}: declare preferences as module namespace objects. Run pnpm studio preferences --plan <file>.`,
-    );
+    problems.push(`${file}: declare preferences as module namespace objects.`);
   return problems;
 }
 
 // Each regular contributors/<key>.json profile is the sole declaration for that key.
-export function readContributors(root = ROOT, { initializingPreferences = false, identityOnly = false } = {}) {
+export function readContributors(root = ROOT, { identityOnly = false } = {}) {
   const directory = path.join(root, 'contributors');
   const contributors = Object.create(null);
   const problems = [];
@@ -86,7 +78,6 @@ export function readContributors(root = ROOT, { initializingPreferences = false,
     const entry = readJson(profile);
     problems.push(
       ...contributorProfileProblems(entry, fs.readFileSync(profile, 'utf8'), `contributors/${file}`, {
-        initializingPreferences,
         identityOnly,
       }),
     );
