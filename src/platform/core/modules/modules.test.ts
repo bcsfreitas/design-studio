@@ -208,7 +208,7 @@ test('module dependency optimization uses enabled compatible declarations and va
     id: 'probe',
     label: 'Probe',
     version: '0.1.0',
-    requires: '0.4.0',
+    requires: '0.1.0',
     optional: true,
     lib: false,
     dependencies: { cn: '^0.4.0' },

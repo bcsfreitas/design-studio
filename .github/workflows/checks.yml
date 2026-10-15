@@ -153,7 +153,7 @@ jobs:
       - name: Rehearse the actual update command
         run: |
           node src/platform/node/check/upgrade-test.js
-          RELEASE=$(git tag --list 'v*' --sort=-v:refname | node --input-type=module -e "import fs from 'node:fs'; import semver from 'semver'; import {FIRST_PUBLIC_RELEASE} from './src/platform/node/lib/contract.js'; console.log(fs.readFileSync(0,'utf8').trim().split('\n').find(tag => semver.valid(tag.slice(1)) && !semver.prerelease(tag.slice(1)) && semver.gte(tag.slice(1), FIRST_PUBLIC_RELEASE)) ?? '')")
+          RELEASE=$(git tag --list 'v*' --sort=-v:refname | node --input-type=module -e "import fs from 'node:fs'; import {isSupportedRelease} from './src/platform/node/lib/release-versions.js'; console.log(fs.readFileSync(0,'utf8').trim().split('\n').find(tag => isSupportedRelease(tag)) ?? '')")
           if [ -n "$RELEASE" ]; then
             node src/platform/node/check/upgrade-test.js --from "$RELEASE"
           fi

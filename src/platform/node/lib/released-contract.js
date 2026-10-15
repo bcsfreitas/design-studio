@@ -1,7 +1,8 @@
 // Public compatibility starts at the launch release. Historical pre-release snapshots are not read or supported.
 import { execFileSync } from 'node:child_process';
 import semver from 'semver';
-import { FIRST_PUBLIC_RELEASE, SNAPSHOT_FILE, SNAPSHOT_VERSION, contractChanges } from './contract.js';
+import { SNAPSHOT_FILE, SNAPSHOT_VERSION, contractChanges } from './contract.js';
+import { FIRST_PUBLIC_RELEASE, isSupportedRelease } from './release-versions.js';
 
 const git = (root, ...args) =>
   execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
@@ -11,10 +12,7 @@ export function releasedBaseline(root, candidateVersion) {
   const clean = !git(root, 'status', '--porcelain');
   const tags = git(root, 'tag', '--list', 'v*')
     .split('\n')
-    .filter(tag => {
-      const version = semver.valid(tag.slice(1));
-      return version && !semver.prerelease(version) && semver.gte(version, FIRST_PUBLIC_RELEASE);
-    })
+    .filter(tag => isSupportedRelease(tag))
     .sort((a, b) => semver.rcompare(a.slice(1), b.slice(1)));
   // A candidate's own tag cannot authorize its changes against the preceding release.
   const tag = tags.find(

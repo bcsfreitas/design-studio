@@ -6,7 +6,7 @@ export default {
   id: 'documentation',
   label: 'Documentation',
   version: '0.1.0',
-  requires: '0.4.0',
+  requires: '0.1.0',
   description: 'Documentation: a human Manual alongside the shared Context and Skills browser.',
   optional: true,
   settings: { group: 'team', order: 1 },

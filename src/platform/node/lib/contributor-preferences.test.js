@@ -163,7 +163,7 @@ test('valid module IDs that match inherited properties still receive explicit na
   fs.mkdirSync(folder, { recursive: true });
   fs.writeFileSync(
     path.join(folder, 'module.ts'),
-    "export default {id:'constructor',label:'Constructor',version:'0.1.0',requires:'0.4.0',optional:true,lib:false,preferences:{fields:{ready:'boolean'},defaults:{ready:false}}};",
+    "export default {id:'constructor',label:'Constructor',version:'0.1.0',requires:'0.1.0',optional:true,lib:false,preferences:{fields:{ready:'boolean'},defaults:{ready:false}}};",
   );
   const file = path.join(root, 'studio.config.json'),
     config = JSON.parse(fs.readFileSync(file));
@@ -273,7 +273,7 @@ test('installed executable declarations share loading without unrelated preferen
   fs.mkdirSync(unrelated, { recursive: true });
   fs.writeFileSync(
     path.join(unrelated, 'module.ts'),
-    "const label='Unrelated'; export default {id:'unrelated',label,version:'0.1.0',requires:'0.4.0',optional:true,lib:false};",
+    "const label='Unrelated'; export default {id:'unrelated',label,version:'0.1.0',requires:'0.1.0',optional:true,lib:false};",
   );
   const { installedModuleDeclarations } = await import('./installed-module-declarations.js');
   const installed = installedModuleDeclarations(root);

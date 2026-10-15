@@ -41,7 +41,7 @@ The `identity` adapter for prototype file types reads and writes permanent proto
 
 ## Prototype and system dependencies
 
-From platform 0.4.0, every type explicitly declares `systemUsage: 'assigned'` or `'independent'`. Views consume the prototype's assigned runtime toolkit. Documents, Diagrams, Canvas scenes, and knowledge readers render independently. Missing declarations fail validation; existing third-party types must add this field before they can load. Modules using this field or the new reference and lifecycle APIs declare `requires: '0.4.0'`.
+From platform 0.1.0, every type explicitly declares `systemUsage: 'assigned'` or `'independent'`. Views consume the prototype's assigned runtime toolkit. Documents, Diagrams, Canvas scenes, and knowledge readers render independently. Missing declarations fail validation; existing third-party types must add this field before they can load. Modules using this field or the new reference and lifecycle APIs declare `requires: '0.1.0'`.
 
 The prototype owns identity, source authority, organization, archive status and publication eligibility. Its `systemId` remains the single product-system assignment. Independent rendering does not grant access to another system or discard relevant product context.
 

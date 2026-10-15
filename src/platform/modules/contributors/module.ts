@@ -4,7 +4,7 @@ export default {
   id: 'contributors',
   label: 'Contributors & Permissions',
   version: '0.1.0',
-  requires: '0.4.0',
+  requires: '0.1.0',
   description: 'Manage team contributors, Admin access, and permissions to maintain systems.',
   optional: true,
   settings: { group: 'team', order: 2 },

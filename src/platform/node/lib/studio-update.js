@@ -11,6 +11,7 @@ import semver from 'semver';
 import { finishUpstreamMerge, mergeUpstream } from './upstream-merge.js';
 import { readLock, recordPlatform } from './lock.js';
 import { mapProblems, tierOf } from './ownership.js';
+import { FIRST_PUBLIC_RELEASE, isSupportedRelease } from './release-versions.js';
 
 export const UPSTREAM_REMOTE = 'upstream';
 export const UPSTREAM_URL = 'https://github.com/itspatmorgan/design-studio.git';
@@ -45,12 +46,12 @@ export function releaseTags(cwd) {
   const { git } = gitIn(cwd);
   return lines(git('for-each-ref', '--format=%(refname)', `${TAG_REFS}/`))
     .map(ref => ({ ref, version: semver.valid(ref.slice(TAG_REFS.length + 1).replace(/^v/, '')) }))
-    .filter(tag => tag.version)
+    .filter(tag => isSupportedRelease(tag.version, { includePrerelease: true }))
     .sort((a, b) => semver.rcompare(a.version, b.version));
 }
 
 export const fetchReleaseTags = cwd =>
-  gitIn(cwd).git('fetch', '-q', '--no-tags', '--force', UPSTREAM_REMOTE, `+refs/tags/v*:${TAG_REFS}/v*`);
+  gitIn(cwd).git('fetch', '-q', '--no-tags', '--force', '--prune', UPSTREAM_REMOTE, `+refs/tags/v*:${TAG_REFS}/v*`);
 
 // Everything an update would do, without changing anything but the fetched tag refs. `problems` lists why it can't run.
 export function planUpdate(cwd, requested, { fetch = true } = {}) {
@@ -84,13 +85,17 @@ export function planUpdate(cwd, requested, { fetch = true } = {}) {
   const tags = releaseTags(cwd);
   const wanted =
     requested === undefined || requested === null ? null : semver.valid(String(requested).replace(/^v/, ''));
-  if (requested && !wanted) return stop(`${JSON.stringify(requested)} is not a version like 0.2.1.`);
+  if (requested && !wanted) return stop(`${JSON.stringify(requested)} is not a version like 0.1.1.`);
+  if (wanted && !isSupportedRelease(wanted, { includePrerelease: true }))
+    return stop(
+      `v${wanted} is not a supported public release. Install v${FIRST_PUBLIC_RELEASE} or a later supported release.`,
+    );
   const target = wanted ? tags.find(tag => tag.version === wanted) : tags.find(tag => !semver.prerelease(tag.version));
   if (!target)
     return stop(
       wanted
         ? `${UPSTREAM_REMOTE} has no release v${wanted}.${tags.length ? ` Releases: ${tags.map(t => `v${t.version}`).join(', ')}.` : ''}`
-        : `${UPSTREAM_REMOTE} has no release tags yet.`,
+        : `${UPSTREAM_REMOTE} has no supported public release tags yet.`,
     );
   Object.assign(plan, {
     version: target.version,

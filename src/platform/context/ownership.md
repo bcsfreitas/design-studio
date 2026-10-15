@@ -54,13 +54,13 @@ Upstream releases are tags named `v<version>` on the Design Studio project ([Rel
 | Command | What it does |
 | --- | --- |
 | `pnpm studio update --dry-run` | Shows the installed release, the target release, the commit range, and the files the release changes that the studio changed too, with each one's tier and what the update does to it. Changes nothing but the fetched tag refs. |
-| `pnpm studio update [version]` | Updates to the latest release, or to `version` (`0.4.0` or `v0.4.0`). |
+| `pnpm studio update [version]` | Updates to the latest release, or to `version` (`0.1.0` or `v0.1.0`). |
 | `pnpm studio update --continue` | Finishes an update after a person resolves its conflicts. |
 
 The update:
 
 1. Requires a clean working tree, no merge in progress, and an `upstream` remote. Without the remote it prints the command to add one: `git remote add upstream https://github.com/itspatmorgan/design-studio.git`.
-2. Fetches the `v*` tags from `upstream` into `refs/studio/upstream-tags/`, so they never replace the team's own tags. Without a version it takes the newest release that is not a pre-release.
+2. Fetches the `v*` tags from `upstream` into `refs/studio/upstream-tags/` and prunes deleted upstream tags from that private cache. The team's own tags are unchanged. Without a version it takes the newest release that is not a pre-release.
 3. Stops with nothing to do if the studio already contains the release’s commit. A lock record alone does not substitute for ancestry.
 4. Creates and switches to `studio-update/v<version>` from the current HEAD, and merges the release with the update rules (`src/platform/node/lib/upstream-merge.js`): existing seed and team paths keep the studio's complete copy or deletion, genuinely new seed paths take the release, generated files take the release and are regenerated, and upstream or mixed files merge as text.
 5. On a conflict, leaves the merge in progress and lists the files the release and the team both changed. The person resolves them, runs `git add`, and runs `pnpm studio update --continue`; or runs `git merge --abort`, switches back to their branch, and deletes the update branch.
@@ -85,7 +85,7 @@ A studio without shared release history cannot use the update command, including
 ```json
 {
   "lockfileVersion": 1,
-  "platform": { "version": "0.4.0", "commit": "<full commit id of the v0.4.0 tag>" },
+  "platform": { "version": "0.1.0", "commit": "<full commit id of the v0.1.0 tag>" },
   "modules": {},
   "systems": {}
 }

@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
 import semver from 'semver';
-import { FIRST_PUBLIC_RELEASE } from '../lib/contract.js';
+import { FIRST_PUBLIC_RELEASE, isSupportedRelease } from '../lib/release-versions.js';
 import { loadOwnership, tierOf, trackedFiles } from '../lib/ownership.js';
 import { readLock, writeLock, sha256 } from '../lib/lock.js';
 import { parseConfigFile, serializeConfig, withSettings } from '../../core/config-file.ts';
@@ -19,8 +19,8 @@ const options = fromAt >= 0 ? args.filter((_, index) => index !== fromAt && inde
 if (fromAt >= 0 && (!from || from.startsWith('--'))) throw new Error('--from requires a public release tag.');
 if (options.some(option => !['--working', '--keep'].includes(option)))
   throw new Error('Usage: upgrade-test.js [--working] [--from <public-tag>] [--keep]');
-if (from && (!semver.valid(from.replace(/^v/, '')) || semver.lt(from.replace(/^v/, ''), FIRST_PUBLIC_RELEASE)))
-  throw new Error(`--from requires a supported release v${FIRST_PUBLIC_RELEASE} or newer.`);
+if (from && !isSupportedRelease(from))
+  throw new Error(`--from requires v${FIRST_PUBLIC_RELEASE} or a later supported public release.`);
 const box = fs.mkdtempSync(path.join(os.tmpdir(), 'studio-update-cli-'));
 const upstream = path.join(box, 'upstream'),
   studio = path.join(box, 'studio');
@@ -230,7 +230,7 @@ try {
   const localTags = git(studio, 'show-ref', '--tags'),
     before = inventory(studio);
   step('Dry-run the actual update command');
-  cli(targetVersion, '--dry-run');
+  cli('--dry-run');
   if (
     git(studio, 'rev-parse', 'HEAD') !== customized ||
     git(studio, 'symbolic-ref', '--short', 'HEAD') !== originalBranch ||
@@ -241,7 +241,7 @@ try {
   assertInventory(studio, before);
 
   step('Apply the actual update command and verify complete ownership and receipt preservation');
-  cli(targetVersion);
+  cli();
   const verify = () => {
     if (git(studio, 'rev-parse', originalBranch) !== customized)
       throw new Error('The update changed the original branch.');

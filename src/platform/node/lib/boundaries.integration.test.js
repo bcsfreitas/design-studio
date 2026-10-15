@@ -76,7 +76,7 @@ test('private module consumers and symlink scopes are rejected; disabled app and
     write(
       root,
       'src/modules/extra/module.ts',
-      "export default {id:'extra',label:'Extra',version:'0.1.0',requires:'0.3.0',optional:true,lib:true};",
+      "export default {id:'extra',label:'Extra',version:'0.1.0',requires:'0.1.0',optional:true,lib:true};",
     );
     write(root, 'src/modules/extra/lib/index.ts', 'export const value = 1;');
     write(root, 'src/modules/extra/lib/private.ts', 'export const hidden = 1;');
@@ -221,7 +221,7 @@ test('private module consumers and symlink scopes are rejected; disabled app and
     // An incompatible module is unavailable and checks explain how to recover it.
     const extraSpec = path.join(root, 'src/modules/extra/module.ts');
     const compatibleSource = fs.readFileSync(extraSpec, 'utf8');
-    fs.writeFileSync(extraSpec, compatibleSource.replace("requires:'0.3.0'", "requires:'99.0.0'"));
+    fs.writeFileSync(extraSpec, compatibleSource.replace("requires:'0.1.0'", "requires:'99.0.0'"));
     const incompatible = run('src/platform/node/check/check-modules.js');
     assert.match(incompatible, /extra module needs platform 99.0.0.*so it is off. Update the platform to use it/);
     const beforeIncompatible = calls();

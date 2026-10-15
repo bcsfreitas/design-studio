@@ -5,7 +5,7 @@
  
  // One installation procedure, whether the person or their agent performs it.
 -export const installationPrompt = `Install Design Studio from release v0.3.0 using ${setupGuide}. Use the repository installation guide without a plugin installer. Help me choose a folder, preserve existing files, and verify the running preview. Then help me open the Design Studio folder in my agent harness.`;
-+export const installationPrompt = `Install Design Studio from release v0.4.0 using ${setupGuide}. Use the repository installation guide without a plugin installer. Help me choose a folder, preserve existing files, and verify the running preview. Then help me open the Design Studio folder in my agent harness.`;
++export const installationPrompt = `Install Design Studio from release v0.1.0 using ${setupGuide}. Use the repository installation guide without a plugin installer. Help me choose a folder, preserve existing files, and verify the running preview. Then help me open the Design Studio folder in my agent harness.`;
  export const configurationPrompt = 'Read AGENTS.md and help me configure my Design Studio. Start with the included examples and show me the running preview.';
  export const publishingPrompt = "Help me publish my Design Studio with [hosting service] so [audience] can explore it. Follow my Design Studio's publishing instructions and guide me through setting up hosting. Review what will be shared and verify the published link.";
 --- a/src/data/design-studio-agent.txt
@@ -15,7 +15,7 @@
  
  Installation prompt:
 -> Install Design Studio from release v0.3.0 using https://github.com/itspatmorgan/design-studio/blob/main/src/platform/context/installing.md. Use the repository installation guide without a plugin installer. Help me choose a folder, preserve existing files, and verify the running preview. Then help me open the Design Studio folder in my agent harness.
-+> Install Design Studio from release v0.4.0 using https://github.com/itspatmorgan/design-studio/blob/main/src/platform/context/installing.md. Use the repository installation guide without a plugin installer. Help me choose a folder, preserve existing files, and verify the running preview. Then help me open the Design Studio folder in my agent harness.
++> Install Design Studio from release v0.1.0 using https://github.com/itspatmorgan/design-studio/blob/main/src/platform/context/installing.md. Use the repository installation guide without a plugin installer. Help me choose a folder, preserve existing files, and verify the running preview. Then help me open the Design Studio folder in my agent harness.
  
  ## What happens after setup
  

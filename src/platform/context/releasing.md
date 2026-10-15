@@ -8,9 +8,10 @@ A release is a tagged commit on the upstream `main`, named `v<version>`. Studios
 
 ## Versions
 
-`PLATFORM_VERSION` (`src/platform/core/modules/index.ts`) is the version of the public contract, and the tag uses the same number. The first supported public baseline is `v0.4.0`; historical pre-release versions impose no compatibility requirement. After that baseline, while the version is `0.x`, raise the minor version when a stable signature or referenced type, runtime requirement/package list, or stored format version changes, and the patch version otherwise. `pnpm contract --released` compares against the preceding supported release independently of the editable snapshot. A module's `requires` names the oldest version it works with; a module created with `pnpm studio create-module` requires the version it was created with, so a release never edits the module template. The supplied modules keep the `requires` they declare.
+`PLATFORM_VERSION` (`src/platform/core/modules/index.ts`) is the version of the public contract, and the tag uses the same number. The first supported public baseline is `v0.1.0`; historical pre-release versions impose no compatibility requirement. After that baseline, while the version is `0.x`, raise the minor version when a stable signature or referenced type, runtime requirement/package list, or stored format version changes, and the patch version otherwise. `pnpm contract --released` compares against the preceding supported release independently of the editable snapshot. A module's `requires` names the oldest version it works with; a module created with `pnpm studio create-module` requires the version it was created with, so a release never edits the module template. The supplied modules keep the `requires` they declare.
 
 ## Maintainer workspace and distributed source
+
 
 The upstream starter tracks fictional sample contributors, examples, and systems. A maintainer's real contributor profile and personal prototypes remain local, excluded using `.git/info/exclude`. Personal mode gives the resolved registered maintainer Admin access; do not commit that profile's ID into shared configuration.
 
@@ -42,20 +43,20 @@ Prepare the candidate and review its changes, release notes, checks, and limitat
 2. On a clean `main` that matches `origin/main`, preview the release:
 
    ```sh
-   pnpm release 0.4.0 --dry-run
+   pnpm release 0.1.0 --dry-run
    ```
 
    The dry run prints the version change, the changelog heading, the checks, the commit and tag it would make, and the release notes, and changes nothing. It lists every reason the release can't go ahead.
 3. Cut it:
 
    ```sh
-   pnpm release 0.4.0
+   pnpm release 0.1.0
    ```
 
 4. Review the commit and the tag, then push both together with the command the script prints:
 
    ```sh
-   git push --atomic origin main v0.4.0
+   git push --atomic origin main v0.1.0
    ```
 
 The release commit goes to `main` directly, so the person pushing needs the right to push to `main`.
@@ -64,7 +65,7 @@ The release commit goes to `main` directly, so the person pushing needs the righ
 
 `pnpm release <version>` (`src/platform/node/cli/release.js`, logic in `src/platform/node/lib/release.js`):
 
-- Requires a valid semver version that is greater than or equal to the current `PLATFORM_VERSION`. Equal is allowed, so a version bumped during development (the first release, `0.2.0`, was set before it was cut) is released without another bump. A leading `v` is accepted.
+- Requires a valid semver version that is greater than or equal to the current `PLATFORM_VERSION`. Equal is allowed, so the prepared first public beta can be released as `0.1.0` without another bump. A leading `v` is accepted.
 - Refuses unless the checkout is on `main` with no uncommitted or untracked changes and matches `origin/main` after a fetch, the `## Unreleased` section exists and has notes, and neither the checkout nor `origin` has the tag yet.
 - Checks the starter distribution before planning and again before applying: local contributor/prototype files, including ignored files, cannot enter the release build. Tracked profiles must be fictional samples with empty email and GitHub declarations; starter configuration must use personal mode without Admin or system maintainer grants.
 - Sets `PLATFORM_VERSION` and runs `pnpm contract --update`, so the contract snapshot records the version.
@@ -110,7 +111,7 @@ STUDIO_BASE_PATH=/design-studio-demo/ pnpm preview
 
 See [Publishing](publishing.md) for portable hosting, direct-link routing, and access requirements.
 
-Record public launch checks in [v0.4.0 acceptance](../../../.github/releases/v0.4.0-acceptance.md).
+Record public launch checks in [v0.1.0 acceptance](../../../.github/releases/v0.1.0-acceptance.md).
 
 ## Related contracts
 

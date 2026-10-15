@@ -40,7 +40,7 @@ function repo(dir) {
   return { dir, git, write, commit, read: file => fs.readFileSync(path.join(dir, file), 'utf8') };
 }
 
-// An upstream project with release v0.2.0 and a studio cloned from it with an `upstream` remote.
+// An upstream project with release v0.1.0 and a studio cloned from it with an `upstream` remote.
 function setup({ remote = true } = {}) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'studio-update-'));
   fs.mkdirSync(path.join(root, 'upstream'));
@@ -57,12 +57,12 @@ function setup({ remote = true } = {}) {
     },
     'base',
   );
-  upstream.git('tag', '-a', 'v0.2.0', '-m', 'v0.2.0');
+  upstream.git('tag', '-a', 'v0.1.0', '-m', 'v0.1.0');
   execFileSync('git', ['clone', '-q', upstream.dir, path.join(root, 'studio')], { stdio: 'ignore' });
   const studio = repo(path.join(root, 'studio'));
   for (const [key, value] of IDENTITY) studio.git('config', key, value);
   studio.git('remote', 'rename', 'origin', remote ? 'upstream' : 'elsewhere');
-  studio.git('tag', '-d', 'v0.2.0');
+  studio.git('tag', '-d', 'v0.1.0');
   const release = (version, files) => {
     const commit = upstream.commit(files, `release ${version}`);
     upstream.git('tag', '-a', `v${version}`, '-m', `v${version}`);
@@ -88,7 +88,7 @@ test('without an upstream remote the update says how to add one', () => {
 
 test('a dirty working tree is refused', () => {
   const { studio, release } = setup();
-  release('0.2.1', { 'src/platform/a.ts': 'release\n' });
+  release('0.1.1', { 'src/platform/a.ts': 'release\n' });
   studio.write({ 'notes.txt': 'draft\n' });
   assert.match(planUpdate(studio.dir).problems.join('\n'), /Commit or stash your changes first/);
 });
@@ -96,8 +96,8 @@ test('a dirty working tree is refused', () => {
 test('a dry run names the latest release, the range, and the files both sides changed, and changes nothing', () => {
   const { studio, release } = setup();
   studio.commit({ 'README.md': 'team\n', 'src/platform/a.ts': 'team\n', 'src/prototypes/me/p.tsx': 'mine\n' }, 'team');
-  release('0.2.1', { 'src/platform/b.ts': 'release\n' });
-  const latest = release('0.3.0', {
+  release('0.1.1', { 'src/platform/b.ts': 'release\n' });
+  const latest = release('0.1.2', {
     'README.md': 'release\n',
     'src/platform/a.ts': 'release\n',
     'pnpm-lock.yaml': 'r\n',
@@ -105,7 +105,7 @@ test('a dry run names the latest release, the range, and the files both sides ch
   const head = studio.git('rev-parse', 'HEAD');
   const plan = planUpdate(studio.dir);
   assert.deepEqual(plan.problems, []);
-  assert.equal(plan.tag, 'v0.3.0');
+  assert.equal(plan.tag, 'v0.1.2');
   assert.equal(plan.commit, latest);
   assert.equal(plan.installed, null, 'no lock: an unknown release');
   assert.equal(plan.commits, 2);
@@ -130,46 +130,60 @@ test('a dry run names the latest release, the range, and the files both sides ch
 
 test('a named version is used, and an unknown one is refused', () => {
   const { studio, release } = setup();
-  release('0.2.1', { 'src/platform/b.ts': 'one\n' });
-  release('0.3.0', { 'src/platform/b.ts': 'two\n' });
-  assert.equal(planUpdate(studio.dir, '0.2.1').tag, 'v0.2.1');
-  assert.equal(planUpdate(studio.dir, 'v0.2.1').tag, 'v0.2.1');
+  release('0.1.1', { 'src/platform/b.ts': 'one\n' });
+  release('0.1.2', { 'src/platform/b.ts': 'two\n' });
+  assert.equal(planUpdate(studio.dir, '0.1.1').tag, 'v0.1.1');
+  assert.equal(planUpdate(studio.dir, 'v0.1.1').tag, 'v0.1.1');
   assert.match(
     planUpdate(studio.dir, '0.9.0').problems[0],
-    /no release v0\.9\.0\. Releases: v0\.3\.0, v0\.2\.1, v0\.2\.0/,
+    /no release v0\.9\.0\. Releases: v0\.1\.2, v0\.1\.1, v0\.1\.0/,
   );
 });
 
 test('a studio that already has the release does nothing', () => {
   const { studio } = setup();
   const plan = planUpdate(studio.dir);
-  assert.equal(plan.tag, 'v0.2.0');
+  assert.equal(plan.tag, 'v0.1.0');
   assert.equal(plan.upToDate, true);
 });
 
 test('the team’s own tags are never replaced by upstream release tags', () => {
   const { studio, release } = setup();
-  studio.git('tag', 'v0.2.1');
-  const team = studio.git('rev-parse', 'v0.2.1');
-  release('0.2.1', { 'src/platform/b.ts': 'release\n' });
-  assert.equal(planUpdate(studio.dir).tag, 'v0.2.1');
-  assert.equal(studio.git('rev-parse', 'refs/tags/v0.2.1'), team);
+  studio.git('tag', 'v0.1.1');
+  const team = studio.git('rev-parse', 'v0.1.1');
+  release('0.1.1', { 'src/platform/b.ts': 'release\n' });
+  assert.equal(planUpdate(studio.dir).tag, 'v0.1.1');
+  assert.equal(studio.git('rev-parse', 'refs/tags/v0.1.1'), team);
+});
+
+test('fetching prunes deleted upstream releases from its private cache without deleting team tags', () => {
+  const { studio, upstream, release } = setup();
+  studio.git('tag', 'v0.1.1');
+  const team = studio.git('rev-parse', 'refs/tags/v0.1.1');
+  release('0.1.1', { 'src/platform/a.ts': 'release\n' });
+  assert.equal(planUpdate(studio.dir).tag, 'v0.1.1');
+  upstream.git('tag', '-d', 'v0.1.1');
+  const plan = planUpdate(studio.dir);
+  assert.deepEqual(plan.problems, []);
+  assert.equal(plan.tag, 'v0.1.0');
+  assert.equal(studio.git('for-each-ref', '--format=%(refname)', 'refs/studio/upstream-tags/v0.1.1'), '');
+  assert.equal(studio.git('rev-parse', 'refs/tags/v0.1.1'), team);
 });
 
 test('a clean update merges on its own branch, records the release in the merge commit, and verifies', () => {
   const { studio, release } = setup();
   studio.commit({ 'README.md': 'team\n' }, 'team');
   const original = studio.git('rev-parse', 'main');
-  const commit = release('0.2.1', { 'README.md': 'release\n', 'src/platform/a.ts': 'release\n' });
+  const commit = release('0.1.1', { 'README.md': 'release\n', 'src/platform/a.ts': 'release\n' });
   const plan = planUpdate(studio.dir);
   const { run, commands } = recorder();
   assert.deepEqual(applyUpdate(studio.dir, plan, { run }), { merged: true, checks: 'passed' });
-  assert.equal(studio.git('symbolic-ref', '--short', 'HEAD'), 'studio-update/v0.2.1');
+  assert.equal(studio.git('symbolic-ref', '--short', 'HEAD'), 'studio-update/v0.1.1');
   assert.equal(studio.git('rev-parse', 'main'), original, 'the original branch is untouched');
   assert.equal(studio.read('src/platform/a.ts'), 'release\n');
   assert.equal(studio.read('README.md'), 'team\n');
-  assert.deepEqual(readLock(studio.dir).platform, { version: '0.2.1', commit });
-  assert.equal(studio.git('log', '-1', '--format=%s'), 'Update to Design Studio v0.2.1');
+  assert.deepEqual(readLock(studio.dir).platform, { version: '0.1.1', commit });
+  assert.equal(studio.git('log', '-1', '--format=%s'), 'Update to Design Studio v0.1.1');
   assert.match(studio.git('show', '--name-only', '--format=', 'HEAD'), /studio\.lock\.json/);
   assert.equal(studio.git('rev-list', '--parents', '-n1', 'HEAD').split(' ').length, 3, 'a merge commit');
   assert.deepEqual(commands, ['pnpm install --no-frozen-lockfile', 'pnpm studio sync', 'pnpm check', 'pnpm build']);
@@ -179,7 +193,7 @@ test('a clean update merges on its own branch, records the release in the merge 
 
 test('failing checks are reported after the update is committed', () => {
   const { studio, release } = setup();
-  release('0.2.1', { 'src/platform/a.ts': 'release\n' });
+  release('0.1.1', { 'src/platform/a.ts': 'release\n' });
   const result = applyUpdate(studio.dir, planUpdate(studio.dir), { run: recorder({ fail: 'build' }).run });
   assert.deepEqual(result, { merged: true, checks: 'failed', failed: 'build' });
 });
@@ -196,7 +210,7 @@ test('the update preserves complete seed bytes and lock records while stamping t
     'team content and installed records',
   );
   const original = studio.git('rev-parse', 'main');
-  const commit = release('0.3.0', {
+  const commit = release('0.1.2', {
     'README.md': 'release replaces unchanged seed\n',
     'studio.lock.json': JSON.stringify({ lockfileVersion: 1, modules: {}, systems: {} }),
     'src/platform/a.ts': 'release\n',
@@ -208,7 +222,7 @@ test('the update preserves complete seed bytes and lock records while stamping t
   assert.equal(studio.read('README.md'), 'base\n');
   assert.deepEqual(readLock(studio.dir), {
     lockfileVersion: 1,
-    platform: { version: '0.3.0', commit },
+    platform: { version: '0.1.2', commit },
     modules,
     systems,
   });
@@ -221,7 +235,7 @@ test('a conflict stops with the merge in progress, and --continue finishes it on
   const { studio, release } = setup();
   studio.commit({ 'src/platform/a.ts': 'team\n' }, 'team edits the platform');
   const original = studio.git('rev-parse', 'main');
-  const commit = release('0.2.1', { 'src/platform/a.ts': 'release\n', 'src/platform/b.ts': 'release\n' });
+  const commit = release('0.1.1', { 'src/platform/a.ts': 'release\n', 'src/platform/b.ts': 'release\n' });
   const plan = planUpdate(studio.dir);
   assert.deepEqual(
     plan.overlap.map(entry => entry.file),
@@ -235,8 +249,8 @@ test('a conflict stops with the merge in progress, and --continue finishes it on
   assert.throws(() => continueUpdate(studio.dir, { run }), /Resolve these files/);
   studio.write({ 'src/platform/a.ts': 'both\n' });
   studio.git('add', 'src/platform/a.ts');
-  assert.deepEqual(continueUpdate(studio.dir, { run }), { merged: true, version: '0.2.1', checks: 'passed' });
-  assert.deepEqual(readLock(studio.dir).platform, { version: '0.2.1', commit });
+  assert.deepEqual(continueUpdate(studio.dir, { run }), { merged: true, version: '0.1.1', checks: 'passed' });
+  assert.deepEqual(readLock(studio.dir).platform, { version: '0.1.1', commit });
   assert.equal(studio.read('src/platform/b.ts'), 'release\n');
   assert.equal(studio.git('status', '--porcelain'), '');
   assert.equal(studio.git('rev-list', '--parents', '-n1', 'HEAD').split(' ').length, 3);
@@ -256,7 +270,7 @@ const installed = ({ lock }) => {
     studio.write({
       'studio.lock.json': JSON.stringify({
         lockfileVersion: 1,
-        platform: { version: '0.2.0', commit: upstream.git('rev-parse', 'v0.2.0^{commit}') },
+        platform: { version: '0.1.0', commit: upstream.git('rev-parse', 'v0.1.0^{commit}') },
         modules: {},
         systems: {},
       }),
@@ -268,12 +282,12 @@ const installed = ({ lock }) => {
 
 test('unrelated history is refused even when a lock records the fetched release', () => {
   const { studio, release } = installed({ lock: true });
-  const commit = release('0.2.1', { 'src/platform/a.ts': 'release\n' });
+  const commit = release('0.1.1', { 'src/platform/a.ts': 'release\n' });
   studio.commit(
     {
       'studio.lock.json': JSON.stringify({
         lockfileVersion: 1,
-        platform: { version: '0.2.1', commit },
+        platform: { version: '0.1.1', commit },
         modules: {},
         systems: {},
       }),
@@ -289,15 +303,15 @@ test('unrelated history is refused even when a lock records the fetched release'
 
 test('a studio with no shared history and no recorded release is refused', () => {
   const { studio, release } = installed({ lock: false });
-  release('0.2.1', { 'src/platform/a.ts': 'release\n' });
+  release('0.1.1', { 'src/platform/a.ts': 'release\n' });
   assert.match(planUpdate(studio.dir).problems[0], /shares no release history/);
 });
 
 test('an existing update branch is refused', () => {
   const { studio, release } = setup();
-  release('0.2.1', { 'src/platform/a.ts': 'release\n' });
-  studio.git('branch', 'studio-update/v0.2.1');
-  assert.match(planUpdate(studio.dir).problems[0], /branch studio-update\/v0\.2\.1 already exists/);
+  release('0.1.1', { 'src/platform/a.ts': 'release\n' });
+  studio.git('branch', 'studio-update/v0.1.1');
+  assert.match(planUpdate(studio.dir).problems[0], /branch studio-update\/v0\.1\.1 already exists/);
 });
 
 test('planning refuses missing ownership rules and uses protected prior tiers across retiering', () => {
@@ -306,9 +320,9 @@ test('planning refuses missing ownership rules and uses protected prior tiers ac
   const incoming = structuredClone(MAP);
   incoming.rules = incoming.rules.filter(rule => rule.tier !== 'seed');
   incoming.rules[0].paths.push('README.md');
-  release('0.3.0', { '.studio/ownership.json': JSON.stringify(incoming), 'README.md': 'incoming bytes\n' });
+  release('0.1.2', { '.studio/ownership.json': JSON.stringify(incoming), 'README.md': 'incoming bytes\n' });
   assert.equal(planUpdate(studio.dir).overlap.find(entry => entry.file === 'README.md').tier, 'seed');
-  release('0.3.1', { '.studio/ownership.json': 'invalid JSON' });
+  release('0.1.3', { '.studio/ownership.json': 'invalid JSON' });
   assert.match(planUpdate(studio.dir).problems[0], /valid .studio\/ownership.json rules/);
   assert.equal(studio.git('branch', '--list', 'studio-update/*'), '');
 });
@@ -317,7 +331,7 @@ test('planning retains literal whitespace paths in ownership reports', () => {
   const { studio, release } = setup();
   const file = 'src/prototypes/me/with\ttab.txt';
   studio.commit({ [file]: 'team bytes\n' }, 'Team whitespace file');
-  release('0.3.0', { [file]: 'incoming bytes\n' });
+  release('0.1.2', { [file]: 'incoming bytes\n' });
   assert.deepEqual(
     planUpdate(studio.dir).overlap.find(entry => entry.file === file),
     { file, tier: 'team', resolution: 'keeps your copy' },
