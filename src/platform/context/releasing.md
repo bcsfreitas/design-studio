@@ -12,12 +12,21 @@ A release is a tagged commit on the upstream `main`, named `v<version>`. Studios
 
 ## Maintainer workspace and distributed source
 
-
 The upstream starter tracks fictional sample contributors, examples, and systems. A maintainer's real contributor profile and personal prototypes remain local, excluded using `.git/info/exclude`. Personal mode gives the resolved registered maintainer Admin access; do not commit that profile's ID into shared configuration.
 
 Run acceptance and cut releases from a separate clean clone on `main`, with full history and the upstream repository as `origin`. Install its pinned dependencies and run the checks below there. Do not copy the maintainer's local profiles, private prototypes, or existing build output into it. `node src/platform/node/check/check-starter.js` rejects local files even if Git ignores them. The release command checks this before making any changes and rechecks when applying a plan.
 
 Upstream CI runs the same distribution check. The public website checks out the exact passing Studio commit in a fresh `studio-source` directory and builds there, so it does not use the maintainer's local files or `dist/`. Installed studios and their own publishing workflows may include real contributors; this is an upstream distribution policy only. Previous commits and tags retain their historical contents.
+
+## 0.1.0 launch checklist
+
+Publication remains on hold until the maintainer explicitly directs it.
+
+- [x] Local acceptance: 547 tests, installation, updates, and production builds passed. Clean-computer setup remains unverified.
+- [ ] Review the changelog and limitations with the maintainer and obtain publication direction.
+- [ ] Push the approved candidate and pass upstream CI. Pushing main also deploys the public demo.
+- [ ] Once the approved tag is available, update both installation prompts to `v0.1.0` in the website repository (`itspatmorgan/itspatmorgan.github.io`): `src/data/design-studio-setup.ts` and `src/data/design-studio-agent.txt`.
+- [ ] Verify installation from the public tag and the deployed viewer's interactions, direct links, and reloads before announcement.
 
 ## Cut a release
 
@@ -76,7 +85,7 @@ The release commit goes to `main` directly, so the person pushing needs the righ
 
 ## After pushing
 
-Install from the exact public tag using the [installation guide](installing.md), with a frozen dependency installation. Verify the local preview and preserved permanent links. Check the public demo anonymously, including a direct prototype URL and reload. Record the candidate commit, tag, CI results, live harness journeys and hosting limitations in the maintainer acceptance record before announcing the release.
+Install from the exact public tag using the [installation guide](installing.md), with a frozen dependency installation. Verify the local preview and preserved permanent links. Check the public demo anonymously, including a direct prototype URL and reload. Include the candidate commit, tag, CI results, and verification results in the maintainer's release review before announcement.
 
 The public launch tag establishes the first compatibility baseline. Before that tag, CI rehearses upgrades between synthetic revisions of the candidate foundation ([Checks and fixes](checks.md)). Historical pre-release tags do not require compatibility. CI also exercises source from the latest supported public release when one exists; subsequent release acceptance uses the preceding supported tag explicitly. Upgrade success is part of the required `build` gate for upstream pull requests.
 
@@ -110,8 +119,6 @@ STUDIO_BASE_PATH=/design-studio-demo/ pnpm preview
 ```
 
 See [Publishing](publishing.md) for portable hosting, direct-link routing, and access requirements.
-
-Record public launch checks in [v0.1.0 acceptance](../../../.github/releases/v0.1.0-acceptance.md).
 
 ## Related contracts
 
