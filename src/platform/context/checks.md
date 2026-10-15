@@ -24,7 +24,7 @@ Checks help keep the shared studio consistent. Give your agent the warning or er
 
 Ordinary builds use the same command in source clones and installed studios. Publishing does not rerun maintainer regressions. CI requires `scope` and `build`; the latter includes selected regressions, production compilation, and upgrade acceptance for upstream pull requests. A failed, cancelled, or unexpectedly skipped required job fails the gate. Copies choose their own CI and publishing policy.
 
-The [checks workflow](../../../.github/workflows/checks.yml) defines job dependencies. [Releasing](releasing.md) owns candidate acceptance; [project publishing](../../../CONTRIBUTING.md#project-repository-publishing) owns this repository's deployment.
+The [checks workflow](../../../.github/workflows/checks.yml) defines job dependencies. [Releasing](releasing.md) owns candidate acceptance; [project publishing](releasing.md#project-repository-publishing) owns this repository's deployment.
 
 Keep tests for failure-prone behavior and boundaries. Use synthetic fixtures instead of asserting the starter's sample content or visual token choices. Production integration tests end in `.integration.test.js` and run in the release tier. Optional module tests disappear with their module.
 

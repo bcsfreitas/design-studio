@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Contributing guidance is a short beta welcome focused on customizing your studio, sharing with the GitHub community, and reporting bugs. Deployment details live in the maintainer release guide.
+
 - First-visit onboarding waits for contributor identity before claiming its introduction, preventing a slow identity response from consuming and immediately dismissing the welcome dialog.
 
 - The Feedback Inbox engineering handoff canvas uses native Excalidraw text for its screen annotations. Canvas guidance, the Manual, and tool examples prefer native drawing and text tools; the example sticky note remains an optional Library asset.

@@ -58,7 +58,7 @@ Explore the examples, then describe the idea you want to build. You can customiz
 
 Keep Design Studio locally or put it in your own private or company repository. You control access to that repository and decide when to take new Design Studio releases. The project does not need access to your environment. Ask your agent to help connect your repository and review updates; the [installation guide](src/platform/context/installing.md#keep-your-own-repository-and-choose-when-to-update) includes prompts for both.
 
-You have the source code, so you can change and extend your own instance to fit your needs. If something works well, share it with the community so others can try it. The core project is curated by Patrick Morgan, who may bring proven ideas into the platform after vetting them. See [Contributing](CONTRIBUTING.md) for local customization, community sharing, and the core contribution policy.
+You have the source code, so you can customize your own studio to fit your needs. Share what you build with the community so others can try it. See [Contributing](CONTRIBUTING.md) for community links and feedback.
 
 Work individually in Personal mode, or use Team mode to register contributors and assign access within the local Design Studio. Teammates share source changes through Git. Engineers can inspect the prototype's code and supporting context when you hand off the work.
 
