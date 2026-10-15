@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.0 (2026-10-14)
+
 Design Studio’s first public beta, 0.1.0. Build and explore product ideas with your coding agent in a local workspace you can make your own.
 
 - Create interactive screens, documents, diagrams, and canvases together in a prototype.
