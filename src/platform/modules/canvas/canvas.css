@@ -446,3 +446,7 @@
     color: var(--muted-foreground);
   }
 }
+.canvas:not(.canvas-preview) {
+  /* Trackpad panning belongs to the canvas, including gestures that start over its overlays. */
+  overscroll-behavior: none;
+}

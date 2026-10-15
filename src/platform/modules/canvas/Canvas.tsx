@@ -164,6 +164,38 @@ function Editor({
     if (editable) normalizeEmbeds(api, api.getSceneElementsIncludingDeleted(), manifestRef.current, proto);
   }, [api, editable]);
 
+  // Frame headers remain clickable, but their wheel gestures belong to Excalidraw. Its native
+  // handler ignores HTML links; forward these to the drawing surface for the same pan/zoom behavior.
+  useEffect(() => {
+    const el = container.current;
+    if (!el || !api) return;
+    const onWheel = (event: WheelEvent) => {
+      if (!(event.target instanceof Element) || !event.target.closest('[data-canvas-frame] [data-open]')) return;
+      const surface = el.querySelector('canvas.interactive');
+      if (!surface) return;
+      event.preventDefault();
+      event.stopPropagation();
+      surface.dispatchEvent(
+        new WheelEvent('wheel', {
+          bubbles: true,
+          cancelable: true,
+          deltaX: event.deltaX,
+          deltaY: event.deltaY,
+          deltaZ: event.deltaZ,
+          deltaMode: event.deltaMode,
+          clientX: event.clientX,
+          clientY: event.clientY,
+          ctrlKey: event.ctrlKey,
+          metaKey: event.metaKey,
+          shiftKey: event.shiftKey,
+          altKey: event.altKey,
+        }),
+      );
+    };
+    el.addEventListener('wheel', onWheel, { capture: true, passive: false });
+    return () => el.removeEventListener('wheel', onWheel, true);
+  }, [api, container]);
+
   // For an agent with a browser: the canvas tools (agent.ts), dev only. Loaded on demand, so the
   // deployed site doesn't carry them.
   const editableRef = useRef(editable);

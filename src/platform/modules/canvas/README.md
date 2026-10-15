@@ -7,6 +7,8 @@ Human orientation: [Prototypes & systems](/documentation/manual/prototypes#what-
 
 Native Excalidraw tools are the authoring default, including text for screen annotations. The example sticky note in the Library demonstrates a reusable library asset; use it when wanted rather than as the standard annotation treatment.
 
+Trackpad gestures pan the canvas, including over linked frame headers; modifier-wheel gestures retain Excalidraw's zoom behavior. The canvas contains overscroll so horizontal panning does not fall through to browser history navigation. Frame headers still open their artifacts when clicked.
+
 **This folder is a self-contained file type.** Core never imports it (`src/platform/node/check/check-modules.js`),
 so the app runs with or without it. Canvas doesn't import another file type either: it asks the
 shared `#studio/data` inspection and `#studio/ui` artifact host how to show an artifact. Browser and CLI sizing use the same surface declaration.
