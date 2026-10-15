@@ -115,10 +115,7 @@ export function selectTests(files, catalog, available, { full = false, reason = 
     if (affected.length) {
       affected.forEach(name => selected.add(name));
       reasons.push(`${file}: ${affected.join(', ')}.`);
-    } else if (
-      /\.md$/.test(file) &&
-      (/^[A-Z][A-Z_-]*\.md$/.test(file) || file.startsWith('src/') || file.startsWith('src/platform/node/eval/'))
-    )
+    } else if (/\.md$/.test(file) && (/^[A-Z][A-Z_-]*\.md$/.test(file) || file.startsWith('src/')))
       reasons.push(`${file}: documentation; production checks remain required.`);
     else {
       full = true;

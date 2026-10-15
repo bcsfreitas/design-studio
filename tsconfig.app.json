@@ -42,7 +42,6 @@
     "src/platform/node/build",
     "src/platform/node/check",
     "src/platform/node/cli",
-    "src/platform/node/eval",
     "src/platform/node/lib",
     "src/platform/node/templates/module",
     "src/platform/node/templates/system",
