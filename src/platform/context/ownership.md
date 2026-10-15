@@ -91,7 +91,7 @@ A studio without shared release history cannot use the update command, including
 }
 ```
 
-`pnpm studio update` writes the entry in the update's merge commit, and the installer writes it when it creates a studio. The upstream starter never ships a lock with a `platform` entry, since its own commit would be wrong for every copy. A studio without the entry, or with one the tools can't read, is on an unknown release: `pnpm studio list` says so, and an update falls back to Git's merge base between the studio and the release. Once written, the lock always exists; `pnpm studio add` and `remove` keep the entry.
+`pnpm studio update` writes the entry in the update's merge commit. The upstream starter never ships a lock with a `platform` entry, since its own commit would be wrong for every copy. A studio without the entry, or with one the tools can't read, is on an unknown release: `pnpm studio list` says so, and an update falls back to Git's merge base between the studio and the release. Once written, the lock always exists; `pnpm studio add` and `remove` keep the entry.
 
 The lock is team-owned. Upstream tools write it, but it describes the team's studio, and upstream does not ship it, so it is not a seed file and an update never merges an upstream copy over it. Don't edit it by hand.
 
