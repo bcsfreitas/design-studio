@@ -5,7 +5,7 @@ import { Button } from '@/platform/systems/studio/components/button';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/platform/systems/studio/components/dialog';
 import { APP_NAME, CONFIG } from '#studio/data';
 import { useManifest } from '@/platform/app/data/useManifest';
-import { useMe } from '@/platform/app/data/files';
+import { useMe, useMyName } from '@/platform/app/data/files';
 import { claimIntroduction, complete, progressKey, recordIntroduction } from './progress';
 import { toast } from '#studio/components';
 import { ArtifactPreview, CollaborationPreview, SystemPreview } from './ConceptPreview';
@@ -51,12 +51,13 @@ const stories = {
 export default function Welcome() {
   const manifest = useManifest();
   const me = useMe();
+  // The key is null during loading; only the name distinguishes loading from an unregistered visitor.
+  const identityReady = useMyName() !== undefined;
   const key = progressKey(import.meta.env.BASE_URL, me);
   const [open, setOpen] = useState(false);
   useEffect(() => {
-    if (me === undefined) return;
     let active = true;
-    void claimIntroduction(key)
+    void claimIntroduction(key, identityReady)
       .then(show => {
         if (!active) return;
         setOpen(show);
@@ -72,7 +73,7 @@ export default function Welcome() {
     return () => {
       active = false;
     };
-  }, [key, me]);
+  }, [key, identityReady]);
   const [step, setStep] = useState(0);
   const current = steps[Math.min(step, steps.length - 1)];
   const examples = manifest.prototypes

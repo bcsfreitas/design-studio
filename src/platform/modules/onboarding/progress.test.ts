@@ -158,11 +158,11 @@ test('effect replay shares one claim and returning after display cannot reopen i
     return new Response(JSON.stringify({ show: true }));
   });
   const key = progressKey('/effect-replay/');
-  const first = claimIntroduction(key);
-  assert.equal(claimIntroduction(key), first);
+  const first = claimIntroduction(key, true);
+  assert.equal(claimIntroduction(key, true), first);
   assert.equal(await first, true);
   recordIntroduction(key);
-  assert.equal(await claimIntroduction(key), false);
+  assert.equal(await claimIntroduction(key, true), false);
   assert.equal(calls, 1);
 });
 
@@ -170,11 +170,11 @@ test('unregistered claims use browser fallback while registered claims use profi
   t.mock.method(globalThis, 'fetch', async () => new Response(JSON.stringify({ show: null })));
   const key = progressKey('/unregistered-fallback/');
   complete(key);
-  assert.equal(await claimIntroduction(key), false);
+  assert.equal(await claimIntroduction(key, true), false);
   t.mock.method(globalThis, 'fetch', async () => new Response(JSON.stringify({ show: true })));
   const registered = progressKey('/unregistered-fallback/', 'newcomer');
   complete(registered);
-  assert.equal(await claimIntroduction(registered), true);
+  assert.equal(await claimIntroduction(registered, true), true);
 });
 
 test('missing declarations fail validation and runtime without changing the profile', t => {
@@ -199,21 +199,57 @@ test('a missing profile declaration cannot activate browser fallback', async t =
     'fetch',
     async () => new Response(JSON.stringify({ error: 'Declare welcomeDismissed.' }), { status: 422 }),
   );
-  assert.equal(await claimIntroduction(progressKey('/invalid-declaration/', 'newcomer')), false);
+  assert.equal(await claimIntroduction(progressKey('/invalid-declaration/', 'newcomer'), true), false);
 });
 
 test('unavailable persistence uses browser fallback but malformed successful replies fail clearly', async t => {
   t.mock.method(globalThis, 'fetch', async () => {
     throw new TypeError('offline');
   });
-  assert.equal(await claimIntroduction(progressKey('/unavailable/')), true);
+  assert.equal(await claimIntroduction(progressKey('/unavailable/'), true), true);
   complete(progressKey('/unavailable-completed/'));
-  assert.equal(await claimIntroduction(progressKey('/unavailable-completed/')), false);
+  assert.equal(await claimIntroduction(progressKey('/unavailable-completed/'), true), false);
   for (const [index, body] of ['{}', '{"show":"yes"}', 'not json'].entries()) {
     t.mock.method(globalThis, 'fetch', async () => new Response(body));
     await assert.rejects(
-      claimIntroduction(progressKey('/malformed/' + index)),
+      claimIntroduction(progressKey('/malformed/' + index), true),
       /progress must declare|unreadable reply/,
     );
   }
+});
+
+test('delayed identity cannot consume onboarding before the registered visitor is known', async t => {
+  let calls = 0;
+  let dismissed = false;
+  t.mock.method(globalThis, 'fetch', async () => {
+    calls++;
+    const show = !dismissed;
+    dismissed = true;
+    return new Response(JSON.stringify({ show }));
+  });
+  const loadingKey = progressKey('/delayed-registered/');
+  assert.equal(await claimIntroduction(loadingKey, false), false);
+  assert.equal(await claimIntroduction(loadingKey, false), false);
+  assert.equal(dismissed, false, 'loading must not mark the introduction as shown on disk');
+  assert.equal(calls, 0);
+  const key = progressKey('/delayed-registered/', 'newcomer');
+  const claim = claimIntroduction(key, true);
+  assert.equal(claimIntroduction(key, true), claim, 'effect replay shares the one real claim');
+  assert.equal(await claim, true, 'the actual visitor must still receive the introduction');
+  assert.equal(calls, 1);
+});
+
+test('resolved unregistered identity can claim after loading without a cached false result', async t => {
+  let calls = 0;
+  t.mock.method(globalThis, 'fetch', async () => {
+    calls++;
+    return new Response(JSON.stringify({ show: null }));
+  });
+  const key = progressKey('/delayed-unregistered/');
+  assert.equal(await claimIntroduction(key, false), false);
+  assert.equal(calls, 0);
+  assert.equal(await claimIntroduction(key, true), true);
+  assert.equal(calls, 1);
+  recordIntroduction(key);
+  assert.equal(await claimIntroduction(key, true), false);
 });

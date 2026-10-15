@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- First-visit onboarding waits for contributor identity before claiming its introduction, preventing a slow identity response from consuming and immediately dismissing the welcome dialog.
+
 - The Feedback Inbox engineering handoff canvas uses native Excalidraw text for its screen annotations. Canvas guidance, the Manual, and tool examples prefer native drawing and text tools; the example sticky note remains an optional Library asset.
 
 - v0.4.0 establishes the first supported public baseline. Studio-owned settings, prototype metadata, contributor profiles, and contract snapshots start at version 1 with their current shapes. Earlier development tags are not compatibility commitments. Remove contributor legacy mappings and the pre-launch runtime-import repair command; current-module preference initialization and future release compatibility checks remain. Installation guidance targets v0.4.0. Release publication requires explicit maintainer direction.

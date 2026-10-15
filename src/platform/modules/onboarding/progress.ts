@@ -27,7 +27,9 @@ export function complete(key: string, storage: StorageSource = () => localStorag
 }
 
 // Share the initial request across StrictMode effect replay. Disk state survives origins and restarts.
-export function claimIntroduction(key: string) {
+export function claimIntroduction(key: string, identityReady: boolean) {
+  // Never consume the server claim or cache a result for an identity that is still loading.
+  if (!identityReady) return Promise.resolve(false);
   let claim = claims.get(key);
   if (!claim) {
     claim = callModule<{ show: boolean | null }>('onboarding', 'progress', { action: 'claim' })
