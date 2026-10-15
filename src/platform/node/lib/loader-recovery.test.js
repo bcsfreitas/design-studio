@@ -1,13 +1,20 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { createServer } from 'vite';
 
 test('recovery discards incomplete descriptors while retaining unrelated mounted views', async t => {
   const root = path.resolve(import.meta.dirname, '../../../..');
+  // This test reads real source, but must never replace a running studio's optimized dependencies.
+  const cacheDir = fs.mkdtempSync(path.join(os.tmpdir(), 'studio-loader-cache-'));
+  t.after(() => fs.rmSync(cacheDir, { recursive: true, force: true }));
   const server = await createServer({
     configFile: false,
+    cacheDir,
     root: path.join(root, 'src'),
+    optimizeDeps: { noDiscovery: true },
     server: { middlewareMode: true, hmr: false, ws: false, watch: null },
     resolve: { alias: { '@': path.join(root, 'src') } },
   });

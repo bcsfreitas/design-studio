@@ -110,6 +110,8 @@ export default defineConfig({
       '@codemirror/lang-javascript',
       '@codemirror/lang-markdown',
       '@codemirror/lang-yaml',
+      '@codemirror/lang-css',
+      'codemirror-lang-mermaid',
       '@lezer/common',
       '@lezer/highlight',
       '@lezer/markdown',
