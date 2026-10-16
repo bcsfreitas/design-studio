@@ -1,0 +1,22 @@
+{
+  "name": "@studio-system/48mf8463fvtj4yg0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@base-ui/react": "^1.8.0",
+    "@fontsource-variable/cormorant-garamond": "^5.3.0",
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
+    "class-variance-authority": "^0.7.1",
+    "cronstrue": "^3.32.0",
+    "highlight.js": "^11.12.0",
+    "lucide-react": "^1.57.0",
+    "motion": "^14.3.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
+  },
+  "peerDependencies": {
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  }
+}
