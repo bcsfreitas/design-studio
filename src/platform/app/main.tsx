@@ -1,3 +1,4 @@
+import './insecure-context.ts';
 import './styles.css';
 // Both entry modes use the published index document, including subpath static hosts.
 // Loading Studio's router here would execute host code in the preview.
