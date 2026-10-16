@@ -6,7 +6,7 @@
   "email": "bernardo@endlessaccess.org",
   "preferences": {
     "onboarding": {
-      "welcomeDismissed": false
+      "welcomeDismissed": true
     }
   }
 }
