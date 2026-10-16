@@ -1,5 +1,3 @@
-import '../code-highlight/code-highlight.css'
-
 import hljs from 'highlight.js/lib/common'
 import { useMemo } from 'react'
 

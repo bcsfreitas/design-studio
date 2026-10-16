@@ -1,7 +1,6 @@
 import { NO_PROJECT_LABEL, sealById, sealElements, SEAL_VIEW_BOX } from '../../lib/seals/seals'
 import { cn } from '#studio/runtime'
 
-import './seal-icon.css'
 
 interface SealIconProps {
   /** O id do selo no catálogo; null é a sessão sem projeto, desenhada como a estrela de quatro pontas. */
