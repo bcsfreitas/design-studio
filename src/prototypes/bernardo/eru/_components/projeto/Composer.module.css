@@ -1,0 +1,98 @@
+.form {
+  position: relative;
+  isolation: isolate;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  background: color-mix(in srgb, color-mix(in srgb, var(--page) 86%, var(--ink)) 70%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  backdrop-filter: blur(16px) saturate(1.2);
+  box-shadow: 0 10px 30px -14px rgb(var(--ink-rgb) / 0.3);
+  transition: background-color 180ms var(--ease);
+}
+
+.form:focus-within .field {
+  background: color-mix(in srgb, color-mix(in srgb, var(--page) 83%, var(--ink)) 78%, transparent);
+}
+
+[data-color-mode='dark'] .field {
+  background: color-mix(in srgb, color-mix(in srgb, var(--page) 55%, #000) 74%, transparent);
+  box-shadow: 0 10px 30px -12px rgb(0 0 0 / 0.5);
+}
+
+[data-color-mode='dark'] .form:focus-within .field {
+  background: color-mix(in srgb, color-mix(in srgb, var(--page) 50%, #000) 82%, transparent);
+}
+
+.text textarea {
+  min-height: 56px;
+  padding: 18px 18px 6px var(--axis);
+}
+
+.bar {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px 8px calc(var(--axis) - 10px);
+}
+
+.send {
+  position: relative;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  margin-left: auto;
+  place-items: center;
+  border: 1px solid var(--h3);
+  border-radius: 8px;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition:
+    color 160ms var(--ease),
+    background-color 160ms var(--ease),
+    border-color 160ms var(--ease);
+}
+
+.send svg {
+  width: 16px;
+  height: 16px;
+}
+
+.send:hover:not(:disabled) {
+  border-color: var(--h4);
+  color: var(--ink);
+}
+
+.send:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.send:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.ready {
+  border-color: transparent;
+  background: rgb(var(--tint));
+  color: var(--on-tint);
+}
+
+.ready:hover:not(:disabled) {
+  border-color: transparent;
+  background: rgb(var(--tint) / 0.88);
+  color: var(--on-tint);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .field,
+  .send {
+    transition: none;
+  }
+}

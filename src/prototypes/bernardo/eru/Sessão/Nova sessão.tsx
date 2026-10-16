@@ -1,13 +1,7 @@
 /** @studio-id arbc7t12xwnxnnjx */
-// Placeholder: the Nova sessão screen is built next.
-import AppShell, { PAGE_COLUMN } from '../_components/shell/AppShell';
+// A new session: the project on the Notch and the centred message field. Enter starts the session.
+import { NewSessionScreen } from '../_components/session/NewSession';
 
-export default function Placeholder() {
-  return (
-    <AppShell current="nova-sessao">
-      <div className={PAGE_COLUMN}>
-        <p className="rounded-lg border border-dashed border-h2 p-6 text-sm text-muted-foreground">Nova sessão: esta tela chega em seguida.</p>
-      </div>
-    </AppShell>
-  );
+export default function NovaSessao() {
+  return <NewSessionScreen />;
 }

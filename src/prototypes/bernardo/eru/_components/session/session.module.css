@@ -1,0 +1,244 @@
+/* The session bar (eru features/sessions/session-bar.css) and the message field (features/turn/composer.css), as CSS Modules.
+   Light is the base here; eru's default (dusk and night) look goes under [data-color-mode="dark"].
+   In eru today the bar's rules sit in an `@layer components` declared before Tailwind's base layer, so the preflight reset
+   wins on its buttons: no padding, no hover fill, the inherited 16 px and the ink colour. The bar reproduces that. */
+
+.heading {
+  display: flex;
+  min-width: 0;
+  font-size: 15px;
+}
+
+.title {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  max-width: 100%;
+  height: 32px;
+  align-items: center;
+  left: -6px;
+  gap: 7px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.title[aria-expanded='true'] {
+  box-shadow: inset 0 0 0 1px var(--h2);
+}
+
+.title:focus-visible,
+.ctxItem:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--ring) 50%, transparent);
+  outline-offset: 0;
+}
+
+.proj {
+  flex-shrink: 0;
+  font-weight: 400;
+  color: var(--muted-foreground);
+}
+
+.sep {
+  flex-shrink: 0;
+  font-weight: 300;
+  color: var(--dim);
+}
+
+.name {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chevron {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--dim);
+  transition: transform 160ms var(--ease);
+}
+
+.title[aria-expanded='true'] .chevron {
+  transform: rotate(180deg);
+}
+
+.ctxSlot {
+  display: flex;
+  flex-shrink: 1;
+  overflow: visible;
+}
+
+.ctx {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 2px;
+}
+
+.ctxItem {
+  display: inline-flex;
+  min-width: 0;
+  height: 30px;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 5px;
+  border-radius: 8px;
+  color: var(--ink);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ctxItem:first-child {
+  flex-shrink: 1;
+}
+
+.ctxItem > svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+.ctxItem[aria-expanded='true'] {
+  box-shadow: inset 0 0 0 1px var(--h2);
+}
+
+.field {
+  border-radius: 12px;
+  background: color-mix(in srgb, color-mix(in srgb, var(--page) 86%, var(--ink)) 70%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  backdrop-filter: blur(16px) saturate(1.2);
+  box-shadow: 0 10px 30px -14px rgb(var(--ink-rgb) / 0.3);
+  transition: background-color 180ms var(--ease);
+}
+
+.form:focus-within .field {
+  background: color-mix(in srgb, color-mix(in srgb, var(--page) 83%, var(--ink)) 78%, transparent);
+}
+
+[data-color-mode='dark'] .field {
+  background: color-mix(in srgb, color-mix(in srgb, var(--page) 55%, #000) 74%, transparent);
+  box-shadow: 0 10px 30px -12px rgb(0 0 0 / 0.5);
+}
+
+[data-color-mode='dark'] .form:focus-within .field {
+  background: color-mix(in srgb, color-mix(in srgb, var(--page) 50%, #000) 82%, transparent);
+}
+
+.text textarea {
+  min-height: 56px;
+  padding: 18px 18px 6px var(--axis);
+}
+
+.inset {
+  padding-left: var(--axis);
+}
+
+.bar {
+  padding-left: calc(var(--axis) - 10px);
+}
+
+.send {
+  position: relative;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  place-items: center;
+  border: 1px solid var(--h3);
+  border-radius: 8px;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition:
+    color 160ms var(--ease),
+    background-color 160ms var(--ease),
+    border-color 160ms var(--ease);
+}
+
+.send svg {
+  width: 16px;
+  height: 16px;
+}
+
+.send:hover:not(:disabled) {
+  border-color: var(--h4);
+  color: var(--ink);
+}
+
+.send:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.send:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.send.ready {
+  border-color: transparent;
+  background: rgb(var(--tint));
+  color: var(--on-tint);
+}
+
+.send.ready:hover {
+  border-color: transparent;
+  background: rgb(var(--tint) / 0.88);
+  color: var(--on-tint);
+}
+
+.send.stop {
+  border-color: var(--h4);
+  color: var(--ink);
+}
+
+.send.stop svg {
+  width: 12px;
+  height: 12px;
+}
+
+.pieRing {
+  fill: none;
+  stroke: var(--h3);
+  stroke-width: 1;
+}
+
+.pieWedge {
+  fill: var(--muted-foreground);
+  transition: fill 120ms var(--ease);
+}
+
+.pie[data-high] .pieWedge {
+  fill: var(--amber);
+}
+
+.pie:hover .pieWedge,
+.pie[data-popup-open] .pieWedge {
+  fill: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .field,
+  .send,
+  .chevron {
+    transition: none;
+  }
+}
+
+.panelIn {
+  animation: panel-in 220ms var(--ease) both;
+}
+
+@keyframes panel-in {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panelIn {
+    animation: none;
+  }
+}

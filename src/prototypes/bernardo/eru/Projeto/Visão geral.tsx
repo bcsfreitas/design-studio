@@ -1,13 +1,9 @@
 /** @studio-id gec2bk6ng7q6hq7c */
-// Placeholder: the Projeto screen is built next.
-import AppShell, { PAGE_COLUMN } from '../_components/shell/AppShell';
+// The Eru project's page on its overview, as today: one session answering, one waiting, the board's blocked cards, the
+// latest drafts and notes, two servers on and the recent sessions.
+import { ERU_PROJECT } from '../_components/data/projeto';
+import { ProjectPage } from '../_components/projeto/ProjectPage';
 
-export default function Placeholder() {
-  return (
-    <AppShell current="sessoes">
-      <div className={PAGE_COLUMN}>
-        <p className="rounded-lg border border-dashed border-h2 p-6 text-sm text-muted-foreground">Projeto: esta tela chega em seguida.</p>
-      </div>
-    </AppShell>
-  );
+export default function VisaoGeral() {
+  return <ProjectPage data={ERU_PROJECT} tab="visao-geral" />;
 }

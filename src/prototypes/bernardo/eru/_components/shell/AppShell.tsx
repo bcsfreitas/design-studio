@@ -92,7 +92,7 @@ function UsageRail() {
   );
 }
 
-function IconNav({ current, projectsOpen, onToggleProjects }: { current: AreaId | 'nova-sessao'; projectsOpen: boolean; onToggleProjects: () => void }) {
+function IconNav({ current, projectsOpen, onToggleProjects }: { current?: AreaId | 'nova-sessao'; projectsOpen: boolean; onToggleProjects: () => void }) {
   return (
     <div className="flex h-full w-16 shrink-0 flex-col items-center gap-3 py-3 text-sidebar-foreground">
       <button
@@ -225,8 +225,8 @@ export function PageTrail({ steps }: { steps: { label: string; glyph?: ReactNode
 export const PAGE_COLUMN = 'mx-auto flex w-full max-w-180 min-w-0 flex-col p-6';
 
 export interface AppShellProps {
-  /** The area marked in the icon column. */
-  current: AreaId | 'nova-sessao';
+  /** The area marked in the icon column; none on pages outside the areas (a project's page). */
+  current?: AreaId | 'nova-sessao';
   /** What goes in the bar at the top of the card: a PageBar or a PageTrail. Defaults to the area's trail. */
   bar?: ReactNode;
   /** The sky behind the card, as eru draws it for the page. */
@@ -237,14 +237,16 @@ export interface AppShellProps {
   rail?: ReactNode;
   /** A layer fixed to the card, in front of the content and outside the scroll. */
   layer?: ReactNode;
+  /** A card beside the main card, on the right edge of the screen: the open panel of a session's rail. */
+  side?: ReactNode;
   /** Replaces the scrolling page, for screens that manage their own scroll (a session with its composer). */
   fill?: boolean;
   children: ReactNode;
 }
 
-export default function AppShell({ current, bar, sky = 'calmo', projectsOpen: initialProjects = false, rail, layer, fill = false, children }: AppShellProps) {
+export default function AppShell({ current, bar, sky = 'calmo', projectsOpen: initialProjects = false, rail, layer, side, fill = false, children }: AppShellProps) {
   const [projectsOpen, setProjectsOpen] = useState(initialProjects);
-  const area = current === 'nova-sessao' ? undefined : areaById(current);
+  const area = current === undefined || current === 'nova-sessao' ? undefined : areaById(current);
   return (
     <div className="flex h-screen min-h-0 w-full overflow-hidden bg-sidebar text-foreground">
       <IconNav current={current} projectsOpen={projectsOpen} onToggleProjects={() => setProjectsOpen(open => !open)} />
@@ -268,6 +270,7 @@ export default function AppShell({ current, bar, sky = 'calmo', projectsOpen: in
         </div>
         {layer ? <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden rounded-[inherit]">{layer}</div> : null}
       </main>
+      {side}
     </div>
   );
 }
