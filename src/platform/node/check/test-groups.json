@@ -8,6 +8,7 @@
         "src/platform/app/data/mutations.test.js",
         "src/platform/app/artifacts/resolveArtifact.test.js",
         "src/platform/node/build/files/editor.test.js",
+        "src/platform/node/build/files/http.test.js",
         "src/platform/node/build/rehype-mermaid.test.js",
         "src/platform/node/build/vite-deployment-recovery-plugin.test.js",
         "src/platform/node/build/vite-module-entries-plugin.test.js",

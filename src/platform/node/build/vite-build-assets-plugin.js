@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { moduleBuilds } from '../lib/module-builds.js';
 import { ENABLED_MODULES } from '../lib/modules.js';
 import { buildAssetStore } from '../lib/build-assets.js';
+import { sameOrigin } from './files/http.js';
 const ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 const ID = 'virtual:studio-build-assets',
   RESOLVED = '\0' + ID;
@@ -37,7 +38,7 @@ export default function buildAssets({
     },
     configureServer(server) {
       server.middlewares.use('/__studio/assets/', async (req, res) => {
-        if (req.method !== 'GET' || req.headers['sec-fetch-site'] !== 'same-origin') {
+        if (req.method !== 'GET' || !sameOrigin(req)) {
           res.statusCode = 403;
           return res.end();
         }

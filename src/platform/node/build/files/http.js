@@ -3,7 +3,20 @@
 import { MAX_SOURCE_BYTES } from './paths.js';
 
 // Only the app's own page may call these: browsers mark same-origin requests.
-export const sameOrigin = req => req.headers['sec-fetch-site'] === 'same-origin';
+// Over plain http on a LAN address browsers omit Sec-Fetch-Site, so fall back to
+// matching the Origin, or the Referer when a same-origin GET carries no Origin.
+export function sameOrigin(req) {
+  const site = req.headers['sec-fetch-site'];
+  if (site) return site === 'same-origin';
+  const host = req.headers.host;
+  const source = req.headers.origin ?? req.headers.referer;
+  if (!host || !source || source === 'null') return false;
+  try {
+    return new URL(source).host === host;
+  } catch {
+    return false;
+  }
+}
 
 export function send(res, status, body) {
   res.statusCode = status;
