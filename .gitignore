@@ -11,3 +11,6 @@ public/prototypes/artifacts/
 *.tsbuildinfo
 
 .studio-system-operation
+.scratch/
+.notes/
+.files/
