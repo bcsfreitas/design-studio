@@ -1,0 +1,17 @@
+{
+  "name": "@studio-system/8x5spen6xtvp96a9",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@fontsource-variable/figtree": "^5.3.0",
+    "@fontsource-variable/inter": "^5.3.0",
+    "@iconify-json/lucide": "^1.2.145",
+    "@iconify/vue": "^5.0.3",
+    "@nuxt/ui": "~4.8.2",
+    "vue": "^3.5.44"
+  },
+  "peerDependencies": {
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  }
+}

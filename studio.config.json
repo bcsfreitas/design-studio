@@ -17,11 +17,13 @@
     "contributors": true
   },
   "systems": [
-    "eru"
+    "eru",
+    "endless-studios"
   ],
   "systemMaintainers": {
-    "48mf8463fvtj4yg0": []
+    "48mf8463fvtj4yg0": [],
+    "8x5spen6xtvp96a9": []
   },
-  "defaultSystem": "48mf8463fvtj4yg0",
+  "defaultSystem": "8x5spen6xtvp96a9",
   "admins": []
 }

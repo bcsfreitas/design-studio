@@ -34,7 +34,13 @@ export default function importGuard({
       const scope = policy.scopeOf(file);
       const rel = path.relative(root, file).split(path.sep).join('/');
       if (!scope && moduleIdOfPath(rel) === undefined && !isTeamCode(rel)) return null;
-      if (scope && /\.css($|\?)/.test(source) && !/\.module\.css($|\?)/.test(source))
+      if (
+        scope &&
+        /\.css($|\?)/.test(source) &&
+        !/\.module\.css($|\?)/.test(source) &&
+        !/\.shadow\.css\?inline$/.test(source) &&
+        !/\.vue\?vue&type=style&/.test(source)
+      )
         this.error(
           `${scope.kind} scope: ${file} imports global CSS. Use CSS Modules for runtime styles; design-system themes are loaded by the platform.`,
         );

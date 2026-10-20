@@ -14,7 +14,7 @@ export const inputDigest = inputs => digest(JSON.stringify(inputs));
 const SRC = path.join(ROOT, 'src');
 const STYLES = path.join(SRC, 'platform/app/styles.css');
 const local = file => file.startsWith(SRC + path.sep);
-const supported = file => local(file) && /\.(?:[cm]?[jt]sx?|md|css|json)$/.test(file);
+const supported = file => local(file) && /\.(?:[cm]?[jt]sx?|md|css|json|vue)$/.test(file);
 const keyOf = file => '/' + path.relative(SRC, file).split(path.sep).join('/');
 const themeFiles = () =>
   [...new Set([PLATFORM_ID, ...Object.keys(PROTOTYPE_SYSTEMS)])].map(id =>
@@ -51,6 +51,8 @@ export function sourceInputs(graph, entry) {
     // than silently disappearing from the dependency revision.
     if (module.file && local(module.file)) files.add(module.file);
     if (visited.size > 4096) throw new Error('Preview dependency graph is too large to verify.');
+    // A stylesheet's other dependencies are files Tailwind scanned for class names; cssInputs follows its imports.
+    if (module.file?.endsWith('.css')) return;
     for (const child of module.importedModules ?? []) visit(child);
   };
   for (const module of graph.getModulesByFile(entry) ?? []) visit(module);
@@ -73,7 +75,8 @@ export default function artifactRevisions() {
         order: 'pre',
         handler(code, id) {
           const file = id.split('?')[0];
-          if (!supported(file) || /[?&](?:raw|url)(?:&|$)/.test(id)) return null;
+          // An SFC's blocks are requests of the same file; only the whole file's source is evidence.
+          if (!supported(file) || /[?&](?:raw|url)(?:&|$)/.test(id) || /\.vue\?vue&/.test(id)) return null;
           const extra = file.endsWith('.css') ? [...cssInputs(file, code)].filter(input => input !== file) : [];
           if (file === STYLES)
             for (const theme of themeFiles()) {

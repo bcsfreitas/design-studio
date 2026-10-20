@@ -93,6 +93,7 @@ export function scopedUtilities() {
   return {
     postcssPlugin: 'studio-system-utilities',
     Once(root) {
+      if (/\.shadow\.css(\?|$)/.test(root.source?.input.file ?? '')) return;
       let utilities = false;
       root.walkAtRules('layer', layer => {
         if (layer.params === 'utilities' && layer.nodes) utilities = true;

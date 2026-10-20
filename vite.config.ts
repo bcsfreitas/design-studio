@@ -30,6 +30,7 @@ import markdownRefresh from './src/platform/node/build/vite-markdown-refresh-plu
 import buildAssets from './src/platform/node/build/vite-build-assets-plugin.js';
 import globs from './src/platform/node/build/vite-globs-plugin.js';
 import css, { scopedUtilities } from './src/platform/node/build/vite-css-plugin.js';
+import vueSystems from './src/platform/node/build/vite-vue-systems-plugin.js';
 import { optimizedDependencies } from './src/platform/core/modules/index.ts';
 import { ENABLED_MODULES, MODULE_DIRS } from './src/platform/node/lib/modules.js';
 
@@ -60,6 +61,8 @@ function markdown(reference = false) {
     },
   };
 }
+
+const vueSystemPlugins = await vueSystems();
 
 // A module with `lib: true` gives prototypes one door in: `import ... from '@module/<id>'` is its lib/index.
 const moduleLibs = ENABLED_MODULES.filter((m: { lib?: boolean }) => m.lib).map((m: { id: string }) => ({
@@ -118,7 +121,7 @@ export default defineConfig({
     ],
   },
   resolve: {
-    dedupe: ['react', 'react-dom'],
+    dedupe: ['react', 'react-dom', 'vue'],
     alias: [{ find: '@', replacement: fileURLToPath(new URL('./src', import.meta.url)) }],
   },
   plugins: [
@@ -129,6 +132,7 @@ export default defineConfig({
     markdown(true),
     // Markdown readers refresh through src/platform/node/build/vite-markdown-refresh-plugin.js instead.
     react({ include: /\.[jt]sx$/ }),
+    ...vueSystemPlugins,
     markdownRefresh(),
     importGuard(),
     publicApi(),
