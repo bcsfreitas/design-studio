@@ -15,6 +15,7 @@
     "Memória",
     "Arquivos",
     "Perfis",
+    "Menu lateral",
     "Início/Início.tsx",
     "Início/Estados",
     "Sessão/Sessão.tsx",
@@ -87,6 +88,15 @@
     "Perfis/Estados/Carregando.tsx",
     "Perfis/Estados/Erro.tsx",
     "Perfis/Estados/Dashboard fora do ar.tsx",
-    "Perfis/Estados/Erro nesta tela.tsx"
+    "Perfis/Estados/Erro nesta tela.tsx",
+    "Menu lateral/Exploração do menu.excalidraw",
+    "Menu lateral/Interativo.tsx",
+    "Menu lateral/Item atual.tsx",
+    "Menu lateral/Passar o mouse e foco.tsx",
+    "Menu lateral/Uso dos modelos.tsx",
+    "Menu lateral/Clique no uso.tsx",
+    "Menu lateral/Ajustes e conta.tsx",
+    "Menu lateral/Painel de sessões.tsx",
+    "Menu lateral/Busca e estados do painel.tsx"
   ]
 }

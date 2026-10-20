@@ -1,0 +1,262 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "studioVersion": 1,
+  "studioId": "eyv4c5s0fr405x3y",
+  "elements": [
+    {
+      "autoResize": true,
+      "fontFamily": 6,
+      "fontSize": 36,
+      "height": 45,
+      "id": "mvctao50eg3jvz",
+      "lineHeight": 1.25,
+      "originalText": "Menu lateral do eru",
+      "seed": 362881116,
+      "text": "Menu lateral do eru",
+      "textAlign": "left",
+      "type": "text",
+      "version": 2,
+      "versionNonce": 2116232960,
+      "verticalAlign": "top",
+      "width": 331.34,
+      "x": 0,
+      "y": -340
+    },
+    {
+      "autoResize": false,
+      "fontFamily": 6,
+      "fontSize": 20,
+      "height": 75,
+      "id": "mvctao54uymf3f",
+      "lineHeight": 1.25,
+      "originalText": "A coluna de ícones e o painel de sessões recentes, como estão hoje, com todas as interações.\nO primeiro quadro é o menu de verdade: abra-o para clicar. Os outros mostram cada estado parado, lado a lado.\nO menu daqui é uma cópia própria (Menu lateral/_menu): mudar ele não mexe nas outras telas do protótipo.",
+      "seed": 6329843,
+      "text": "A coluna de ícones e o painel de sessões recentes, como estão hoje, com todas as interações.\nO primeiro quadro é o menu de verdade: abra-o para clicar. Os outros mostram cada estado parado, lado a lado.\nO menu daqui é uma cópia própria (Menu lateral/_menu): mudar ele não mexe nas outras telas do protótipo.",
+      "textAlign": "left",
+      "type": "text",
+      "version": 2,
+      "versionNonce": 1036423299,
+      "verticalAlign": "top",
+      "width": 1200,
+      "x": 0,
+      "y": -270
+    },
+    {
+      "customData": {
+        "frame": true,
+        "hideLinkIcon": true
+      },
+      "frameId": "mvctawk6nd27x1",
+      "height": 750,
+      "id": "mvctao5qnoscxy",
+      "link": "/prototypes/wa5xjb3thtrw3cvr/artifacts/04c0q963cebxq6fm",
+      "seed": 1808892942,
+      "strokeColor": "transparent",
+      "type": "embeddable",
+      "version": 2,
+      "versionNonce": 1741679882,
+      "width": 1200,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "autoResize": false,
+      "fontFamily": 6,
+      "fontSize": 20,
+      "frameId": "mvctawk6nd27x1",
+      "height": 350,
+      "id": "mvctao5to1le6h",
+      "lineHeight": 1.25,
+      "originalText": "Pontos para olhar\n\n• Perfil e uso dos modelos mostram o nome na dica do navegador, mais lenta e com outra cara; os outros itens usam a dica do eru.\n• O Terminal fica apagado, mas acende e mostra o nome como se abrisse.\n• Sessões é o único item que abre o painel em vez de ir para a página; o nome muda para \"Sessões recentes\" e ele fica dourado.\n• O losango do item atual é pequeno e pouco visível perto do ícone.\n• No painel, \"Mais N\" e \"Mostrar menos\" ficam maiores que as linhas de sessão.\n• Os medidores de uso não dizem o número sem passar o mouse.\n• O uso aparece em dois lugares: no cartão do medidor e de novo dentro de Ajustes e conta.\n• Em Ajustes, as janelas de um provedor ficam espremidas (\"5 hor…\", \"Opus · s…\").",
+      "seed": 1163914251,
+      "text": "Pontos para olhar\n\n• Perfil e uso dos modelos mostram o nome na dica do navegador, mais lenta e com outra cara; os outros itens usam a dica do eru.\n• O Terminal fica apagado, mas acende e mostra o nome como se abrisse.\n• Sessões é o único item que abre o painel em vez de ir para a página; o nome muda para \"Sessões recentes\" e ele fica dourado.\n• O losango do item atual é pequeno e pouco visível perto do ícone.\n• No painel, \"Mais N\" e \"Mostrar menos\" ficam maiores que as linhas de sessão.\n• Os medidores de uso não dizem o número sem passar o mouse.\n• O uso aparece em dois lugares: no cartão do medidor e de novo dentro de Ajustes e conta.\n• Em Ajustes, as janelas de um provedor ficam espremidas (\"5 hor…\", \"Opus · s…\").",
+      "textAlign": "left",
+      "type": "text",
+      "version": 4,
+      "versionNonce": 988592393,
+      "verticalAlign": "top",
+      "width": 760,
+      "x": 1300,
+      "y": 0
+    },
+    {
+      "customData": {
+        "frame": true,
+        "hideLinkIcon": true
+      },
+      "frameId": "mvctawk6u8bxs8",
+      "height": 930,
+      "id": "mvctao6as38zn0",
+      "link": "/prototypes/wa5xjb3thtrw3cvr/artifacts/y4z59h0441gnaygz",
+      "seed": 684802546,
+      "strokeColor": "transparent",
+      "type": "embeddable",
+      "version": 2,
+      "versionNonce": 820831683,
+      "width": 1200,
+      "x": 0,
+      "y": 1000
+    },
+    {
+      "customData": {
+        "frame": true,
+        "hideLinkIcon": true
+      },
+      "frameId": "mvctawk6u8bxs8",
+      "height": 930,
+      "id": "mvctao6m45ackl",
+      "link": "/prototypes/wa5xjb3thtrw3cvr/artifacts/62gjaq925r814ft2",
+      "seed": 359588354,
+      "strokeColor": "transparent",
+      "type": "embeddable",
+      "version": 2,
+      "versionNonce": 366168874,
+      "width": 1200,
+      "x": 1300,
+      "y": 1000
+    },
+    {
+      "customData": {
+        "frame": true,
+        "hideLinkIcon": true
+      },
+      "frameId": "mvctawk6u8bxs8",
+      "height": 2720,
+      "id": "mvctao70gx3nmu",
+      "link": "/prototypes/wa5xjb3thtrw3cvr/artifacts/axn93w1qbtjbfk32",
+      "seed": 147535934,
+      "strokeColor": "transparent",
+      "type": "embeddable",
+      "version": 2,
+      "versionNonce": 1130194124,
+      "width": 1200,
+      "x": 2600,
+      "y": 1000
+    },
+    {
+      "customData": {
+        "frame": true,
+        "hideLinkIcon": true
+      },
+      "frameId": "mvctawk6j0uwx0",
+      "height": 1450,
+      "id": "mvctao7e1jnh3g",
+      "link": "/prototypes/wa5xjb3thtrw3cvr/artifacts/p3rawj0r2bhfkagj",
+      "seed": 1613987934,
+      "strokeColor": "transparent",
+      "type": "embeddable",
+      "version": 2,
+      "versionNonce": 1198192409,
+      "width": 1200,
+      "x": 0,
+      "y": 4000
+    },
+    {
+      "customData": {
+        "frame": true,
+        "hideLinkIcon": true
+      },
+      "frameId": "mvctawk6j0uwx0",
+      "height": 1450,
+      "id": "mvctao7s91rtw4",
+      "link": "/prototypes/wa5xjb3thtrw3cvr/artifacts/97effnpcddgq1t4p",
+      "seed": 2112727378,
+      "strokeColor": "transparent",
+      "type": "embeddable",
+      "version": 2,
+      "versionNonce": 1035929154,
+      "width": 1200,
+      "x": 1300,
+      "y": 4000
+    },
+    {
+      "height": 870,
+      "id": "mvctawk6nd27x1",
+      "name": "Experimente",
+      "seed": 1652582765,
+      "type": "frame",
+      "version": 1,
+      "versionNonce": 6170572,
+      "width": 2180,
+      "x": -60,
+      "y": -60
+    },
+    {
+      "height": 2840,
+      "id": "mvctawk6u8bxs8",
+      "name": "Coluna de ícones",
+      "seed": 810900603,
+      "type": "frame",
+      "version": 1,
+      "versionNonce": 1635765957,
+      "width": 3920,
+      "x": -60,
+      "y": 940
+    },
+    {
+      "height": 1570,
+      "id": "mvctawk6j0uwx0",
+      "name": "Painel de sessões",
+      "seed": 1536003614,
+      "type": "frame",
+      "version": 1,
+      "versionNonce": 276412719,
+      "width": 2620,
+      "x": -60,
+      "y": 3940
+    },
+    {
+      "customData": {
+        "frame": true,
+        "hideLinkIcon": true
+      },
+      "frameId": "mve3v2lp241pc4",
+      "height": 3720,
+      "id": "mve3v2lfby6174",
+      "link": "/prototypes/wa5xjb3thtrw3cvr/artifacts/b6asaqcvmxx6zjxb",
+      "seed": 1827060568,
+      "strokeColor": "transparent",
+      "type": "embeddable",
+      "version": 2,
+      "versionNonce": 1608844294,
+      "width": 1200,
+      "x": 4000,
+      "y": 1000
+    },
+    {
+      "customData": {
+        "frame": true,
+        "hideLinkIcon": true
+      },
+      "frameId": "mve3v2lp241pc4",
+      "height": 2780,
+      "id": "mve3v2lo3juihj",
+      "link": "/prototypes/wa5xjb3thtrw3cvr/artifacts/4kgfc0p8b3z4pxj9",
+      "seed": 113040530,
+      "strokeColor": "transparent",
+      "type": "embeddable",
+      "version": 2,
+      "versionNonce": 1671910212,
+      "width": 1200,
+      "x": 5300,
+      "y": 1000
+    },
+    {
+      "height": 3840,
+      "id": "mve3v2lp241pc4",
+      "name": "Cliques no pé da coluna",
+      "seed": 510485942,
+      "type": "frame",
+      "version": 1,
+      "versionNonce": 1120395399,
+      "width": 2620,
+      "x": 3940,
+      "y": 940
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff"
+  },
+  "files": {}
+}
