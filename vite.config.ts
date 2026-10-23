@@ -20,6 +20,8 @@ import tailwindcss from '@tailwindcss/vite';
 import importGuard from './src/platform/node/build/vite-import-guard-plugin.js';
 import publicApi from './src/platform/node/build/vite-public-api-plugin.js';
 import manifestWatch from './src/platform/node/build/vite-manifest-watch-plugin.js';
+import identityAssign from './src/platform/node/build/vite-identity-assign-plugin.js';
+import devRegistry from './src/platform/node/build/vite-dev-registry-plugin.js';
 import spa404 from './src/platform/node/build/vite-spa-404-plugin.js';
 import socialMetadata from './src/platform/node/build/vite-social-metadata-plugin.js';
 import deploymentRecovery from './src/platform/node/build/vite-deployment-recovery-plugin.js';
@@ -154,6 +156,8 @@ export default defineConfig({
     globs(),
     moduleEntries(),
     resourceDirectoryPlugin(),
+    // Before the manifest watch, so the manifest rebuilt for a new file already has its identity.
+    identityAssign(),
     manifestWatch(),
     settings(),
     files(),
@@ -162,5 +166,6 @@ export default defineConfig({
     socialMetadata(),
     deploymentRecovery(),
     previewTheme(),
+    devRegistry(),
   ],
 });

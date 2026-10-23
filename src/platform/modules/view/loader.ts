@@ -2,7 +2,11 @@ import type { ComponentType } from 'react';
 import { createLoader } from '@/platform/app/data/createLoader';
 
 // A view file's default export.
-export type ViewModule = { default: ComponentType };
+export type ViewModule = {
+  default: ComponentType;
+  // Named states (states.ts): each renders the default export with its props.
+  states?: readonly { title: string; props?: Record<string, unknown> }[];
+};
 
 // Every view file, .tsx or .jsx, at any depth, in prototypes and in the modules that hold prototype-shaped
 // folders (custom sections). Helpers (names starting with an underscore) aren't views. ['/__studio_globs__/*'] is replaced by

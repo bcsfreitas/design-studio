@@ -4,7 +4,8 @@ import { fileURLToPath } from 'node:url';
 import { slugify } from './create.js';
 import { PROTOTYPE_SYSTEMS } from '../../systems/node/systems.js';
 import { canonicalDirectory } from '../../../node/lib/safe-paths.js';
-import { moveWithLinks, personAddress } from '../../../node/lib/prototype-links.js';
+import { linkedFiles, moveWithLinks, personAddress } from '../../../node/lib/prototype-links.js';
+import { rewriteResourceLinks } from '../../../node/lib/resource-links.js';
 import { buildManifest } from '../../../node/build/build-manifest.js';
 import { INSTALLED_FILE_TYPES } from '../../../node/lib/file-types.js';
 import {
@@ -15,10 +16,43 @@ import {
 import { prototypeAssignment } from '../../../node/lib/prototype-assignment.js';
 import { loadContributors } from '../../../node/lib/contributors.js';
 import { resourceId } from '../../../core/fileTypes.ts';
+import { artifactAddress, replaceChildIdentities } from '../../../core/resourceIdentity.ts';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../../..');
 const validId = value => typeof value === 'string' && /^[a-z0-9][a-z0-9._-]*$/i.test(value);
 const excluded = new Set(['.git', 'node_modules', '.trash']);
+
+// Child artifacts declared inside copied files (a view's named states) get fresh IDs too, and copied links to the
+// original's states follow them. Runs before the copy's artifact identities and prototype address are remapped.
+function replaceStateIdentities(dir, used, previousPrototypeId, prototypeId) {
+  const routes = new Map();
+  const walk = folder => {
+    for (const entry of fs.readdirSync(folder, { withFileTypes: true })) {
+      if (entry.name.startsWith('.') || entry.name.startsWith('_') || excluded.has(entry.name)) continue;
+      const file = path.join(folder, entry.name);
+      if (entry.isDirectory()) {
+        walk(file);
+        continue;
+      }
+      const spec = Object.values(INSTALLED_FILE_TYPES).find(
+        type => type.inPrototype && type.identity?.children && type.extensions.some(ext => entry.name.endsWith(ext)),
+      );
+      if (!spec) continue;
+      const before = fs.readFileSync(file, 'utf8');
+      const copy = replaceChildIdentities(before, spec, () => allocateResourceIdentity(used));
+      if (copy.source !== before) fs.writeFileSync(file, copy.source);
+      for (const [previous, next] of copy.remapped)
+        routes.set(artifactAddress(previousPrototypeId, previous), artifactAddress(prototypeId, next));
+    }
+  };
+  walk(dir);
+  if (!routes.size) return;
+  for (const file of linkedFiles(dir)) {
+    const source = fs.readFileSync(file, 'utf8');
+    const next = rewriteResourceLinks(source, file, routes);
+    if (next !== source) fs.writeFileSync(file, next);
+  }
+}
 
 function checkFiles(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -78,6 +112,7 @@ export function duplicatePrototype({ key, id, title, system }) {
       errorOnExist: true,
       filter: file => file === from || !excluded.has(path.basename(file)),
     });
+    replaceStateIdentities(to, used, previousPrototypeId, meta.studioId);
     identifyPrototypeArtifacts(to, INSTALLED_FILE_TYPES, used, meta.studioId, previousPrototypeId);
     moveWithLinks(to, to, meta, personAddress(key, id), `/prototypes/${key}/${slug}`, `/prototypes/${key}/${id}`);
     return { id: slug, manifest: buildManifest().manifest };

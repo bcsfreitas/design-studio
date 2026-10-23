@@ -9,7 +9,7 @@ import type { Artifact, Manifest, Prototype } from '@/platform/app/data/types';
 import { systemKeyFromIdentity } from '#studio/systems';
 
 import { SYSTEM_CONTENT_KEY, contentParts, contentId } from '@/platform/core/roots';
-import { contentAddress, allPrototypes } from '@/platform/app/data/manifest';
+import { contentAddress, allPrototypes, findArtifactByIdentity } from '@/platform/app/data/manifest';
 import { MODULES } from '@/platform/app/data/modules';
 
 // The router's first path segments that are pages of a module (/systems/…, /documentation/…) and not items: the sections
@@ -83,7 +83,9 @@ export function resolveArtifactPath(manifest: Manifest, path: string): { proto: 
   if (path.startsWith('/prototypes/')) {
     const address = parsePrototypeAddress(path);
     const proto = address && manifest.prototypes.find(proto => proto.studioId === address.prototypeId);
-    const item = address?.artifactId && proto?.artifacts?.find(item => item.studioId === address.artifactId);
+    // A view state's identity resolves like any artifact's (findArtifactByIdentity).
+    const item =
+      address?.artifactId && proto?.artifacts && findArtifactByIdentity(proto as Prototype, address.artifactId);
     return proto && item ? { proto: proto as Prototype, item } : null;
   }
   let address: ReturnType<typeof parseAddress>;

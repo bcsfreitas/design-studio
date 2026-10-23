@@ -6,7 +6,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { readDeclaration } from '../../core/declarations.ts';
 import { systemAction } from './system-actions.js';
-import { planSystemLifecycle, applySystemLifecycle } from './system-lifecycle.js';
+import { planSystemLifecycle, applySystemLifecycle, heldSystemFolders } from './system-lifecycle.js';
+import { heldSentence } from './folder-locks.js';
 import { writeFixtureConfig } from './fixtures/identities.js';
 import { createResourceId } from '../../core/resourceIdentity.ts';
 
@@ -171,6 +172,88 @@ test('true rename preserves identity relationships and share links, repairs sour
         }),
       /already/,
     );
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+// Lock handling is tested at the lifecycle operation with an injected refused rename.
+const refusedRename = () => {
+  throw Object.assign(new Error('EPERM: operation not permitted, rename'), { code: 'EPERM' });
+};
+const tree = dir =>
+  Object.fromEntries(
+    fs
+      .readdirSync(dir, { recursive: true })
+      .map(String)
+      .filter(file => !file.split(/[\/]/).includes('node_modules'))
+      .sort()
+      .map(file => [
+        file,
+        fs.statSync(path.join(dir, file)).isFile() ? fs.readFileSync(path.join(dir, file), 'utf8') : null,
+      ]),
+  );
+const deleteCopies = () => fs.readdirSync(os.tmpdir()).filter(name => name.startsWith('studio-system-delete-'));
+
+test('a refused rename falls back to copy-then-remove and leaves no temporary copies', () => {
+  const { root, config, proto } = fixture();
+  try {
+    proto('example', {});
+    const copies = deleteCopies();
+    applySystemLifecycle(planSystemLifecycle(root, config, 'rename', 'kit', { name: 'Team Kit' }), undefined, {
+      ops: { rename: refusedRename },
+    });
+    assert.equal(fs.existsSync(path.join(root, 'src/systems/kit')), false);
+    assert.match(fs.readFileSync(path.join(root, 'src/systems/team-kit/system.ts'), 'utf8'), /Team Kit/);
+    applySystemLifecycle(
+      planSystemLifecycle(root, { ...config, systems: ['team-kit', 'other'] }, 'delete', 'team-kit'),
+      undefined,
+      {
+        ops: { rename: refusedRename },
+      },
+    );
+    assert.equal(fs.existsSync(path.join(root, 'src/systems/team-kit')), false);
+    assert.deepEqual(fs.readdirSync(path.join(root, 'src/systems')).sort(), ['other']);
+    assert.deepEqual(deleteCopies(), copies);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('when the move and its fallback both fail, the studio is restored exactly and the holder is named', () => {
+  const { root, config, proto } = fixture();
+  try {
+    proto('example', {});
+    const before = tree(root),
+      copies = deleteCopies();
+    const describeHolder = () => 'the dev server on port 5173';
+    // The preview reports the held folder before confirmation.
+    const plan = planSystemLifecycle(root, config, 'delete', 'kit');
+    assert.deepEqual(
+      heldSystemFolders(plan, { describeHolder }).map(held => heldSentence(held, root)),
+      ['src/systems/kit is in use by the dev server on port 5173. Stop it, then run this command again.'],
+    );
+    for (const [action, options] of [
+      ['delete', {}],
+      ['rename', { name: 'Team Kit' }],
+    ]) {
+      const remove = folder => {
+        fs.rmSync(path.join(folder, 'components'), { recursive: true, force: true });
+        throw Object.assign(new Error('EBUSY: resource busy or locked, rmdir'), { code: 'EBUSY' });
+      };
+      assert.throws(
+        () =>
+          applySystemLifecycle(planSystemLifecycle(root, config, action, 'kit', options), undefined, {
+            ops: { rename: refusedRename, remove },
+            describeHolder,
+          }),
+        error =>
+          error.message ===
+          'src/systems/kit is in use by the dev server on port 5173. Stop it, then run this command again.',
+      );
+      assert.deepEqual(tree(root), before);
+      assert.deepEqual(deleteCopies(), copies);
+    }
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

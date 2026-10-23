@@ -11,7 +11,11 @@ import { SYSTEM_ROOTS } from '../../core/roots.ts';
 export function auditResourceIdentities(root, types) {
   const resources = [],
     problems = [],
-    missing = [];
+    missing = [],
+    // Child artifacts declared inside a file (a view's named states): listed apart from resources, which hold one
+    // entry per source file, but their IDs share duplicate detection with every other resource.
+    children = [],
+    missingChildren = [];
   const seen = new Map();
   const relative = file => path.relative(root, file).split(path.sep).join('/');
   const entries = directory => {
@@ -43,6 +47,23 @@ export function auditResourceIdentities(root, types) {
         resourceId(id);
         if (seen.has(id)) problems.push(`${location}: resource ID ${id} is already declared in ${seen.get(id)}.`);
         else seen.set(id, location);
+      }
+    } catch (error) {
+      problems.push(`${location}: ${error.message}`);
+    }
+  };
+  const recordChildren = (file, adapter, context) => {
+    const location = relative(file);
+    try {
+      for (const child of adapter.read(source(file))) {
+        if (child.studioId === null) {
+          missingChildren.push({ path: location, key: child.key });
+          continue;
+        }
+        const id = resourceId(child.studioId);
+        children.push({ kind: 'child', path: location, key: child.key, studioId: id, ...context });
+        if (seen.has(id)) problems.push(`${location} (${child.key}): resource ID ${id} is already declared in ${seen.get(id)}.`);
+        else seen.set(id, `${location} (${child.key})`);
       }
     } catch (error) {
       problems.push(`${location}: ${error.message}`);
@@ -102,6 +123,7 @@ export function auditResourceIdentities(root, types) {
         continue;
       }
       record('artifact', file, text => spec.identity.read(text), { parent, ownerKey, fileType });
+      if (spec.identity.children) recordChildren(file, spec.identity.children, { parent, ownerKey, fileType });
     }
   };
   const prototypes = path.join(root, 'src/prototypes');
@@ -145,5 +167,5 @@ export function auditResourceIdentities(root, types) {
       walkArtifacts(directory, parent, owner.name);
     }
   }
-  return { resources, missing, problems };
+  return { resources, missing, problems, children, missingChildren };
 }

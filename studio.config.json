@@ -1,9 +1,9 @@
 {
   "$schema": "./src/platform/core/studio.config.schema.json",
   "formatVersion": 1,
-  "name": "Design Studio",
-  "usage": "personal",
-  "tagline": "A prototype sandbox for you and your team",
+  "name": "Endless Design Studio",
+  "usage": "team",
+  "tagline": "Prototyping Sandbox",
   "modules": {
     "canvas": true,
     "diagrams": true,
@@ -17,13 +17,13 @@
     "contributors": true
   },
   "systems": [
-    "eru",
     "endless-studios"
   ],
   "systemMaintainers": {
-    "48mf8463fvtj4yg0": [],
     "8x5spen6xtvp96a9": []
   },
   "defaultSystem": "8x5spen6xtvp96a9",
-  "admins": []
+  "admins": [
+    "ma1xykkc2j3d2x24"
+  ]
 }

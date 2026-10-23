@@ -4,7 +4,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { readPersistedStudioConfig } from './persisted-studio-config.js';
 import { canonicalDirectory } from './safe-paths.js';
-import { resourceId, jsonIdentity, createResourceId, jsonIdentityMetadata } from '../../core/resourceIdentity.ts';
+import {
+  resourceId,
+  jsonIdentity,
+  createResourceId,
+  jsonIdentityMetadata,
+  assignChildIdentities,
+} from '../../core/resourceIdentity.ts';
 import { canPerform } from '../../core/permissions.ts';
 import { prototypeAssignment } from './prototype-assignment.js';
 import { readDeclaration } from '../../core/declarations.ts';
@@ -17,7 +23,7 @@ export function planPrototypeIdentification(
   types,
   folder,
   actor,
-  { ids = {}, generate = createResourceId } = {},
+  { ids = {}, childIds = {}, generate = createResourceId } = {},
 ) {
   const absolute = path.resolve(root, folder),
     relative = path.relative(root, absolute).split(path.sep).join('/');
@@ -56,7 +62,7 @@ export function planPrototypeIdentification(
   const assignment = prototypeAssignment(metadata, systems);
   if (assignment.problems.length) throw new Error(assignment.problems.join('\n'));
   const selected = resource => resource.path === `${relative}/meta.json` || resource.parent === relative;
-  const source = planPrototypeIdentities(root, types, { ids, generate, select: selected });
+  const source = planPrototypeIdentities(root, types, { ids, childIds, generate, select: selected });
   const changes = source.changes;
   if (metadata.ownerContributorId === undefined) {
     const change = changes.find(change => change.path === `${relative}/meta.json`);
@@ -71,6 +77,7 @@ export function planPrototypeIdentification(
     directory: current.directory,
     snapshot: source.snapshot,
     resources: source.resources.filter(selected),
+    children: source.children,
     changes,
   };
 }
@@ -79,7 +86,9 @@ export function applyPrototypeIdentification(root, types, plan, actor) {
   if (plan?.stage !== 'prototype-identification' || !Array.isArray(plan.resources))
     throw new Error('Review a prototype identity preview first.');
   const ids = Object.fromEntries(plan.resources.map(resource => [resource.path, resource.studioId]));
-  const current = planPrototypeIdentification(root, types, plan.folder, actor, { ids });
+  const childIds = {};
+  for (const child of plan.children ?? []) (childIds[child.path] ??= {})[child.key] = child.studioId;
+  const current = planPrototypeIdentification(root, types, plan.folder, actor, { ids, childIds });
   if (JSON.stringify(current) !== JSON.stringify(plan))
     throw new Error('Prototype identity preview or inventory changed. Review it again.');
   const edits = current.changes.map(change => ({
@@ -94,6 +103,12 @@ export function applyPrototypeIdentification(root, types, plan, actor) {
       audit.problems.length ||
       current.resources.some(
         resource => !audit.resources.some(next => next.path === resource.path && next.studioId === resource.studioId),
+      ) ||
+      current.children.some(
+        child =>
+          !audit.children.some(
+            next => next.path === child.path && next.key === child.key && next.studioId === child.studioId,
+          ),
       )
     )
       throw new Error('Prototype identity verification failed after assignment.');
@@ -117,18 +132,35 @@ export function applyPrototypeIdentification(root, types, plan, actor) {
   };
 }
 
-// ids is an optional path->ID allocation retained from an earlier preview.
-// Existing identities are never reassigned. A collision is retried before any write.
-function planPrototypeIdentities(root, types, { ids, generate, select }) {
+// ids is an optional path->ID allocation retained from an earlier preview, and childIds a path->key->ID allocation
+// for children declared inside a file (a view's named states). Existing identities are never reassigned.
+// A collision is retried before any write.
+function planPrototypeIdentities(root, types, { ids, childIds, generate, select }) {
   const audit = auditResourceIdentities(root, types);
   if (audit.problems.length) throw new Error(audit.problems.join('\n'));
-  const used = new Set(audit.resources.flatMap(resource => (resource.studioId ? [resource.studioId] : [])));
+  const used = new Set([
+    ...audit.resources.flatMap(resource => (resource.studioId ? [resource.studioId] : [])),
+    ...audit.children.map(child => child.studioId),
+  ]);
+  const unique = file => {
+    for (let attempt = 0; attempt < 32; attempt++) {
+      const candidate = resourceId(generate());
+      if (!used.has(candidate)) return candidate;
+    }
+    throw new Error(`${file}: could not allocate a unique resource identity.`);
+  };
+  const missingChildren = new Set(audit.missingChildren.map(child => `${child.path}\0${child.key}`));
+  for (const [file, keys] of Object.entries(childIds))
+    for (const key of Object.keys(keys))
+      if (!missingChildren.has(`${file}\0${key}`))
+        throw new Error(`${file} (${key}): child identity allocation is outside the current inventory.`);
   const locations = new Set(audit.resources.map(resource => resource.path));
   for (const file of Object.keys(ids))
     if (!locations.has(file)) throw new Error(`${file}: identity allocation is outside the current inventory.`);
   const snapshot = [],
     resources = [],
-    changes = [];
+    changes = [],
+    children = [];
   for (const resource of audit.resources) {
     const before = fs.readFileSync(path.join(root, resource.path), 'utf8');
     snapshot.push({ ...resource, before });
@@ -139,16 +171,7 @@ function planPrototypeIdentities(root, types, { ids, generate, select }) {
       if (ids[resource.path] !== undefined) {
         id = resourceId(ids[resource.path]);
         if (used.has(id)) throw new Error(`${resource.path}: preview allocation conflicts with resource ID ${id}.`);
-      } else {
-        for (let attempt = 0; attempt < 32; attempt++) {
-          const candidate = resourceId(generate());
-          if (!used.has(candidate)) {
-            id = candidate;
-            break;
-          }
-        }
-        if (!id) throw new Error(`${resource.path}: could not allocate a unique resource identity.`);
-      }
+      } else id = unique(resource.path);
       used.add(id);
       changes.push({
         path: resource.path,
@@ -159,7 +182,28 @@ function planPrototypeIdentities(root, types, { ids, generate, select }) {
             : jsonIdentityMetadata.write(before, id),
       });
     }
+    // Declared children without an ID (a view's named states) are assigned too, also when the file's own ID exists.
+    const adapter = resource.kind === 'artifact' ? types[resource.fileType]?.identity?.children : undefined;
+    if (adapter && select(resource)) {
+      const change = changes.find(change => change.path === resource.path);
+      const text = change?.after ?? before;
+      const pending = adapter.read(text).filter(child => !child.studioId);
+      const after = assignChildIdentities(text, types[resource.fileType], () => {
+        const { key } = pending.shift();
+        const planned = childIds[resource.path]?.[key];
+        const childId = planned === undefined ? unique(`${resource.path} (${key})`) : resourceId(planned);
+        if (used.has(childId))
+          throw new Error(`${resource.path} (${key}): preview allocation conflicts with resource ID ${childId}.`);
+        used.add(childId);
+        children.push({ path: resource.path, key, studioId: childId });
+        return childId;
+      });
+      if (after !== text) {
+        if (change) change.after = after;
+        else changes.push({ path: resource.path, before, after });
+      }
+    }
     resources.push({ ...resource, studioId: id });
   }
-  return { snapshot, resources, changes };
+  return { snapshot, resources, changes, children };
 }

@@ -53,10 +53,54 @@ export function parsePrototypeAddress(path: string): { prototypeId: ResourceId; 
   return match ? { prototypeId: resourceId(match[1]), ...(match[2] && { artifactId: resourceId(match[2]) }) } : null;
 }
 
+// A child artifact declared inside one file, such as a view's named state. Its key is unique within the file
+// (a view state's title); its identity is permanent and independent of the file's name and location.
+export type ChildIdentity = { key: string; studioId: ResourceId | null };
+export type ChildIdentityMetadata = {
+  // Every declared child in declaration order, with its identity or null when none is assigned yet.
+  read(source: string): ChildIdentity[];
+  write(source: string, key: string, id: ResourceId): string;
+};
+
 export type IdentityMetadata = {
   read(source: string): ResourceId | null;
   write(source: string, id: ResourceId): string;
+  // Optional: the file declares child artifacts with identities of their own.
+  children?: ChildIdentityMetadata;
 };
+
+// Assigns identities to the declared children that lack one, leaving existing ones unchanged. `allocate` returns
+// an unused ID (callers own uniqueness against the retained inventory). Explicit operations only; builds never call it.
+export function assignChildIdentities(
+  source: string,
+  spec: { identity?: IdentityMetadata } | undefined,
+  allocate: () => ResourceId,
+): string {
+  const children = spec?.identity?.children;
+  if (!children) return source;
+  let next = source;
+  for (const child of children.read(source)) if (!child.studioId) next = children.write(next, child.key, allocate());
+  return next;
+}
+
+// Duplication: every declared child receives a new identity, so a copy never retains its original's child IDs.
+// Returns the rewritten source and the old-to-new map for link remapping.
+export function replaceChildIdentities(
+  source: string,
+  spec: { identity?: IdentityMetadata } | undefined,
+  allocate: () => ResourceId,
+): { source: string; remapped: Map<ResourceId, ResourceId> } {
+  const children = spec?.identity?.children;
+  const remapped = new Map<ResourceId, ResourceId>();
+  if (!children) return { source, remapped };
+  let next = source;
+  for (const child of children.read(source)) {
+    const id = allocate();
+    if (child.studioId) remapped.set(child.studioId, id);
+    next = children.write(next, child.key, id);
+  }
+  return { source: next, remapped };
+}
 
 export const identityFromDeclarations = (values: readonly string[]): ResourceId | null => {
   if (values.length > 1) throw new Error('An artifact must declare its resource identity only once.');

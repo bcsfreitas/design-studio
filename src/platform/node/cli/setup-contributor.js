@@ -4,11 +4,15 @@ import { INSTALLED_FILE_TYPES } from '../lib/file-types.js';
 //   pnpm join                          (dry run: prints the entry it would add)
 //   pnpm join --yes                    (adds it as contributors/<key>.json)
 //   pnpm join --key sam --name "Sam Lee" --github samlee --email sam@yourcompany.com --yes
+//   pnpm join --link sam --yes         (adds your Git email to an existing profile that matches your name or GitHub)
+// When your email matches no profile but your name or GitHub account matches exactly one, join previews linking your
+// email to that profile instead of adding a new one. Two or more matches are never linked without --link.
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { resolveContributor, loadContributors } from './resolve-contributor.js';
+import { contributorCandidates, keysForEmail, withLinkedEmail } from '../lib/contributors.js';
 import { SECTION_KEYS } from '../lib/modules.js';
 import { CONFIG, ENABLED_MODULES } from '../lib/modules.js';
 import { preferenceDefaults } from '../../core/modules/preferences.ts';
@@ -41,7 +45,7 @@ if (RESERVED.has(flag('key'))) {
   process.exit(1);
 }
 
-const explicit = ['key', 'name', 'email', 'github'].some(key => flag(key) !== null);
+const explicit = ['key', 'name', 'email', 'github', 'link'].some(key => flag(key) !== null);
 const existing = explicit ? null : resolveContributor();
 if (existing) {
   if (yes) ensureFolder(existing);
@@ -60,6 +64,26 @@ const name = flag('name') ?? run('git', ['config', 'user.name']);
 const email = flag('email') ?? run('git', ['config', 'user.email']);
 const github =
   flag('github') ?? (CONFIG.usage === 'personal' || explicit ? '' : run('gh', ['api', 'user', '--jq', '.login']));
+
+// An email that matches nothing, from someone whose name or GitHub account matches a profile, links to that profile.
+const linkTo = flag('link');
+if (!flag('key')) {
+  const { candidate, candidates } = contributorCandidates(contributors, { name, github });
+  if (linkTo) {
+    const match = candidates.find(c => c.key === linkTo);
+    if (!contributors[linkTo]) fail(`No contributor "${linkTo}" to link to. Check contributors/.`);
+    if (!match)
+      fail(
+        `Profile "${linkTo}" matches neither your name nor your GitHub account, so join won't link to it. Correct --name or --github, or ask that person to add your email.`,
+      );
+    link(linkTo, match.matchedBy);
+  }
+  if (candidate) link(candidate, candidates[0].matchedBy);
+  if (candidates.length > 1)
+    fail(
+      `Your email isn't registered, and several profiles match your name or GitHub account: ${candidates.map(c => c.key).join(', ')}. Nothing is linked automatically. Link one with --link <key>, or register a separate profile with --key <new-key>.`,
+    );
+} else if (linkTo) fail('Pass either --link to use an existing profile or --key to add a new one, not both.');
 
 // Key: lowercase first name, with a number added if it's taken.
 let key = flag('key');
@@ -82,7 +106,7 @@ else if (contributors[key]) {
   const prior = contributors[key];
   if (
     prior.name === name &&
-    prior.email?.toLowerCase() === email.toLowerCase() &&
+    keysForEmail({ [key]: prior }, email).length &&
     (prior.github ?? '').toLowerCase() === github.toLowerCase()
   ) {
     if (yes) ensureFolder(key);
@@ -92,7 +116,7 @@ else if (contributors[key]) {
   problems.push(`Key "${key}" is already taken. Pass a different --key.`);
 }
 for (const [other, entry] of Object.entries(contributors)) {
-  if (email && entry.email?.toLowerCase() === email.toLowerCase())
+  if (keysForEmail({ [other]: entry }, email).length)
     problems.push(`Email is already registered to ${other}. Use that entry or correct the email.`);
   if (github && entry.github?.toLowerCase() === github.toLowerCase())
     problems.push(`GitHub username is already registered to ${other}. Use that entry or correct the username.`);
@@ -136,6 +160,35 @@ const folder = path.join(ROOT, 'src', 'prototypes', key);
 fs.mkdirSync(folder, { recursive: true });
 fs.writeFileSync(path.join(folder, '.gitkeep'), '');
 console.log(`Added contributors/${key}.json and created src/prototypes/${key}/.`);
+
+function fail(message) {
+  console.error(message);
+  process.exit(1);
+}
+
+// Previews, or with --yes applies, adding the email to an existing profile. Creates no profile and no folder.
+function link(key, matchedBy) {
+  if (!email) fail('No email to link. Pass --email, or set git config user.email.');
+  const owner = keysForEmail(contributors, email)[0];
+  if (owner && owner !== key) fail(`Email is already registered to ${owner}. Use that entry or correct the email.`);
+  const file = contributorFile(key);
+  const profile = JSON.parse(fs.readFileSync(file, 'utf8'));
+  const next = withLinkedEmail(profile, email);
+  const by = matchedBy.map(field => (field === 'github' ? 'GitHub account' : field)).join(' and ');
+  console.log(
+    `${email} isn't registered, but contributors/${key}.json (${profile.name}) matches your ${by}. ${yes ? 'Linking' : 'Proposed'}: add it to that profile's emails.`,
+  );
+  console.log(JSON.stringify({ email: next.email, emails: next.emails }, null, 2));
+  if (!yes) {
+    console.log(
+      `Nothing written. If this is your profile, rerun with --yes. If it's someone else's, pass --key <new-key> to register a separate profile.`,
+    );
+    process.exit(0);
+  }
+  fs.writeFileSync(file, JSON.stringify(next, null, 2) + '\n');
+  console.log(`Linked ${email} to "${key}". Your folder is src/prototypes/${key}/.`);
+  process.exit(0);
+}
 
 function ensureFolder(key) {
   const folder = path.join(ROOT, 'src', 'prototypes', key);

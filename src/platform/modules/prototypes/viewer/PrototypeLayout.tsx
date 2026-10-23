@@ -1,7 +1,7 @@
 // The layout of a prototype, or of the system content: its navigation (which hides with the rail's toggle,
 // or ⌘;) beside the open item. The route (router.tsx) passes in the prototype it loaded.
 import { Outlet, useParams, useRouterState } from '@tanstack/react-router';
-import { findArtifact, firstArtifact } from '@/platform/app/data/manifest';
+import { findArtifact, findArtifactByIdentity, firstArtifact } from '@/platform/app/data/manifest';
 import type { Prototype } from '@/platform/app/data/types';
 import PrototypeNav from '@/platform/modules/prototypes/viewer/PrototypeNav';
 import { isStandalone } from '@/platform/app/data/modules';
@@ -13,7 +13,7 @@ export default function PrototypeLayout({ proto }: { proto: Prototype }) {
   });
   // The index keeps the currently displayed artifact during an order update.
   const current = params.artifact
-    ? proto.artifacts.find(item => item.studioId === params.artifact)
+    ? findArtifactByIdentity(proto, params.artifact)
     : params._splat
       ? findArtifact(proto, params._splat)
       : (proto.artifacts.find(item => item.path === openPath) ?? firstArtifact(proto));

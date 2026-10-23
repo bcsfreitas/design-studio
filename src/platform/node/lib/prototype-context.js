@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { canonicalDirectory } from './safe-paths.js';
 import { prototypeAssignment } from './prototype-assignment.js';
-import { canPerform, studioRole } from '../../core/permissions.ts';
+import { permissionRefusal, refusalMessage, studioRole } from '../../core/permissions.ts';
 import { parseStatus } from '../../core/archive.ts';
 import { jsonIdentity, resourceId } from '../../core/resourceIdentity.ts';
 import { prototypeSourceForIdentity } from './resource-directory.js';
@@ -10,7 +10,8 @@ import { systemDirOf } from './system-folders.js';
 
 // Report facts and entry paths without reading a transitive instruction bundle,
 // writing a manifest, or deciding which task the person wants performed.
-export function prototypeContext({ root, folder, config, systems, modules, contributor, contributors }) {
+// `identity` ({ email, hint }) words an unrecognised-identity refusal; it is optional.
+export function prototypeContext({ root, folder, config, systems, modules, contributor, contributors, identity = {} }) {
   const absolute = path.resolve(root, folder);
   const relative = path.relative(root, absolute).split(path.sep).join('/');
   const match = relative.match(/^src\/prototypes\/([a-z0-9][a-z0-9._-]*)\/([a-z0-9][a-z0-9._-]*)$/i);
@@ -42,6 +43,7 @@ export function prototypeContext({ root, folder, config, systems, modules, contr
     : undefined;
   if (meta.ownerContributorId !== undefined && meta.ownerContributorId !== ownerContributorId)
     throw new Error(`${relative}/meta.json ownerContributorId does not match its contributor folder.`);
+  const refusal = permissionRefusal(config, contributor, contributors, { kind: 'prototype', owner: match[1] }, 'edit');
   return {
     prototype: {
       path: relative,
@@ -54,9 +56,9 @@ export function prototypeContext({ root, folder, config, systems, modules, contr
     contributor: {
       key: contributor,
       role: studioRole(config, contributor, contributors),
-      canEdit:
-        status === 'active' &&
-        canPerform(config, contributor, contributors, { kind: 'prototype', owner: match[1] }, 'edit'),
+      canEdit: status === 'active' && !refusal,
+      // Why edits are refused, when the cause is identity or ownership; null otherwise.
+      refusal: refusal && refusalMessage(refusal, identity),
     },
     assignment: {
       source: 'explicit',

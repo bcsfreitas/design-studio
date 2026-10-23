@@ -40,6 +40,10 @@ export type ArtifactInfo = {
   type: string;
   typeLabel: string;
   preview: boolean;
+  // Set when the path is one of a view's named states: its title. `title` stays the view's.
+  state?: string;
+  // A view's named states, in declaration order, each at its own permanent app address.
+  states?: { title: string; path: string }[];
 };
 export type Ctx = {
   // The canvas’s own permanent prototype address.
@@ -122,6 +126,22 @@ export const TOOLS: ToolDef[] = [
         { type: 'arrow', from: '@main', to: '@pay', text: 'continue' },
       ],
     },
+  },
+  {
+    name: 'states',
+    summary:
+      "Place every state of a view side by side, each under its title, in one call. Each embed links to the state's permanent address, so it stays linked when the view file is renamed. With no placement the row goes below everything; `x` and `y`, `below` or `rightOf` put it elsewhere.",
+    args: {
+      artifact: 'the view, by its path in this prototype ("Exploration/Home.tsx"); it must declare states',
+      x: 'number',
+      y: 'number',
+      below: 'an id: the row starts under it',
+      rightOf: 'an id: the row starts to its right',
+      width: 'width of each state, default 480',
+      height: 'height of each state, default 338',
+      fontSize: 'title size, default 24',
+    },
+    example: { artifact: 'Exploration/Home.tsx', below: 'abc123' },
   },
   {
     name: 'update',
@@ -288,6 +308,8 @@ export function run(scene: El[], tool: string, args: any, ctx: Ctx): Run {
       return { elements: scene, result: listArtifacts(ctx), touched: [] };
     case 'create':
       return create(scene, input, ctx);
+    case 'states':
+      return placeStates(scene, input, ctx);
     case 'update':
       return update(scene, input, ctx);
     case 'move':
@@ -440,6 +462,7 @@ function listArtifacts(ctx: Ctx) {
     title: i.title,
     type: i.typeLabel,
     ...(i.preview ? { shownAs: 'live preview' } : { shownAs: 'card' }),
+    ...(i.states?.length ? { states: i.states.map(s => s.title) } : {}),
   }));
   return { artifacts };
 }
@@ -788,6 +811,80 @@ function create(input: El[], args: any, ctx: Ctx): Run {
   };
 }
 
+// ---- states -----------------------------------------------------------------------------------
+
+const STATE_ARGS = ['artifact', 'x', 'y', 'below', 'rightOf', 'width', 'height', 'fontSize'];
+
+// Every state of a view in a row, each with its title above it. One `create` of title and artifact pairs, laid
+// out so that none meets another (placing them one by one with `below` and `rightOf` puts titles on embeds).
+function placeStates(input: El[], args: any, ctx: Ctx): Run {
+  if (!args || typeof args !== 'object' || Array.isArray(args) || args.artifact === undefined)
+    throw new ToolError('states needs { artifact: "<view path>" }: the view whose states to place');
+  const unknown = Object.keys(args).filter(k => !STATE_ARGS.includes(k));
+  if (unknown.length)
+    throw new ToolError(`states doesn't take ${unknown.join(', ')}. It takes: ${STATE_ARGS.join(', ')}`);
+  const path = artifactPath(args.artifact, ctx);
+  const info = ctx.artifact(path);
+  if (!info) throw new ToolError(`no artifact at ${path}. The \`artifacts\` tool lists them`);
+  if (info.state !== undefined)
+    throw new ToolError(`${args.artifact} is one state ("${info.state}"). Give its view to place every state`);
+  if (!info.states?.length)
+    throw new ToolError(
+      `${args.artifact} declares no states. Put it on the canvas with create ({ type: "artifact" }), or declare \`export const states\` in the view`,
+    );
+  const width = size(args.width, 'width') ?? ARTIFACT_WIDTH;
+  const height = size(args.height, 'height') ?? PREVIEW_HEIGHT;
+  const fontSize = num(args.fontSize, 'fontSize') ?? 24;
+  // Titles wrap to the state's width; every embed starts under the tallest title, so the row lines up.
+  const titleHeight = Math.max(...info.states.map(s => textHeight(s.title, width, fontSize)));
+  const step = width + GAP;
+  const find = finder(() => input);
+  const x = num(args.x, 'x');
+  const y = num(args.y, 'y');
+  let at: { x: number; y: number };
+  if (x !== undefined && y !== undefined) at = { x, y };
+  else if (args.below !== undefined) {
+    const b = boundsOf(find(args.below, 'below'));
+    at = { x: x ?? b.x, y: y ?? b.y + b.height + GAP };
+  } else if (args.rightOf !== undefined) {
+    const b = boundsOf(find(args.rightOf, 'rightOf'));
+    at = { x: x ?? b.x + b.width + GAP, y: y ?? b.y };
+  } else {
+    const all = unionBounds(
+      live(input)
+        .filter(el => !(el.type === 'text' && el.containerId))
+        .map(boundsOf),
+    );
+    at = all ? { x: x ?? all.x, y: y ?? all.y + all.height + SECTION_GAP } : { x: x ?? 0, y: y ?? 0 };
+  }
+  const elements = info.states.flatMap((state, i) => [
+    { type: 'text', text: state.title, fontSize, width, x: at.x + i * step, y: at.y },
+    { type: 'artifact', artifact: state.path, width, height, x: at.x + i * step, y: at.y + titleHeight + NOTE_GAP },
+  ]);
+  const made = create(input, { elements }, ctx);
+  const { created, warnings } = made.result as { created: string[]; warnings?: string[] };
+  return {
+    ...made,
+    result: {
+      ok: true,
+      view: info.title,
+      states: info.states.map((state, i) => ({
+        title: state.title,
+        link: state.path,
+        titleId: created[i * 2],
+        id: created[i * 2 + 1],
+      })),
+      bounds: {
+        x: round(at.x),
+        y: round(at.y),
+        width: round(step * info.states.length - GAP),
+        height: round(titleHeight + NOTE_GAP + height),
+      },
+      ...(warnings?.length ? { warnings } : {}),
+    },
+  };
+}
+
 // ---- update, move, delete ---------------------------------------------------------------------
 
 const idsOf = (args: any, field = 'id') => {
@@ -1116,7 +1213,9 @@ function describe(scene: El[], args: any, ctx: Ctx) {
       const path = ctx.linkPath?.(el.link) ?? el.link;
       const info = path ? ctx.artifact(path) : null;
       out.link = path;
-      out.artifact = info ? { title: info.title, type: info.typeLabel } : null;
+      out.artifact = info
+        ? { title: info.title, type: info.typeLabel, ...(info.state !== undefined ? { state: info.state } : {}) }
+        : null;
     } else if (el.type === 'embeddable') out.link = el.link;
     if (el.frameId && byId.get(el.frameId)) out.section = el.frameId;
     if (el.locked) out.locked = true;

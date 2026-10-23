@@ -57,25 +57,52 @@ export type Resource =
   | { kind: 'platform' | 'module' };
 export type ResourceAction = 'read' | 'edit' | 'rename' | 'manage';
 
-// Runtime import boundaries remain separate from human write authority.
-export function canPerform(
+// Why an action is refused: the Git identity matches no profile ("identity"), the contributor is recognised but
+// lacks the role ("admin", "maintainer", "owner"), or nobody may do it to this resource ("unavailable").
+export type Refusal = 'identity' | 'admin' | 'maintainer' | 'owner' | 'unavailable';
+
+export function permissionRefusal(
   config: Partial<StudioConfig>,
   actor: string | null,
   contributors: readonly string[],
   resource: Resource,
   action: ResourceAction,
-): boolean {
-  if (action === 'read') return true;
+): Refusal | null {
+  if (action === 'read') return null;
   const role = roleOf(config, actor, contributors);
-  if (!role) return false;
-  if (resource.kind === 'prototype') return role === 'admin' || resource.owner === actor;
-  if (resource.kind !== 'system') return role === 'admin';
+  if (!role) return 'identity';
+  if (role === 'admin' && resource.kind !== 'system') return null;
+  if (resource.kind === 'prototype') return resource.owner === actor ? null : 'owner';
+  if (resource.kind !== 'system') return 'admin';
   // The platform system is always part of the studio; any other must be registered in `systems`.
-  if (!systemRegistered(config, resource.id, resource.role)) return false;
-  if (resource.role === 'platform') return role === 'admin' && action === 'edit';
-  if (action === 'manage') return role === 'admin';
-  if (resource.status !== 'active') return false;
-  return role === 'admin' || Boolean(actor && config.systemMaintainers?.[resource.id]?.includes(actor));
+  if (!systemRegistered(config, resource.id, resource.role)) return 'unavailable';
+  if (resource.role === 'platform') return action !== 'edit' ? 'unavailable' : role === 'admin' ? null : 'admin';
+  if (action === 'manage') return role === 'admin' ? null : 'admin';
+  if (resource.status !== 'active') return 'unavailable';
+  if (role === 'admin' || Boolean(actor && config.systemMaintainers?.[resource.id]?.includes(actor))) return null;
+  return 'maintainer';
+}
+
+// Runtime import boundaries remain separate from human write authority.
+export const canPerform = (...args: Parameters<typeof permissionRefusal>): boolean => !permissionRefusal(...args);
+
+// The sentence for a refusal. `email` is the Git email that matched nothing; `hint` adds a next step, such as a
+// candidate profile to link.
+export function refusalMessage(
+  refusal: Refusal,
+  { email, system, hint }: { email?: string; system?: string; hint?: string } = {},
+): string {
+  if (refusal === 'identity')
+    return [
+      `Your Git identity (${email || 'no Git email set'}) doesn't match a contributor profile, so the Studio can't check your permissions.`,
+      hint ||
+        `Run \`pnpm join\` to register, or to link this email to your existing profile (\`pnpm join --link <key>\`, or \`pnpm studio profile --as <key> --add-email ${email || '<email>'}\`).`,
+    ].join(' ');
+  if (refusal === 'admin') return 'Only an Admin can do this. You are recognised as a contributor, not an Admin.';
+  if (refusal === 'maintainer')
+    return `Only an Admin or a maintainer of ${system ? `the ${system} system` : 'this system'} can do this. You are recognised, but not one of its maintainers.`;
+  if (refusal === 'owner') return 'This prototype belongs to someone else. You can change only your own.';
+  return `${system ? `The ${system} system` : 'This'} isn't available for this operation: it isn't registered, is archived, or is the platform system.`;
 }
 
 export function pathResource(

@@ -21,6 +21,31 @@ Artifact IDs are unique across retained resources. Source navigation paths must 
 
 Create artifacts through Studio’s file operations or preserve the declared ID while editing an existing file. For directly authored new files, preview `pnpm studio identify <prototype-folder> --json`, then apply with `--yes`. It assigns only missing IDs within that owner’s prototype; it does not replace existing IDs. Builds reject unidentified artifacts, including retained disabled types.
 
+## Named view states
+
+A view may declare named states for one screen instead of one file per state:
+
+```tsx
+/** @studio-id 0123456789abcdef */
+/** @studio-state abcdefghjkmnpqrs Member */
+/** @studio-state 0123456789abcdeg New user */
+import type { ViewState } from '@module/view';
+
+export const states: ViewState<{ name: string }>[] = [
+  { title: 'Member', props: { name: 'Ana' } },
+  { title: 'New user', props: { name: '' } },
+];
+
+export default function Home({ name }: { name: string }) { ... }
+```
+
+Each state renders the default export with its `props`. A state is a child artifact of its view: navigation lists states under the view and opens each directly, and its permanent address is `/prototypes/<prototype-id>/artifacts/<state-id>`, resolved like any artifact's for links, document and canvas embeds. The view's own address renders the default export without state props, as before.
+
+- `states` must be a list written in place. Each `title` is plain quoted text, unique in the view, without surrounding spaces or `*/`. The build reads titles without running the file; `props` can hold any value.
+- Each state's identity is a leading `/** @studio-state <id> <title> */` comment, matched to its state by title. Moving or renaming the view file keeps every state's identity. To rename a state, change its title in the code and its comment together. A comment naming no state is a build error, so a title changed in code alone is reported rather than given a new link. Remove the comment only when removing the state.
+- Assignment adds missing state identities alongside the view's; builds report a state without one and never allocate it. Duplication gives every copied state a fresh identity and points copied links at the copy's states.
+- Views without `states` are unchanged, and one file per state remains supported. See [ADR 0001](../../../../docs/adr/0001-named-view-states.md).
+
 ## Metadata
 
 For agent inspection, run `pnpm studio context src/prototypes/<contributor>/<prototype> --json`. It reports assignment, pending rebuild, contributor scope, enabled modules, and system entry paths without writing files. Assignment validation is shared with the manifest; inspect artifact content and relevant guidance separately.

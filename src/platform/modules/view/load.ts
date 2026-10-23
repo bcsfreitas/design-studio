@@ -29,6 +29,17 @@ export async function loadView({ proto, item }: ArtifactContext) {
   // an error in its place, instead of breaking the page.
   const repoFile = repoPath(proto, item.path);
   const valid = typeof mod.default === 'function' || typeof mod.default === 'object';
+  // A state's record (states.ts) renders the default export with that state's props.
+  const state = item.state && (mod.states ?? []).find(candidate => candidate?.title === item.state!.title);
+  if (item.state && !state)
+    return {
+      prototype: { ...proto, currentArtifactId: item.studioId },
+      Component: () => {
+        throw new Error(`${repoFile} has no state titled "${item.state!.title}" in export const states.`);
+      },
+      viewKey: `${file.contributor}/${file.prototype}/${artifactSlug(item.path)}#${item.studioId}`,
+      themeClass: 'prototype-unstyled',
+    };
   // Empty exports are not mounted as React components. Their replacement needs a fresh descriptor,
   // rather than relying on Fast Refresh to update a component that never rendered.
   if (empty || !valid) views.incomplete.add(repoFile);
@@ -41,7 +52,9 @@ export async function loadView({ proto, item }: ArtifactContext) {
             `${repoFile} has no default export. A view needs one: export default function MyView() { ... }`,
           );
         },
-    viewKey: `${file.contributor}/${file.prototype}/${artifactSlug(item.path)}`,
+    // States of one view are distinct pages: switching between them remounts with the other state's props.
+    viewKey: `${file.contributor}/${file.prototype}/${artifactSlug(item.path)}${item.state ? '#' + item.studioId : ''}`,
+    stateProps: (state?.props ?? undefined) as Record<string, unknown> | undefined,
     empty,
     lofi: item.lofi === true,
     themeClass:

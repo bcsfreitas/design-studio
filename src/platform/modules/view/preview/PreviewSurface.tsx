@@ -29,6 +29,7 @@ export default function PreviewSurface({
 }) {
   const [portal, setPortal] = useState<HTMLDivElement | null>(null);
   const { Component, prototype, viewKey, themeClass, empty, missingSystem, lofi } = loaded;
+  const stateProps = 'stateProps' in loaded ? loaded.stateProps : undefined;
   if (missingSystem)
     return (
       <>
@@ -67,7 +68,7 @@ export default function PreviewSurface({
         <div className='min-h-0 flex-1 overflow-auto'>
           <PortalContext.Provider value={portal}>
             <PrototypeNavigationProvider value={prototype}>
-              <Component />
+              <Component {...stateProps} />
               <Committed ready={ready} />
             </PrototypeNavigationProvider>
           </PortalContext.Provider>

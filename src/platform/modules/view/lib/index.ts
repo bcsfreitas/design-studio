@@ -7,3 +7,9 @@
 // remove the import. Nothing else needs to change.
 /** @experimental A new view's default export until its component is implemented. */
 export const emptyView = () => null;
+
+/**
+ * @experimental One named state of a view: `export const states: ViewState<Props>[] = [{ title, props }]`. Each
+ * renders the default export with its props and has a permanent link, declared as /** @studio-state <id> <title> *\/.
+ */
+export type ViewState<Props = Record<string, unknown>> = { title: string; props: Props };

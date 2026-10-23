@@ -23,6 +23,12 @@ Personal local use accepts a personal email and needs no GitHub account. GitHub 
 
 The command owns registration files and collision handling. Inspect its help instead of recreating that logic manually.
 
+## Update an existing profile
+
+When a registered contributor changes their name, Git email, or GitHub account, preview `pnpm studio profile` with `--name`, `--add-email`, `--remove-email`, `--primary-email`, or `--github`, then apply with `--yes`. Do not edit profile JSON by hand. The command keeps the studio ID and preferences, and refuses to remove the email the current Git identity resolves through.
+
+If the person's Git email is not linked yet, `pnpm join` previews linking it to a profile that matches their name or GitHub account. For one scripted command, `--as <key>` acts as that profile only when it matches the Git name or GitHub account. It grants no role the profile lacks. A refused command says whether the Git identity is unrecognised or the contributor lacks the Admin or maintainer role; fix identity with join or profile, and roles through an Admin.
+
 ## Registration-only completion
 
 Return the contributor key and unresolved identity or access issues to the caller. The caller owns launch, final verification, and commit.

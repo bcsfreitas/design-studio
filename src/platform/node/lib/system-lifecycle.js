@@ -12,6 +12,8 @@ import { resourceId } from '../../core/resourceIdentity.ts';
 import { readResourceDirectory } from './resource-directory.js';
 import { TEAM_SYSTEMS_ROOT, systemIdOfPath } from '../../core/roots.ts';
 import { newSystemDir, systemDirOf, systemFolderTaken } from './system-folders.js';
+import { heldSentence, moveFolder, probeFolders } from './folder-locks.js';
+import { devServerHolder } from './dev-server-registry.js';
 
 export const systemSlug = text =>
   text
@@ -183,24 +185,59 @@ export function planSystemLifecycle(root, config, action, id, { name, restorePro
       edits.push(edit(file, json(meta)));
     }
   } else throw new Error('Unknown system lifecycle action.');
-  return { id: nextId, action, edits, move, remove, prototypes: dependents.length, references: edits.length - 1 };
+  return {
+    root,
+    id: nextId,
+    action,
+    edits,
+    move,
+    remove,
+    prototypes: dependents.length,
+    references: edits.length - 1,
+  };
 }
 
-export function applySystemLifecycle(plan, finish = () => {}) {
+/**
+ * The folders a plan moves that something holds, for its preview. Archive and restore move none. The studio's
+ * recorded dev server is named as the holder unless `describeHolder` is given.
+ * @param {{ root?: string, move?: { from: string } | null, remove?: string | null }} plan
+ * @param {Parameters<typeof probeFolders>[1]} [options]
+ */
+export const heldSystemFolders = (plan, options = {}) =>
+  probeFolders([plan.move?.from, plan.remove], {
+    ...options,
+    describeHolder: options.describeHolder ?? (plan.root ? devServerHolder(plan.root) : undefined),
+  });
+
+/**
+ * Applies a plan inside one rollback boundary. A refused rename falls back to copy-then-remove; if that fails too,
+ * everything is restored and the error names the holder and the next action. `ops` lets tests refuse moves.
+ * @param {ReturnType<typeof planSystemLifecycle>} plan
+ * @param {() => void} [finish]
+ * @param {{ ops?: import('./folder-locks.js').FolderOps, describeHolder?: import('./folder-locks.js').DescribeHolder }} [options]
+ */
+export function applySystemLifecycle(
+  plan,
+  finish = () => {},
+  { ops, describeHolder = plan.root ? devServerHolder(plan.root) : undefined } = {},
+) {
   let temporary;
   applySetupChanges(plan.edits);
   try {
-    if (plan.move) fs.renameSync(plan.move.from, plan.move.to);
+    if (plan.move) moveFolder(plan.move.from, plan.move.to, { ops, describeHolder });
     if (plan.remove) {
       temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'studio-system-delete-'));
-      fs.renameSync(plan.remove, path.join(temporary, 'system'));
+      moveFolder(plan.remove, path.join(temporary, 'system'), { ops, describeHolder });
     }
     finish();
   } catch (error) {
-    if (plan.move && fs.existsSync(plan.move.to)) fs.renameSync(plan.move.to, plan.move.from);
-    if (temporary && fs.existsSync(path.join(temporary, 'system')))
-      fs.renameSync(path.join(temporary, 'system'), plan.remove);
+    // Restoring uses the real file system, with the same copy fallback.
+    if (plan.move && fs.existsSync(plan.move.to) && !fs.existsSync(plan.move.from))
+      moveFolder(plan.move.to, plan.move.from);
+    if (temporary && fs.existsSync(path.join(temporary, 'system')) && !fs.existsSync(plan.remove))
+      moveFolder(path.join(temporary, 'system'), plan.remove);
     applySetupChanges(plan.edits.map(change => ({ ...change, before: change.after, after: change.before })));
+    if (error.held) throw Object.assign(new Error(heldSentence(error.held, plan.root)), { held: error.held });
     throw error;
   } finally {
     if (temporary) fs.rmSync(temporary, { recursive: true, force: true });
