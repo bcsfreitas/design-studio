@@ -18,7 +18,7 @@ Read the relevant [module contract](../../context/modules.md) sections for capab
 - Do not manually edit `studio.lock.json`, the generated `AGENTS.md`, or config module flags. Use studio commands.
 - Do not bypass required-module constraints or unresolved dependencies with `--force`.
 - If the license check rejects a source, obtain the person's decision before using `--allow-license`.
-- Restart the dev server after CLI configuration, module installation, or system installation changes. Saving in local Studio settings restarts it automatically. Ordinary component edits update during development.
+- Restart the dev server with `pnpm studio dev restart` after CLI configuration, module installation, or system installation changes. It restarts only the studio's recorded server, on the same port; never stop a dev server by process ID or port. Saving in local Studio settings restarts it automatically. Ordinary component edits update during development.
 - Use the configuration command to change the default system. Preserve existing prototypes until intentional migration.
 - Applied shared commands require an Admin. Assigned maintainers may use managed rename for their active systems. Use `configure --maintainers system=key,key --yes` for grants. Reserve `configure --recovery` for explicitly authorized setup or permission recovery.
 - Apply the [contributor scope](../../context/contributor-scope.md) to shared changes.

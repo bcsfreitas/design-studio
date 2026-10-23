@@ -8,7 +8,8 @@ import { reveal } from '../build/files/ops.js';
 import { readDeclaration } from '../../core/modules/pack.ts';
 import { canPerform, studioRole } from '../../core/permissions.ts';
 import { systemRegistered } from '../../core/config.ts';
-import { planSystemLifecycle, systemDependents } from './system-lifecycle.js';
+import { heldSystemFolders, planSystemLifecycle, systemDependents } from './system-lifecycle.js';
+import { heldSentence } from './folder-locks.js';
 import { systemDirOf } from './system-folders.js';
 
 /** @returns {never} */
@@ -93,7 +94,13 @@ export async function systemAction(root, actor, body) {
   const operation = action.endsWith('-check') ? action.slice(0, -6) : action;
   if (!['rename', 'archive', 'restore', 'delete'].includes(operation)) fail('Unknown system action.');
   const plan = planSystemLifecycle(root, config, operation, system, { name, restorePrototypes });
-  if (action.endsWith('-check')) return { prototypes: plan.prototypes, references: plan.references };
+  // The preview names anything holding a folder the operation moves, before confirmation.
+  if (action.endsWith('-check'))
+    return {
+      prototypes: plan.prototypes,
+      references: plan.references,
+      held: heldSystemFolders(plan).map(held => heldSentence(held, root)),
+    };
   const args = [`${operation}-system`, system];
   if (operation === 'rename') args.push('--label', name.trim());
   if (operation === 'restore' && restorePrototypes === true) args.push('--restore-prototypes');

@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
-import { readContributors } from './contributors.js';
+import { readContributors, keysForEmail, contributorCandidates, withLinkedEmail } from './contributors.js';
 import { writeProfiles } from './fixtures/contributors.js';
 
 function fixture(t) {
@@ -115,4 +115,62 @@ test('identity discovery can validate retained identities without activating pre
   profile.studioId = 'invalid';
   fs.writeFileSync(file, JSON.stringify(profile));
   assert.ok(readContributors(root, { identityOnly: true }).problems.some(problem => problem.includes('16')));
+});
+
+test('additional emails resolve the same profile and stay unique across profiles', t => {
+  const root = fixture(t);
+  writeProfiles(root, {
+    sam: { name: 'Sam', email: 'sam@work.test', emails: ['Sam@Home.test'] },
+    alex: { name: 'Alex', email: 'alex@work.test' },
+  });
+  const { contributors, problems } = readContributors(root);
+  assert.deepEqual(problems, []);
+  assert.deepEqual(keysForEmail(contributors, 'sam@work.test'), ['sam']);
+  assert.deepEqual(keysForEmail(contributors, 'sam@home.test'), ['sam']);
+  assert.deepEqual(keysForEmail(contributors, 'alex@work.test'), ['alex']);
+  assert.deepEqual(keysForEmail(contributors, ''), []);
+  writeProfiles(root, { alex: { name: 'Alex', email: 'alex@work.test', emails: ['sam@home.test'] } });
+  assert.match(readContributors(root).problems.join('\n'), /email is also registered to (sam|alex)/);
+  writeProfiles(root, { alex: { name: 'Alex', email: 'alex@work.test', emails: 'alex@home.test' } });
+  assert.match(readContributors(root).problems.join('\n'), /emails must be a list/);
+  writeProfiles(root, { alex: { name: 'Alex', email: 'alex@work.test', emails: [''] } });
+  assert.match(readContributors(root).problems.join('\n'), /emails must be a list/);
+});
+
+test('an unmatched email has a candidate only when one non-sample profile matches the name or GitHub account', () => {
+  const contributors = {
+    sam: { name: 'Sam Lee', email: 'sam@old.test', github: 'samlee' },
+    alex: { name: 'Alex', email: '', github: 'alex' },
+    parker: { name: 'Parker', email: '', github: '', sample: true },
+  };
+  assert.deepEqual(contributorCandidates(contributors, { name: 'sam lee' }), {
+    candidate: 'sam',
+    candidates: [{ key: 'sam', matchedBy: ['name'] }],
+  });
+  assert.equal(contributorCandidates(contributors, { name: 'Someone', github: 'SAMLEE' }).candidate, 'sam');
+  assert.equal(contributorCandidates(contributors, { name: 'Parker' }).candidate, null);
+  const ambiguous = contributorCandidates(contributors, { name: 'Sam Lee', github: 'alex' });
+  assert.equal(ambiguous.candidate, null);
+  assert.deepEqual(
+    ambiguous.candidates.map(c => c.key),
+    ['sam', 'alex'],
+  );
+  assert.deepEqual(contributorCandidates(contributors, { name: 'New Person' }), { candidate: null, candidates: [] });
+});
+
+test('linking an email keeps the profile declarations and their order', () => {
+  const profile = { formatVersion: 1, studioId: 'x', name: 'Sam', github: '', email: 'sam@old.test', preferences: {} };
+  const linked = withLinkedEmail(profile, 'sam@new.test');
+  assert.deepEqual(Object.keys(linked), [
+    'formatVersion',
+    'studioId',
+    'name',
+    'github',
+    'email',
+    'emails',
+    'preferences',
+  ]);
+  assert.deepEqual(linked.emails, ['sam@new.test']);
+  assert.deepEqual(withLinkedEmail(linked, 'SAM@new.test'), linked);
+  assert.deepEqual(withLinkedEmail(linked, 'sam@third.test').emails, ['sam@new.test', 'sam@third.test']);
 });

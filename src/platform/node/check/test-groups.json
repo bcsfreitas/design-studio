@@ -48,6 +48,8 @@
         "src/platform/node/lib/source-permissions.test.js",
         "src/platform/node/lib/system-actions.test.js",
         "src/platform/node/lib/system-transition.test.js",
+        "src/platform/node/lib/folder-locks.test.js",
+        "src/platform/node/lib/package-manager.test.js",
         "src/platform/node/lib/upstream-merge.test.js",
         "src/platform/node/lib/release.test.js",
         "src/platform/node/lib/lock.test.js",
@@ -80,13 +82,20 @@
         "src/platform/node/build/vite-artifact-revisions-plugin.test.js",
         "src/platform/modules/canvas/liveViews.test.ts",
         "src/platform/modules/canvas/opening.test.ts",
+        "src/platform/modules/canvas/embedTitle.test.ts",
         "src/platform/modules/systems/curation.test.js",
         "src/platform/node/lib/system-dependencies.test.js",
         "src/platform/node/lib/system-folders.test.js",
         "src/platform/node/lib/reference-adapters.test.js",
         "src/platform/node/lib/build-assets.test.js",
         "src/platform/app/files/fileTreePolicy.test.ts",
-        "src/platform/node/build/vite-build-assets-plugin.test.js"
+        "src/platform/node/build/vite-build-assets-plugin.test.js",
+        "src/platform/core/artifactTitle.test.ts",
+        "src/platform/node/build/vite-identity-assign-plugin.test.js",
+        "src/platform/node/build/vite-vue-systems-plugin.test.js",
+        "src/platform/node/lib/dev-server-registry.test.js",
+        "src/platform/node/lib/prototype-deletion.test.js",
+        "src/systems/endless-studios/runtime/test/vue-app.test.js"
       ],
       "dependencies": [
         "src/platform/**",
@@ -101,13 +110,21 @@
       "tests": [
         "src/platform/node/lib/contributors.test.js",
         "src/platform/node/lib/identity-cli.integration.test.js",
+        "src/platform/node/lib/package-manager.integration.test.js",
         "src/platform/node/lib/onboarding.integration.test.js",
         "src/platform/node/lib/onboarding.test.js",
         "src/platform/node/lib/studio-settings.test.js",
         "src/platform/node/lib/system-creation.test.js",
         "src/platform/modules/onboarding/progress.test.ts",
         "src/platform/modules/systems/node/prepare-shadcn.test.js",
-        "src/platform/node/lib/contributor-preferences.test.js"
+        "src/platform/node/lib/contributor-preferences.test.js",
+        "src/platform/node/lib/join-linking.integration.test.js",
+        "src/platform/node/lib/profile-cli.integration.test.js",
+        "src/platform/node/lib/permission-messages.integration.test.js",
+        "src/platform/node/lib/delete-prototype.integration.test.js",
+        "src/platform/node/lib/dev-status.integration.test.js",
+        "src/platform/modules/canvas/cli.integration.test.js",
+        "src/platform/modules/canvas/states.integration.test.js"
       ],
       "dependencies": [
         "src/platform/modules/onboarding/**",
@@ -119,6 +136,9 @@
         "src/platform/node/lib/contributors.js",
         "src/platform/node/lib/studio-*.js",
         "src/platform/node/lib/system-*.js",
+        "src/platform/node/lib/package-manager.js",
+        "src/platform/node/lib/folder-locks.js",
+        "pnpm-workspace.yaml",
         "src/platform/node/lib/prototype-identification.js",
         "src/platform/node/lib/resource-*.js",
         "src/platform/node/lib/persisted-studio-config.js",
@@ -126,7 +146,16 @@
         "src/platform/node/lib/installed-file-types.js",
         "src/platform/node/lib/fixtures/**",
         "src/platform/node/build/build-manifest.js",
-        "src/platform/node/build/vite-settings-plugin.js"
+        "src/platform/node/build/vite-settings-plugin.js",
+        "src/platform/modules/canvas/cli.ts",
+        "src/platform/modules/canvas/tools.ts",
+        "src/platform/modules/canvas/elements.ts",
+        "src/platform/modules/canvas/identity.ts",
+        "src/platform/modules/canvas/slim.ts",
+        "src/platform/node/lib/dev-server-registry.js",
+        "src/platform/node/lib/prototype-deletion.js",
+        "src/platform/node/lib/prototype-assignment.js",
+        "src/platform/node/lib/scope.js"
       ]
     },
     "publishing": {
@@ -134,7 +163,8 @@
         "src/platform/node/lib/boundaries.integration.test.js",
         "src/platform/modules/view/empty-view.integration.test.js",
         "src/platform/node/lib/module-removal.integration.test.js",
-        "src/platform/node/lib/artifact-foundation.integration.test.js"
+        "src/platform/node/lib/artifact-foundation.integration.test.js",
+        "src/platform/modules/view/view-states.integration.test.js"
       ],
       "dependencies": [
         "src/platform/node/build/**",
@@ -153,7 +183,9 @@
         "src/platform/node/lib/modules.js",
         "src/platform/node/lib/installed-file-types.js",
         "src/platform/node/lib/scope.js",
-        "src/platform/node/lib/fixtures/**"
+        "src/platform/node/lib/fixtures/**",
+        "src/platform/modules/view/states.ts",
+        "src/platform/modules/view/identity.ts"
       ]
     }
   }

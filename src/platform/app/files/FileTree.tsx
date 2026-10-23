@@ -29,7 +29,7 @@ import {
   UnfoldLessIcon,
   UnfoldMoreIcon,
 } from '@hugeicons/core-free-icons';
-import { allPrototypes, artifactLabel, artifactLink, prototypeLink } from '@/platform/app/data/manifest';
+import { allPrototypes, artifactLabel, artifactLink, prototypeLink, statesOf } from '@/platform/app/data/manifest';
 import {
   fileOp,
   openInEditor,
@@ -860,7 +860,10 @@ export default function FileTree({
       // Items open in the app.
       if (item) {
         const active = item === current;
+        // A view's named states are child artifacts, listed under it and opened directly by permanent link.
+        const states = statesOf(item);
         return (
+          <Fragment key={node.path}>
           <DragRow
             scope={treeScope}
             key={node.path}
@@ -892,6 +895,21 @@ export default function FileTree({
               </Link>,
             )}
           </DragRow>
+          {states.map(state => {
+            const open = current?.studioId === state.studioId;
+            return (
+              <Link
+                key={state.studioId}
+                {...artifactLink(proto, state)}
+                aria-current={open ? 'page' : undefined}
+                style={indent(depth + 1)}
+                className={cn(row, navRowState(open))}
+              >
+                <span className='min-w-0 flex-1 truncate'>{state.state!.title}</span>
+              </Link>
+            );
+          })}
+          </Fragment>
         );
       }
       // Everything else (meta.json, _components/, images) opens in your editor.

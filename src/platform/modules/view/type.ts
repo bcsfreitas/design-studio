@@ -1,4 +1,5 @@
 import { viewIdentity } from './identity.ts';
+import { stateProblems } from './states.ts';
 // A view: a React component in a .tsx or .jsx file, opened as a page in the prototype.
 import { defineFileType } from '#studio/files';
 
@@ -37,11 +38,13 @@ export default defineFileType({
   template: () =>
     `import { emptyView } from '@module/view';\n\n// Empty until something is built here: describe it to your agent, who replaces this export with the view.\nexport default emptyView;\n`,
 
-  // The app renders a view's default export.
-  check: ({ source }) =>
-    /export\s+default\b|export\s*\{[^}]*\bas\s+default\b/.test(source)
+  // The app renders a view's default export, once per named state when the view declares states (states.ts).
+  check: ({ source }) => [
+    ...(/export\s+default\b|export\s*\{[^}]*\bas\s+default\b/.test(source)
       ? []
       : [
           'a view needs a default export, the component the app renders (export default function MyView() { ... }). Helpers belong in a file or folder named with a leading underscore (_components/).',
-        ],
+        ]),
+    ...stateProblems(source),
+  ],
 });

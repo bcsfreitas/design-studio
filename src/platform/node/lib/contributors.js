@@ -33,6 +33,12 @@ export function contributorProfileProblems(entry, source, file, { identityOnly =
   for (const field of ['email', 'github'])
     if (typeof entry[field] !== 'string')
       problems.push(`${file}: declare ${field} as a string. Use an empty string when unavailable.`);
+  // Optional additional emails, such as a second Git identity; `email` stays the primary one.
+  if (
+    entry.emails !== undefined &&
+    (!Array.isArray(entry.emails) || entry.emails.some(email => typeof email !== 'string' || !email.trim()))
+  )
+    problems.push(`${file}: emails must be a list of nonempty email strings, in addition to email.`);
   if (
     entry.avatar !== undefined &&
     (typeof entry.avatar !== 'string' ||
@@ -93,11 +99,16 @@ export function readContributors(root = ROOT, { identityOnly = false } = {}) {
   for (const field of ['email', 'github', 'studioId']) {
     const identities = new Map();
     for (const [key, entry] of Object.entries(contributors)) {
-      const identity = typeof entry[field] === 'string' ? entry[field].trim().toLowerCase() : '';
-      if (!identity) continue;
-      if (identities.has(identity))
-        problems.push(`Contributor "${key}": ${field} is also registered to ${identities.get(identity)}.`);
-      else identities.set(identity, key);
+      const values =
+        field === 'email'
+          ? profileEmails(entry)
+          : [typeof entry[field] === 'string' ? entry[field].trim().toLowerCase() : ''];
+      for (const identity of new Set(values)) {
+        if (!identity) continue;
+        if (identities.has(identity))
+          problems.push(`Contributor "${key}": ${field} is also registered to ${identities.get(identity)}.`);
+        else identities.set(identity, key);
+      }
     }
   }
   return { contributors, problems };
@@ -124,3 +135,52 @@ export function contributorsSignature() {
 }
 
 export const contributorFile = key => path.join(CONTRIBUTORS_DIR, `${key}.json`);
+
+const normalized = value => (typeof value === 'string' ? value.trim().toLowerCase() : '');
+
+/** Every nonempty email a profile answers to, lowercased: the primary `email`, then any additional `emails`. */
+export function profileEmails(entry) {
+  const emails = [entry?.email, ...(Array.isArray(entry?.emails) ? entry.emails : [])].map(normalized);
+  return [...new Set(emails.filter(Boolean))];
+}
+
+/** Keys whose profile lists this email. */
+export function keysForEmail(contributors, email) {
+  const wanted = normalized(email);
+  return wanted ? Object.keys(contributors).filter(key => profileEmails(contributors[key]).includes(wanted)) : [];
+}
+
+/**
+ * Profiles that may belong to someone whose email matched nothing: an exact name or GitHub account match. Sample
+ * profiles are never candidates. `candidate` is set only when exactly one profile matches; a candidate identifies,
+ * it never authorizes, until the email is linked to the profile.
+ */
+export function contributorCandidates(contributors, { name = '', github = '' } = {}) {
+  const wantedName = normalized(name),
+    wantedGithub = normalized(github);
+  const candidates = [];
+  for (const [key, entry] of Object.entries(contributors)) {
+    if (entry?.sample === true) continue;
+    const matchedBy = [];
+    if (wantedName && normalized(entry.name) === wantedName) matchedBy.push('name');
+    if (wantedGithub && normalized(entry.github) === wantedGithub) matchedBy.push('github');
+    if (matchedBy.length) candidates.push({ key, matchedBy });
+  }
+  return {
+    candidate: candidates.length === 1 ? candidates[0].key : null,
+    candidates,
+  };
+}
+
+/** The profile with `email` added to its additional emails, keeping its other declarations and their order. */
+export function withLinkedEmail(entry, email) {
+  if (keysForEmail({ entry }, email).length) return entry;
+  const next = {};
+  for (const [field, value] of Object.entries(entry)) {
+    if (field === 'emails') continue;
+    next[field] = value;
+    if (field === 'email') next.emails = [...(entry.emails ?? []), email.trim()];
+  }
+  if (!next.emails) next.emails = [...(entry.emails ?? []), email.trim()];
+  return next;
+}

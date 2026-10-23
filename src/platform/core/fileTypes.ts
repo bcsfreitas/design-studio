@@ -11,6 +11,7 @@
 // load it directly.
 
 import { markdownIdentity } from './resourceIdentity.ts';
+import { artifactTitle } from './artifactTitle.ts';
 import type { IdentityMetadata } from './resourceIdentity.ts';
 export {
   createResourceId,
@@ -261,14 +262,8 @@ export const artifactSlug = (path: string) => path.replace(/\.[^./]+$/, '');
 export const isHelper = (name: string) => name.startsWith('_');
 
 // Markdown presentation is shared by prototype Documents and the system content.
-// "problem-framing.md" → "Problem Framing"
-const titleOf = (name: string) =>
-  name
-    .replace(/\.md$/, '')
-    .split(/[-_]/)
-    .filter(Boolean)
-    .map(w => w[0].toUpperCase() + w.slice(1))
-    .join(' ');
+// "problem-framing.md" → "Problem Framing", the title navigation shows
+const titleOf = (name: string) => artifactTitle(name.replace(/\.md$/, ''));
 
 export const markdownFileType: FileTypeSpec = {
   label: 'Document',

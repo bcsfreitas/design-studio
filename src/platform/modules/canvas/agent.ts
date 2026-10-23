@@ -13,7 +13,7 @@ import { inspectArtifact } from '#studio/data';
 import { CaptureUpdateAction, exportToBlob, restoreElements } from '@excalidraw/excalidraw';
 import type { ExcalidrawElement } from '@excalidraw/excalidraw/element/types';
 import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types';
-import { artifactLabel } from '@/platform/app/data/manifest';
+import { artifactLabel, statesOf } from '@/platform/app/data/manifest';
 import type { Artifact, Manifest, Prototype } from '@/platform/app/data/types';
 import { appPathOf, artifactPath } from '@/platform/app/artifacts/artifactLinks';
 import { prototypeAddress, resourceId } from '#studio/files';
@@ -51,6 +51,11 @@ export function createCanvasAgent({ api, proto, item, manifest, editable, persis
         type,
         typeLabel: resolution.typeLabel,
         preview: resolution.preview.available,
+        // A view's named states resolve to the view, as that state; each has its own permanent address.
+        ...(found.item.state ? { state: found.item.state.title } : {}),
+        ...(found.item.states?.length
+          ? { states: statesOf(found.item).map(s => ({ title: s.state!.title, path: artifactPath(found.proto, s) })) }
+          : {}),
       };
     },
     artifacts() {

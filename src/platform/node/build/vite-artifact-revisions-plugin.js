@@ -14,6 +14,9 @@ export const inputDigest = inputs => digest(JSON.stringify(inputs));
 const SRC = path.join(ROOT, 'src');
 const STYLES = path.join(SRC, 'platform/app/styles.css');
 const local = file => file.startsWith(SRC + path.sep);
+// Vite reports ids and module files with forward slashes, including on Windows.
+const native = file => path.normalize(file);
+const viteId = file => file.split(path.sep).join('/');
 const supported = file => local(file) && /\.(?:[cm]?[jt]sx?|md|css|json|vue)$/.test(file);
 const keyOf = file => '/' + path.relative(SRC, file).split(path.sep).join('/');
 const themeFiles = () =>
@@ -49,13 +52,13 @@ export function sourceInputs(graph, entry) {
     visited.add(module);
     // Imported local assets without compiled evidence remain unverifiable, rather
     // than silently disappearing from the dependency revision.
-    if (module.file && local(module.file)) files.add(module.file);
+    if (module.file && local(native(module.file))) files.add(native(module.file));
     if (visited.size > 4096) throw new Error('Preview dependency graph is too large to verify.');
     // A stylesheet's other dependencies are files Tailwind scanned for class names; cssInputs follows its imports.
     if (module.file?.endsWith('.css')) return;
     for (const child of module.importedModules ?? []) visit(child);
   };
-  for (const module of graph.getModulesByFile(entry) ?? []) visit(module);
+  for (const module of graph.getModulesByFile(viteId(entry)) ?? []) visit(module);
   for (const file of files)
     if (file.endsWith('.css')) {
       pairOf(file);
@@ -74,7 +77,7 @@ export default function artifactRevisions() {
       transform: {
         order: 'pre',
         handler(code, id) {
-          const file = id.split('?')[0];
+          const file = native(id.split('?')[0]);
           // An SFC's blocks are requests of the same file; only the whole file's source is evidence.
           if (!supported(file) || /[?&](?:raw|url)(?:&|$)/.test(id) || /\.vue\?vue&/.test(id)) return null;
           const extra = file.endsWith('.css') ? [...cssInputs(file, code)].filter(input => input !== file) : [];

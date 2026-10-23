@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import { stringifyScene } from './slim.ts';
 import { resourceId } from '../../core/fileTypes.ts';
 import { lineWidth, wrapText } from './elements.ts';
-import { run, ToolError, type Ctx, type El } from './tools.ts';
+import { run, ToolError, type ArtifactInfo, type Ctx, type El } from './tools.ts';
 
 const artifacts: Record<string, { title: string; type: string; typeLabel: string; preview: boolean }> = {
   '/pat/demo/main': { title: 'Main', type: 'view', typeLabel: 'View', preview: true },
@@ -437,4 +437,65 @@ test('relative canvas authoring paths resolve to permanent links and remain scop
     () => run([], 'create', { type: 'artifact', artifact: '../other/main.tsx' }, identified),
     /no artifact at/,
   );
+});
+
+test('states places every state of a view in a row under its title, linked by permanent address', () => {
+  const view = {
+    path: '/pat/demo/home',
+    sourcePath: 'home.tsx',
+    title: 'Home',
+    type: 'view',
+    typeLabel: 'View',
+    preview: true,
+    states: [
+      { title: 'Member', path: '/pat/demo/member-state' },
+      { title: 'New user, with no programs yet and a long title', path: '/pat/demo/new-user-state' },
+    ],
+  };
+  const byPath: Record<string, ArtifactInfo> = {
+    [view.path]: view,
+    '/pat/demo/member-state': { ...view, path: '/pat/demo/member-state', state: 'Member' },
+    '/pat/demo/new-user-state': { ...view, path: '/pat/demo/new-user-state', state: view.states[1].title },
+    '/pat/demo/main': { path: '/pat/demo/main', sourcePath: 'main.tsx', ...artifacts['/pat/demo/main'] },
+  };
+  const withStates: Ctx = {
+    base: '/pat/demo',
+    artifact: path => byPath[path] ?? null,
+    artifacts: () => [byPath[view.path], byPath['/pat/demo/main']],
+  };
+  const heading = run([], 'create', { type: 'text', text: 'Home', x: 0, y: 0 }, withStates);
+  const placed = run(heading.elements, 'states', { artifact: 'home.tsx' }, withStates);
+  const result = placed.result as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  assert.equal(result.warnings, undefined);
+  assert.deepEqual(
+    result.states.map((s: El) => [s.title, s.link]),
+    view.states.map(s => [s.title, s.path]),
+  );
+  const byId = (id: string) => placed.elements.find(el => el.id === id)!;
+  const [member, newUser] = result.states.map((s: El) => ({ title: byId(s.titleId), embed: byId(s.id) }));
+  assert.equal(member.embed.link, '/pat/demo/member-state');
+  assert.equal(newUser.embed.link, '/pat/demo/new-user-state');
+  // Side by side, top-aligned under the tallest title, below what was there.
+  assert.equal(member.embed.y, newUser.embed.y);
+  assert.ok(newUser.embed.x >= member.embed.x + member.embed.width);
+  assert.ok(member.title.y > byId((heading.result as any).created[0]).y); // eslint-disable-line @typescript-eslint/no-explicit-any
+  assert.ok(member.embed.y >= newUser.title.y + newUser.title.height);
+  assert.equal(member.title.text, 'Member');
+
+  // describe names each embed's state; artifacts lists a view's states.
+  const described = run(placed.elements, 'describe', {}, withStates).result as { elements: El[] };
+  assert.deepEqual(
+    described.elements.filter(el => el.kind === 'artifact').map(el => el.artifact.state),
+    ['Member', view.states[1].title],
+  );
+  const listed = run([], 'artifacts', {}, withStates).result as { artifacts: El[] };
+  assert.deepEqual(listed.artifacts[0].states, ['Member', view.states[1].title]);
+
+  // Placement beside something, and refusals that say what to do instead.
+  const beside = run(placed.elements, 'states', { artifact: 'home.tsx', rightOf: member.title.id }, withStates);
+  assert.ok((beside.result as any).warnings?.length); // eslint-disable-line @typescript-eslint/no-explicit-any
+  assert.throws(() => run([], 'states', { artifact: 'main.tsx' }, withStates), /declares no states/);
+  assert.throws(() => run([], 'states', { artifact: '/pat/demo/member-state' }, withStates), /one state/);
+  assert.throws(() => run([], 'states', {}, withStates), /states needs/);
+  assert.throws(() => run([], 'states', { artifact: 'home.tsx', gap: 2 }, withStates), /doesn't take gap/);
 });

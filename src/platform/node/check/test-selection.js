@@ -5,13 +5,16 @@ import { execFileSync } from 'node:child_process';
 import { MODULE_ROOTS } from '../../core/roots.ts';
 
 // Tests in the platform, in the module roots (the supplied one is inside src/platform, whose .js tests are found
-// here too) and in the Node tooling.
+// here too), in the Node tooling and in team systems.
 const patterns = [
   'src/platform/**/*.test.ts',
   ...MODULE_ROOTS.flatMap(root => [`${root}/**/*.test.ts`, `${root}/**/*.test.js`]),
   'src/platform/node/**/*.test.js',
+  'src/systems/**/*.test.js',
 ];
-export const discoverTests = (root = process.cwd()) => [...new Set(fs.globSync(patterns, { cwd: root }))].sort();
+// Glob results use the platform separator; tests and the catalog use forward slashes.
+export const discoverTests = (root = process.cwd()) =>
+  [...new Set(fs.globSync(patterns, { cwd: root }).map(file => file.split(path.sep).join('/')))].sort();
 export function matches(file, glob) {
   const escaped = glob
     .split('**')

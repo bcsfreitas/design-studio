@@ -6,6 +6,7 @@
 //   git config user.email you@yourcompany.com
 import { execFileSync } from 'node:child_process';
 import { loadContributors, resolveContributor } from '../cli/resolve-contributor.js';
+import { profileEmails } from '../lib/contributors.js';
 
 const git = key => {
   try {
@@ -23,8 +24,12 @@ if (entry) {
   const problems = [];
   if (entry.name && name !== entry.name)
     problems.push(`user.name is "${name}", but your contributor profile says "${entry.name}"`);
-  if (entry.email && email.toLowerCase() !== entry.email.toLowerCase())
-    problems.push(`user.email is "${email}", but your contributor profile says "${entry.email}"`);
+  // Any of the profile's emails matches: the primary `email` or one of its additional `emails`.
+  const known = profileEmails(entry);
+  if (known.length && !known.includes(email.trim().toLowerCase()))
+    problems.push(
+      `user.email is "${email}", but your contributor profile lists ${known.map(value => `"${value}"`).join(', ')}`,
+    );
   if (problems.length) {
     console.log(`Identity check (${key}): your Git identity doesn't match your contributor profile.`);
     for (const p of problems) console.log(`  ${p}`);

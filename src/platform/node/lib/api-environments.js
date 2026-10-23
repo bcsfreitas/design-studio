@@ -183,10 +183,13 @@ export function apiEnvironmentPolicy({ root, scopeOf, resolve = dependencyResolv
     visit(entry, [relative(entry)]);
     return failures;
   };
+  // A system's Node tests run under the test runner, outside the runtime graph, and may compute module paths.
+  const systemTest = file => systemIdOfPath(relative(file)) !== undefined && /\.(?:test|spec)\.[cm]?[jt]sx?$/.test(file);
   const computedImportProblem = file =>
-    scopeOf(file) ||
-    isTeamCode(relative(file)) ||
-    (moduleIdOfPath(relative(file)) !== undefined && environmentOf(file) === 'application')
+    !systemTest(file) &&
+    (scopeOf(file) ||
+      isTeamCode(relative(file)) ||
+      (moduleIdOfPath(relative(file)) !== undefined && environmentOf(file) === 'application'))
       ? `${relative(file)}: computed imports cannot be checked; use literal import paths.`
       : null;
   return {

@@ -11,6 +11,8 @@ Honor enabled module declarations. A visible file or skill does not enable an un
 
 When changing behavioral declarations or scaffolds, follow [explicit declaration](principles.md#declare-what-the-system-provides): write defaults visibly and validate missing required fields.
 
+Start the dev server with `pnpm dev`. Before starting one, run `pnpm studio dev status`: it reports the studio's recorded server, its port, start time, and who started it. A second `pnpm dev` warns and exits while one is recorded; set `STUDIO_DEV_FORCE=1` only to run a second server deliberately. When a change requires a restart, run `pnpm studio dev restart`, which stops only the recorded server and starts it again on the same port in the background, with its output in `.studio/runtime/dev-server.log`. Stop it with `pnpm studio dev stop`. Never stop a dev server by process ID or port; it may be someone else's work.
+
 Use the [minimum sufficient verification policy](checks.md#minimum-sufficient-verification) to select regression groups for changed behavior and dependencies. Repeat passed checks only when new changes or unresolved failures justify it.
 
 Run `pnpm build` before committing completed changes. Fix reported type, boundary, and asset errors rather than suppressing checks. Inspect rendered results for interface or prototype changes. When adding or changing static assets, follow the [asset convention and guard](assets.md).

@@ -41,6 +41,20 @@ test('public CLI assigns a newly authored prototype and strict readers resolve i
     fs.writeFileSync(path.join(dir, 'main.tsx'), 'export default function View(){ return <div>Example</div> }');
     fs.writeFileSync(path.join(dir, 'notes.md'), '# Notes\n[File](./main.tsx)');
     fs.writeFileSync(
+      path.join(dir, 'home.tsx'),
+      `import type { ViewState } from '@module/view';
+
+export const states: ViewState<{ name: string }>[] = [
+  { title: 'Member', props: { name: 'Ana' } },
+  { title: 'New user', props: { name: '' } },
+];
+
+export default function Home({ name }: { name: string }) {
+  return <p>{name || 'Welcome'}</p>;
+}
+`,
+    );
+    fs.writeFileSync(
       path.join(dir, 'board.excalidraw'),
       JSON.stringify({ type: 'excalidraw', version: 2, studioVersion: 1, elements: [], appState: {}, files: {} }),
     );
@@ -70,6 +84,33 @@ test('public CLI assigns a newly authored prototype and strict readers resolve i
     const notes = fs.readFileSync(path.join(dir, 'notes.md'), 'utf8');
     assert.ok(notes.includes('./main.tsx'));
     assert.equal(JSON.parse(run('identity-audit', '--json')).missing.length, 0);
+    // Named view states receive identities with their view, and later ones while the view keeps its own.
+    const homeFile = path.join(dir, 'home.tsx'),
+      stateIds = () => [...fs.readFileSync(homeFile, 'utf8').matchAll(/@studio-state (\S+) (.+?) \*\//g)];
+    assert.deepEqual(
+      stateIds().map(match => match[2]),
+      ['Member', 'New user'],
+    );
+    const homeId = viewIdentity.read(fs.readFileSync(homeFile, 'utf8'));
+    const firstStates = stateIds().map(match => match[1]);
+    fs.writeFileSync(
+      homeFile,
+      fs.readFileSync(homeFile, 'utf8').replace("];", "  { title: 'Guest', props: { name: '' } },\n];"),
+    );
+    const statePreview = JSON.parse(run('identify', folder, '--json'));
+    assert.deepEqual(
+      statePreview.children.map(child => child.path),
+      [folder + '/home.tsx'],
+    );
+    const stateResult = JSON.parse(run('identify', folder, '--yes', '--json'));
+    assert.equal(stateResult.assigned.length, 1);
+    assert.equal(stateResult.assigned[0].path, folder + '/home.tsx');
+    assert.equal(viewIdentity.read(fs.readFileSync(homeFile, 'utf8')), homeId);
+    assert.deepEqual(
+      stateIds().map(match => match[1]),
+      [...firstStates, stateResult.assigned[0].studioId],
+    );
+    assert.equal(JSON.parse(run('identity-audit', '--json')).missingChildren.length, 0);
     const context = JSON.parse(run('context', folder, '--json'));
     assert.equal(context.prototype.studioId, meta.studioId);
     assert.equal(context.assignment.system, null);

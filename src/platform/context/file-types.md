@@ -25,7 +25,7 @@ Other prototype files remain plain files. Underscore helpers are excluded from n
 
 `src/platform/core/fileTypes.ts` defines `FileTypeSpec`, `defineFileType`, and artifact slug handling. A team module imports them from `#studio/files`, and the browser side of a file type (the manifest, file reading, `createLoader`, `FileTypeModule`) from `#studio/data` ([public API](modules.md#public-api)).
 
-The `identity` adapter for prototype file types reads and writes permanent prototype-artifact metadata. Views, Documents, Diagrams, and Canvases provide it. System content keeps its existing path identification. Creation allocates IDs, saves preserve them, and public prototype routes use them. New directly authored files require `pnpm studio identify <prototype-folder> --yes`; builds never allocate them. See [Resource identity](resource-identity.md).
+The `identity` adapter for prototype file types reads and writes permanent prototype-artifact metadata. Views, Documents, Diagrams, and Canvases provide it. System content keeps its existing path identification. An adapter may also declare `children`: artifacts declared inside the file, each keyed within it and carrying its own permanent ID, which the manifest lists on the file's record and identity lookup resolves like any artifact. View's named states are the only children; `assignChildIdentities` and `replaceChildIdentities` in `src/platform/core/resourceIdentity.ts` allocate them. Creation allocates IDs, saves preserve them, and public prototype routes use them. New directly authored files require `pnpm studio identify <prototype-folder> --yes`; builds never allocate them. See [Resource identity](resource-identity.md).
 
 | File | Contract |
 | --- | --- |

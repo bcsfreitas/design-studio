@@ -14,7 +14,12 @@ export type Artifact = {
   fileType: string; // the id of the file type that owns it, from its extension ("view", "document")
   title?: string; // declared instruction-document title, shared by navigation and the reader
   lofi?: true; // set when the file says it's lofi (a view starting with /** @lofi */)
+  states?: ArtifactState[]; // a view's named states, child artifacts in declaration order (modules/view/states.ts)
+  state?: ArtifactState & { parentId?: string }; // set on the record a state's identity resolves to: its view, as that state
 };
+
+// A child artifact declared inside its file: a view's named state. Its identity is permanent like any artifact's.
+export type ArtifactState = { studioId?: string; title: string };
 
 export type PrototypeInfo = {
   studioId?: string; // permanent prototype identity; location remains id/contributorKey

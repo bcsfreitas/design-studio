@@ -18,6 +18,15 @@ The View host owns empty-state presentation in the preview document. Development
 
 Empty declarations join the existing incomplete-view recovery path in development. A loader update discards those cached descriptors before reloading them. Unrelated mounted views retain their descriptors and state. This lets an implemented component replace the empty state without changing the artifact's identity or resetting the preview document.
 
+## Named states
+
+A view may export `states`, a list of `{ title, props }` (the [prototype contract](../prototypes/README.md#named-view-states) gives the authoring rules). `@module/view` exports the `ViewState<Props>` type for it; the runtime entry still exports only `emptyView`.
+
+- `states.ts` reads titles statically, without running the file, and reports unreadable titles, repeated titles, and `@studio-state` declarations that name no state. `type.ts` adds those to the View check.
+- `identity.ts` exposes states through the platform's optional `IdentityMetadata.children`: each declared title is a child keyed by that title, with the identity of its leading `/** @studio-state <id> <title> */` comment. `assignChildIdentities` adds missing ones after the last identity comment; `replaceChildIdentities` gives a duplicate fresh ones.
+- The build writes `states: [{ studioId, title }]` on the view's manifest record. `findArtifactByIdentity` resolves a state's ID to the view's record carrying `state`, so routes, links, and embeds address a state as they address any artifact; `statesOf(view)` lists a view's states as addressable records, in declaration order.
+- `load.ts` renders the default export with the matching state's props and gives each state its own `viewKey`, so switching states remounts. A record whose state is no longer declared shows an error in the preview.
+
 ## Preview boundary
 
 Studio loads an artifact descriptor. It does not import or render the prototype component in its document. `ViewFrame` and `ViewEmbed` use `preview/PreviewHost.tsx`; the iframe bootstraps `preview/main.tsx` and loads the real view through `loadView`. `PreviewSurface` owns assigned-system themes, lo-fi mode, navigation scope, portals, and React error containment.

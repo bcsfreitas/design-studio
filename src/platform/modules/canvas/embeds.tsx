@@ -15,6 +15,7 @@ import { ITEM_CARD_HEIGHT } from '@/platform/app/artifacts/ArtifactCard';
 import { appPathOf } from '@/platform/app/artifacts/artifactLinks';
 
 import { EMBED_HEADER_HEIGHT as HEADER_HEIGHT } from '@/platform/app/artifacts/EmbedFrame';
+import { embedTitle } from './embedTitle';
 const BORDER = 2; // 1px each side
 const DEFAULT_WIDTH = 480;
 const DEFAULT_BODY_HEIGHT = Math.round((DEFAULT_WIDTH * 900) / 1440); // a 1440 x 900 screen, scaled
@@ -146,6 +147,10 @@ type ItemProps = {
 function CanvasItemInner({ element, manifest, current, item, offscreen, overview, mounted }: ItemProps) {
   const link = element.type === 'embeddable' ? element.link : null;
   const resolution = inspect(manifest, link, current);
+  const title =
+    resolution.state === 'resolved'
+      ? embedTitle(artifactLabel(resolution.target.item.path), resolution.target.item.state)
+      : undefined;
   return (
     <div data-canvas-embed-id={element.id} className='h-full w-full'>
       <ArtifactHost
@@ -155,12 +160,13 @@ function CanvasItemInner({ element, manifest, current, item, offscreen, overview
         width={element.width - BORDER}
         height={element.height - HEADER_HEIGHT - BORDER}
         interaction='inert'
+        label={title}
         mounted={mounted}
         hidden={offscreen || overview}
       >
         {overview && !offscreen && (
           <div className='canvas-overview'>
-            <span>{resolution.state === 'resolved' ? artifactLabel(resolution.target.item.path) : 'File'}</span>
+            <span>{title ?? 'File'}</span>
           </div>
         )}
       </ArtifactHost>

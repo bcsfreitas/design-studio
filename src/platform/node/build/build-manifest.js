@@ -197,8 +197,16 @@ function readPrototype(dir, contributorKey, id, out, contributors, policy = 'own
     for (const item of artifacts) {
       const identity = FILE_TYPES[item.fileType].identity;
       if (identity) {
-        const id = identity.read(fs.readFileSync(path.join(dir, item.path), 'utf8'));
+        const source = fs.readFileSync(path.join(dir, item.path), 'utf8');
+        const id = identity.read(source);
         if (id) item.studioId = id;
+        // Child artifacts declared in the file (a view's named states), each with its own permanent identity.
+        const children = identity.children?.read(source) ?? [];
+        if (children.length)
+          item.states = children.map(child => ({
+            ...(child.studioId && { studioId: child.studioId }),
+            title: child.key,
+          }));
       }
     }
   } catch (error) {
@@ -355,6 +363,12 @@ export function buildManifest({ deploy = false, write = true, quiet = false, tou
   for (const missing of identityAudit.missing) {
     out.error(
       `[identity] ${missing}: permanent identity is missing. Run pnpm studio identify <prototype-folder> --yes for newly authored files, or review a full identity migration.`,
+    );
+    errors++;
+  }
+  for (const child of identityAudit.missingChildren ?? []) {
+    out.error(
+      `[identity] ${child.path}: state "${child.key}" has no permanent identity. Run pnpm studio identify <prototype-folder> --yes, which adds its /** @studio-state <id> ${child.key} */ declaration.`,
     );
     errors++;
   }

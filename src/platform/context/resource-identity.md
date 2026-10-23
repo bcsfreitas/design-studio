@@ -20,7 +20,7 @@ Directly authored prototype files use a scoped assignment command with a read-on
 
 Every prototype, prototype artifact, system, and contributor receives a permanent identity. Location identifies the current source files. Ownership and grants describe authority. Naming remains meaningful to people without controlling permanent identity.
 
-Prototypes and systems remain the two principal collections. Prototype artifacts belong to their prototype. System contents remain identified by meaningful names and relative paths within their system. Components, system documents, skills, fixed surfaces, helpers, and assets do not receive generated child IDs.
+Prototypes and systems remain the two principal collections. Prototype artifacts belong to their prototype. System contents remain identified by meaningful names and relative paths within their system. Components, system documents, skills, fixed surfaces, helpers, and assets do not receive generated child IDs. The one child artifact is a view's [named state](../modules/prototypes/README.md#named-view-states), which has a permanent ID of its own.
 
 ## Source identity
 
@@ -36,6 +36,7 @@ Validation detects duplicates in the retained inventory, including archived work
 | Prototype | `studioId` in `meta.json`. |
 | System | `studioId` in `system.ts`. |
 | React artifact | Leading `/** @studio-id <id> */` comment. |
+| View state | Leading `/** @studio-state <id> <title> */` comment in its view, matched by state title. |
 | Markdown artifact | Top-level `studioId` in frontmatter. |
 | Diagram artifact | Leading `%% @studio-id <id>` comment. |
 | Canvas artifact | Top-level `studioId` in the scene JSON. |

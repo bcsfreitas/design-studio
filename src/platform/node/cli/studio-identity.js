@@ -37,11 +37,33 @@ if (command === 'identity-audit') {
   if (positional.length !== 1) usage('identify <prototype-folder> [--yes] [--json]');
   const actor = resolveContributor();
   const plan = planPrototypeIdentification(ROOT, INSTALLED_FILE_TYPES, positional[0], actor);
-  const result = flags.yes ? applyPrototypeIdentification(ROOT, INSTALLED_FILE_TYPES, plan, actor) : plan;
-  emit(
-    result,
-    flags.yes
-      ? `Assigned missing identities in ${plan.folder} (${result.changed} file(s)); existing identities retained.`
-      : `${plan.changes.length} file(s) need identities in ${plan.folder}. Review with --json; apply with --yes.`,
-  );
+  if (!flags.yes)
+    emit(
+      plan,
+      `${plan.changes.length} file(s) need identities in ${plan.folder}. Review with --json; apply with --yes.`,
+    );
+  else {
+    const retained = new Set(plan.snapshot.filter(resource => resource.studioId).map(resource => resource.path));
+    const applied = applyPrototypeIdentification(ROOT, INSTALLED_FILE_TYPES, plan, actor);
+    const assigned = plan.resources
+      .filter(resource => !retained.has(resource.path))
+      .map(resource => ({ path: resource.path, studioId: resource.studioId }))
+      // A file's declared children (a view's named states) are listed with their key.
+      .concat(plan.children.map(child => ({ path: child.path, key: child.key, studioId: child.studioId })));
+    // Tools read the manifest, so a newly identified artifact is visible to them right away.
+    const { buildManifest } = await import('../build/build-manifest.js');
+    const { errors } = buildManifest({ quiet: true });
+    emit(
+      { ...applied, assigned, manifest: { refreshed: true, problems: errors } },
+      [
+        assigned.length
+          ? `Assigned ${assigned.length} identit${assigned.length === 1 ? 'y' : 'ies'} in ${plan.folder}; existing identities retained:`
+          : `Nothing in ${plan.folder} needed an identity; existing identities retained.`,
+        ...assigned.map(
+          resource => `  ${resource.path}${resource.key ? ` (${resource.key})` : ''} → ${resource.studioId}`,
+        ),
+        `Refreshed the manifest${errors ? ` with ${errors} problem(s); see them with node src/platform/node/build/build-manifest.js` : ''}.`,
+      ].join('\n'),
+    );
+  }
 }

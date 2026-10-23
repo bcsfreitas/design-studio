@@ -3,13 +3,13 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { build, createServer } from 'vite';
 import ts from 'typescript';
 import { scopePolicy } from './scope.js';
 import { importsOf } from './imports.js';
 import { systemDependencyProblems, systemLibraryInventory, systemPeerProblems } from './system-dependencies.js';
+import { requirePackageManager } from './package-manager.js';
 import importGuard from '../build/vite-import-guard-plugin.js';
 
 function fixture(t) {
@@ -207,7 +207,7 @@ test('two package versions resolve through assigned library entries in TypeScrip
   }
   write('vendor/host/package.json', { name: 'host-only', version: '1.0.0', main: 'index.js' });
   write('vendor/host/index.js', "module.exports = 'host';");
-  execFileSync('pnpm', ['install', '--offline', '--ignore-scripts'], { cwd: root, stdio: 'pipe', timeout: 30000 });
+  requirePackageManager(['install', '--offline', '--ignore-scripts'], { cwd: root, timeout: 30000 });
   for (const [id, version] of [
     ['a', '1.0.0'],
     ['b', '2.0.0'],
@@ -265,4 +265,14 @@ test('two package versions resolve through assigned library entries in TypeScrip
   assert.match(output, /chart-version-2\.0\.0/);
   write('src/prototypes/alex/a/view.ts', "export * from 'host-only';");
   await assert.rejects(build({ ...options, build: { write: false } }), /not shared runtime/);
+});
+
+test("a system's Node tests run outside its runtime scope; its runtime files stay in it", t => {
+  const { policy, file } = fixture(t);
+  for (const source of ['node:test', 'node:fs', 'vite']) {
+    assert.equal(policy.packageProblem(source, file('src/systems/b/runtime/test/render.test.js')), null, source);
+    assert.match(policy.packageProblem(source, file('src/systems/b/runtime/render.js')), /not declared/, source);
+  }
+  assert.equal(policy.computedImportProblem(file('src/systems/b/runtime/test/render.test.js')), null);
+  assert.match(policy.computedImportProblem(file('src/systems/b/runtime/render.js')), /computed imports/);
 });

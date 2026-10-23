@@ -1,17 +1,14 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { createApp, h, shallowReactive, type Component } from 'vue';
-import ui from '@nuxt/ui/vue-plugin';
-import UApp from '@nuxt/ui/components/App.vue';
-import { addCollection } from '@iconify/vue';
-import lucide from '@iconify-json/lucide/icons.json';
+import { h, shallowReactive, type Component } from 'vue';
 import { refreshSheet, sheet } from './shadow-styles';
+import { createStudiosApp, type StudiosRuntimeOptions } from './vue-app';
 
-addCollection(lucide);
+export type { StudiosRuntimeOptions, StudiosSample, UserOption } from './vue-app';
 
 export type VueSlots = Partial<Record<string, ReactNode>>;
 
-type Mount = {
+type Mount = StudiosRuntimeOptions & {
   component: Component;
   props?: Record<string, unknown>;
   slots?: VueSlots;
@@ -19,10 +16,10 @@ type Mount = {
   style: CSSProperties;
 };
 
-// Mounts a Vue component, inside Nuxt UI's UApp, in a shadow root styled like the Endless Studios frontend.
+// Mounts a Vue component, through createStudiosApp, in a shadow root styled like the Endless Studios frontend.
 // React content for the component's slots renders through portals into the elements Vue gives each slot,
 // so it sits inside the shadow root and takes the app's styles.
-function VueRoot({ component, props, slots, page, style }: Mount) {
+function VueRoot({ component, props, slots, page, style, locale, user, sample, shell }: Mount) {
   const host = useRef<HTMLDivElement>(null);
   const state = useRef(shallowReactive<Record<string, unknown>>({ ...props }));
   const [targets, setTargets] = useState<Record<string, Element>>({});
@@ -59,17 +56,14 @@ function VueRoot({ component, props, slots, page, style }: Mount) {
           }),
       ]),
     );
-    const app = createApp({
-      render: () => h(UApp, { portal }, () => h(component, { ...state.current }, slotTargets)),
-    });
-    app.use(ui);
+    const app = createStudiosApp({ component, props: state.current, slots: slotTargets, portal, locale, user, sample, shell });
     app.mount(root);
     return () => {
       app.unmount();
       shadow.replaceChildren();
       setTargets({});
     };
-  }, [component, page, shape]);
+  }, [component, page, shape, locale, user, sample, shell]);
 
   return (
     <div ref={host} style={style}>
@@ -78,15 +72,19 @@ function VueRoot({ component, props, slots, page, style }: Mount) {
   );
 }
 
-export type VueScreenProps = {
+// `locale`, `user` and `sample` set what the stand-ins answer (see vue-app.ts): English, the sample learner and
+// empty data by default; `shell` wraps a screen in the app's sidebar, top bar and footer. The app is recreated when
+// one of them changes identity, so define samples outside the view.
+export type VueScreenProps = StudiosRuntimeOptions & {
   component: Component;
   props?: Record<string, unknown>;
 };
 
 // A whole screen on the app's page background.
-export function VueScreen({ component, props }: VueScreenProps) {
+export function VueScreen({ component, props, ...runtime }: VueScreenProps) {
   return (
     <VueRoot
+      {...runtime}
       component={component}
       props={props}
       page='studios-body isolate min-h-screen bg-muted text-default font-sans antialiased'
@@ -101,9 +99,10 @@ export type VueInlineProps = VueScreenProps & {
 };
 
 // One component placed in a React layout, such as a single button. It inherits the surrounding text colour.
-export function VueInline({ component, props, slots, block = false }: VueInlineProps) {
+export function VueInline({ component, props, slots, block = false, ...runtime }: VueInlineProps) {
   return (
     <VueRoot
+      {...runtime}
       component={component}
       props={props}
       slots={slots}

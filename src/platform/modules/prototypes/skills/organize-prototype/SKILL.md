@@ -22,6 +22,12 @@ Read the prototype contract's [archiving and deployment definition](../../README
 
 The [Prototypes chapter](../../../documentation/pages/prototypes.md#how-do-i-organize-artifacts) explains the local controls when the Manual is enabled.
 
+## Delete
+
+Delete only when the person asks. Run `pnpm studio delete-prototype src/prototypes/<key>/<id>` first and show them its preview: incoming links from other prototypes, canvas and document references that would break, and untracked files or uncommitted changes that would be lost. Add `--json` for a structured preview. The command applies the same owner-or-Admin permissions as other prototype mutations.
+
+Apply with `--yes` only after the person confirms what would be lost. The command removes the folder permanently and refreshes the manifest, so navigation and canvases show no ghost. If it reports a held folder, stop what holds it, then run the command again. Report the incoming links it listed for their owners to update. The app's Delete control moves the folder to the Trash instead.
+
 ## Verify
 
 Check navigation, retained links, and requested publication status. Follow the platform working context for build and commit requirements. Report preserved originals and any unresolved incoming links.

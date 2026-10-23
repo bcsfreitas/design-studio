@@ -3,6 +3,7 @@ import { systemPath } from '#studio/systems';
 import { contentParts } from '@/platform/core/roots';
 import { linkOptions } from '@tanstack/react-router';
 import { artifactSlug } from '@/platform/core/fileTypes';
+import { artifactTitle } from '@/platform/core/artifactTitle';
 import { resourceId } from '@/platform/core/resourceIdentity';
 import { SYSTEM_CONTENT_KEY, isSectionKey, contentSection, addressOf } from '@/platform/core/roots';
 import type { Artifact, Manifest, Prototype, PrototypeInfo, PrototypeRef } from '@/platform/app/data/types';
@@ -78,11 +79,25 @@ export async function loadPrototypeByIdentity(id: string): Promise<Prototype | u
   return ref && withItems(ref);
 }
 
-export function findArtifactByIdentity(proto: Prototype, id: string): Artifact | undefined {
-  const matches = proto.artifacts.filter(item => item.studioId === id);
+// A state's identity resolves like any artifact's: to its view's record, carrying the state (states.ts).
+export function findArtifactByIdentity(proto: Pick<Prototype, 'artifacts' | 'title'>, id: string): Artifact | undefined {
+  const matches = proto.artifacts.flatMap(item =>
+    item.studioId === id
+      ? [item]
+      : (item.states ?? [])
+          .filter(state => state.studioId === id)
+          .map(state => ({ ...item, studioId: id, state: { ...state, parentId: item.studioId } })),
+  );
   if (matches.length > 1) throw new Error(`Artifact identity ${id} is declared more than once in ${proto.title}.`);
   return matches[0];
 }
+
+// Every state of a view as an artifact record with its own permanent identity, in declaration order: what a
+// link, an embed or a tool that places all states addresses (artifactLink(proto, record)).
+export const statesOf = (item: Artifact): Artifact[] =>
+  (item.states ?? []).flatMap(state =>
+    state.studioId ? [{ ...item, studioId: state.studioId, state: { ...state, parentId: item.studioId } }] : [],
+  );
 
 export { artifactSlug };
 
@@ -108,12 +123,7 @@ export const artifactLabel = (
     contentSection(proto.id) === 'skills' &&
     /^([^/]+)\/SKILL\.md$/.exec(path);
   const name = skill ? skill[1] : artifactSlug(path).split('/').pop()!;
-  return name
-    .split(/[-_]/)
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ')
-    .replace(/\bLo ?fi\b/gi, 'Lo-fi')
-    .replace(/\bHi ?fi\b/gi, 'Hi-fi');
+  return artifactTitle(name);
 };
 
 // "checkout/steps/done.tsx" → "checkout/steps": the folder it's in, or "".

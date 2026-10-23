@@ -1,7 +1,21 @@
 // Who may change what (permissions.ts). Run with `pnpm test`.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { canChange, canMaintain, canOwn, parseMaintainers, pathResource, policyFor, whyNot } from './permissions.ts';
+import {
+  canChange,
+  canMaintain,
+  canOwn,
+  canPerform,
+  parseMaintainers,
+  pathResource,
+  permissionRefusal,
+  policyFor,
+  refusalMessage,
+  whyNot,
+  type Resource,
+  type ResourceAction,
+} from './permissions.ts';
+import type { StudioConfig } from './config.ts';
 import type { ModuleSpec } from './modules/index.ts';
 
 const modules: ModuleSpec[] = [
@@ -147,4 +161,79 @@ test('a file belongs to the system whose folder holds it, in either system root'
   assert.deepEqual(pathResource('src/modules/research/app.tsx', systems), { kind: 'module' });
   assert.deepEqual(pathResource('/src/platform/modules/canvas/Canvas.tsx', systems), { kind: 'module' });
   assert.deepEqual(pathResource('src/platform/modulesque/x.ts', systems), { kind: 'platform' });
+});
+
+test('a refusal names its cause: identity, Admin role, or system maintainer', () => {
+  const team = { usage: 'team', admins: ['ada'], systems: ['acme'], systemMaintainers: { acme: ['max'] } } as const;
+  const people = ['ada', 'max', 'sam'];
+  const acme: Resource = { kind: 'system', id: 'acme', role: 'prototype', status: 'active' };
+  const config = team as unknown as Partial<StudioConfig>;
+  assert.equal(permissionRefusal(config, null, people, acme, 'manage'), 'identity');
+  assert.equal(permissionRefusal(config, 'stranger', people, acme, 'manage'), 'identity');
+  assert.equal(permissionRefusal(config, 'sam', people, acme, 'manage'), 'admin');
+  assert.equal(permissionRefusal(config, 'sam', people, acme, 'rename'), 'maintainer');
+  assert.equal(permissionRefusal(config, 'max', people, acme, 'rename'), null);
+  assert.equal(permissionRefusal(config, 'ada', people, acme, 'manage'), null);
+  // Personal studios make every contributor an Admin, so only identity can be the cause.
+  const personal = { usage: 'personal', systems: ['acme'] } as unknown as Partial<StudioConfig>;
+  assert.equal(permissionRefusal(personal, null, people, acme, 'manage'), 'identity');
+  assert.equal(permissionRefusal(personal, 'sam', people, acme, 'manage'), null);
+  assert.match(
+    refusalMessage('identity', { email: 'new@example.test' }),
+    /Your Git identity \(new@example\.test\) doesn't match a contributor profile.*pnpm join/,
+  );
+  assert.match(refusalMessage('admin'), /Only an Admin/);
+  assert.match(refusalMessage('maintainer', { system: 'acme' }), /maintainer of the acme system/);
+});
+
+test('naming the cause widens no permission', () => {
+  // The decision rule before refusals had causes; canPerform must agree with it everywhere.
+  const before = (
+    config: Partial<StudioConfig>,
+    actor: string | null,
+    contributors: readonly string[],
+    resource: Resource,
+    action: ResourceAction,
+  ) => {
+    if (action === 'read') return true;
+    const role =
+      !actor || !contributors.includes(actor)
+        ? null
+        : config.usage === 'personal' || config.admins?.includes(actor)
+          ? 'admin'
+          : 'contributor';
+    if (!role) return false;
+    if (resource.kind === 'prototype') return role === 'admin' || resource.owner === actor;
+    if (resource.kind !== 'system') return role === 'admin';
+    const registered = resource.role === 'platform' || Boolean(config.systems?.includes(resource.id));
+    if (!registered) return false;
+    if (resource.role === 'platform') return role === 'admin' && action === 'edit';
+    if (action === 'manage') return role === 'admin';
+    if (resource.status !== 'active') return false;
+    return role === 'admin' || Boolean(actor && config.systemMaintainers?.[resource.id]?.includes(actor));
+  };
+  const configs = [
+    { usage: 'personal', systems: ['acme'] },
+    { usage: 'team', admins: ['ada'], systems: ['acme'], systemMaintainers: { acme: ['max'] } },
+    { usage: 'team', admins: [], systems: [] },
+  ] as unknown as Partial<StudioConfig>[];
+  const resources: Resource[] = [
+    { kind: 'prototype', owner: 'sam' },
+    { kind: 'prototype', owner: 'max' },
+    { kind: 'platform' },
+    { kind: 'module' },
+    { kind: 'system', id: 'acme', role: 'prototype', status: 'active' },
+    { kind: 'system', id: 'acme', role: 'prototype', status: 'archived' },
+    { kind: 'system', id: 'other', role: 'prototype', status: 'active' },
+    { kind: 'system', id: 'studio', role: 'platform', status: 'active' },
+  ];
+  for (const config of configs)
+    for (const actor of [null, 'ada', 'max', 'sam', 'stranger'])
+      for (const resource of resources)
+        for (const action of ['read', 'edit', 'rename', 'manage'] as ResourceAction[])
+          assert.equal(
+            canPerform(config, actor, ['ada', 'max', 'sam'], resource, action),
+            before(config, actor, ['ada', 'max', 'sam'], resource, action),
+            JSON.stringify({ config, actor, resource, action }),
+          );
 });

@@ -7,6 +7,9 @@ import { apiEnvironmentPolicy } from './api-environments.js';
 import { prototypeAssignment } from './prototype-assignment.js';
 import { packageName, systemPackage, SHARED_RUNTIME_PACKAGES, SYSTEM_RUNTIME_PACKAGES } from './system-dependencies.js';
 
+// A system's Node tests (*.test.js beside its runtime) run under the Node test runner, outside the prototype runtime.
+export const systemTest = file => /\.(?:test|spec)\.[cm]?[jt]sx?$/.test(file);
+
 export const systemDocumentation = (file, dir) =>
   file === path.join(dir, 'system.ts') ||
   /^intro\.[jt]sx?$/.test(path.relative(dir, file)) ||
@@ -78,6 +81,7 @@ export function scopePolicy({ root, systems, modules, prototypeDirs = [] }) {
     const owner = entries.find(s => inside(realFile(importer), s.dir));
     if (owner) {
       if (systemDocumentation(realFile(importer), owner.dir) && !/\.examples\.[jt]sx?$/.test(importer)) return null;
+      if (systemTest(importer)) return null;
       if (SYSTEM_RUNTIME_PACKAGES.includes(name)) return null;
       let pkg;
       try {

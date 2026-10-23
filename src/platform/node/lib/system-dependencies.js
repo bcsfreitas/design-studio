@@ -11,7 +11,8 @@ export const SHARED_RUNTIME_PACKAGES = ['react', 'react-dom'];
 export const SYSTEM_RUNTIME_PACKAGES = ['react', 'react-dom'];
 export function packageName(source) {
   // #studio/<entry> is a subpath import of the repository itself (package.json "imports"), not a package.
-  if (!source || /^(?:\.|\/|@\/|@module\/|#|\0)/.test(source)) return null;
+  // Absolute Windows paths (C:/..., C:\...) are files, not packages.
+  if (!source || /^(?:\.|\/|@\/|@module\/|#|\0|[a-zA-Z]:[\\/])/.test(source)) return null;
   return source.startsWith('@') ? source.split('/').slice(0, 2).join('/') : source.split('/')[0];
 }
 export function systemPackage(dir) {

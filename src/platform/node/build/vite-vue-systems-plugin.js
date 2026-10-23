@@ -4,6 +4,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import vue from '@vitejs/plugin-vue';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
+// Vite ids and generated imports use forward slashes, including on Windows.
+const posix = file => file.split(path.sep).join('/');
 const STYLE_IMPORT = /import\s+(["'])([^"']+\.vue\?vue&type=style&[^"']*?)(&lang\.[a-z]+)\1;?/g;
 
 // A shadow root never sees the document's <style> elements, so each SFC style block becomes a string that
@@ -22,8 +24,31 @@ function shadowStyles() {
       });
       if (!registrations.length) return null;
       const key = JSON.stringify(id);
-      const register = `(globalThis.__studioVueStyles ??= new Map()).set(${key}, [${registrations.join(', ')}].join('\\n'));\nglobalThis.dispatchEvent?.(new Event('studio-vue-styles'));\n`;
+      // The leading semicolon stops a compiled `export default _export_sfc(...)` without one from calling it.
+      const register = `;(globalThis.__studioVueStyles ??= new Map()).set(${key}, [${registrations.join(', ')}].join('\\n'));\nglobalThis.dispatchEvent?.(new Event('studio-vue-styles'));\n`;
       return { code: `${next}\n${register}`, map: null };
+    },
+  };
+}
+
+// Tailwind watches only the SFCs it has already scanned, so a new, deleted or edited one would leave the
+// shadow-root stylesheet stale. Its importer accepts the stylesheet, so the update swaps it without a reload.
+function shadowStylesheet(root, id) {
+  const system = posix(path.join(root, 'src/systems', id)) + '/';
+  const prototypes = posix(path.join(root, 'src/prototypes')) + '/';
+  return {
+    name: `studio-vue-stylesheet:${id}`,
+    apply: 'serve',
+    // Before Tailwind, which reloads the page for a scanned file that no module imports.
+    enforce: 'pre',
+    hotUpdate({ file, modules }) {
+      file = posix(file);
+      if (!file.endsWith('.vue') || file.includes('/node_modules/')) return;
+      if (!file.startsWith(prototypes) && !file.startsWith(system)) return;
+      const sheets = [...this.environment.moduleGraph.idToModuleMap.values()].filter(
+        module => module.file?.endsWith('.shadow.css') && posix(module.file).startsWith(`${system}styles/`),
+      );
+      if (sheets.length) return [...modules, ...sheets.filter(sheet => !modules.includes(sheet))];
     },
   };
 }
@@ -48,21 +73,31 @@ export default async function vueSystems({ root = ROOT, systems = ['endless-stud
   const plugins = [vue({ include: /\.vue$/ }), shadowStyles()];
   for (const id of systems) {
     const dir = path.join(root, 'src/systems', id);
+    plugins.push(shadowStylesheet(root, id));
     const unplugin = path.join(dir, 'node_modules/@nuxt/ui/dist/unplugin.mjs');
     if (!fs.existsSync(unplugin)) continue;
     const { NuxtUIPlugin } = await import(pathToFileURL(unplugin).href);
     const configFile = path.join(dir, 'nuxt-ui.config.ts');
     const ui = fs.existsSync(configFile) ? (await import(pathToFileURL(configFile).href)).default : {};
-    const sources = path.join(dir, 'studios');
-    const prototypes = path.join(root, 'src/prototypes');
+    const sources = posix(path.join(dir, 'studios'));
+    const prototypes = posix(path.join(root, 'src/prototypes'));
+    // A system may name its own shim imports and exact-match aliases (paths relative to the system).
+    const runtimeFile = path.join(dir, 'vue-runtime.config.ts');
+    const runtime = fs.existsSync(runtimeFile) ? (await import(pathToFileURL(runtimeFile).href)).default : {};
+    const shims = runtime.imports ?? ['useRouter', 'useRoute', 'navigateTo'];
+    const aliases = Object.entries(runtime.aliases ?? {}).map(([name, target]) => ({
+      find: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`),
+      replacement: posix(path.resolve(dir, target)),
+    }));
     plugins.push({
       name: `studio-vue-sources:${id}`,
       enforce: 'pre',
-      config: () => ({ resolve: { alias: [{ find: /^~\//, replacement: `${sources}/` }] } }),
+      // Exact aliases come first, because some of them also start with `~/`.
+      config: () => ({ resolve: { alias: [...aliases, { find: /^~\//, replacement: `${sources}/` }] } }),
       // Prototype SFCs reach Nuxt UI from the system's workspace, the way their .tsx views reach its libraries.
       resolveId(source, importer, options) {
         if (!importer || !source.startsWith('@nuxt/ui/')) return null;
-        const file = importer.split('?')[0];
+        const file = posix(importer.split('?')[0]);
         if (!file.endsWith('.vue') || !file.startsWith(prototypes)) return null;
         return this.resolve(source, path.join(dir, 'package.json'), { ...options, skipSelf: true });
       },
@@ -75,10 +110,7 @@ export default async function vueSystems({ root = ROOT, systems = ['endless-stud
         autoImport: {
           dts: false,
           include: [/\.vue$/, /\.vue\?vue/],
-          imports: [
-            'vue',
-            { from: path.join(sources, 'nuxt-shims.ts'), imports: ['useRouter', 'useRoute', 'navigateTo'] },
-          ],
+          imports: ['vue', { from: `${sources}/nuxt-shims.ts`, imports: shims }],
         },
         components: { dts: false, resolvers: [packageComponent(dir)] },
         theme: { colors: ['primary', 'secondary', 'kids', 'info', 'success', 'warning', 'error', 'neutral'] },

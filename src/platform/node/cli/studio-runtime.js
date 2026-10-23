@@ -1,6 +1,8 @@
 import { allocateResourceIdentity, retainedResourceIds } from '../lib/resource-identity-lifecycle.js';
 import { INSTALLED_FILE_TYPES } from '../lib/file-types.js';
-import { planSystemLifecycle, applySystemLifecycle } from '../lib/system-lifecycle.js';
+import { planSystemLifecycle, applySystemLifecycle, heldSystemFolders } from '../lib/system-lifecycle.js';
+import { heldSentence } from '../lib/folder-locks.js';
+import { nodeEngineWarning, packageManagerFailure, requirePackageManager } from '../lib/package-manager.js';
 import { prototypeContext } from '../lib/prototype-context.js';
 import { resourceId } from '../../core/resourceIdentity.ts';
 import { moduleConsumers } from '../lib/imports.js';
@@ -26,6 +28,11 @@ import { systemPackage, systemDependencyProblems } from '../lib/system-dependenc
 //   check                             pnpm check, and what has changed from the original of a module you added
 //   update [version] [--dry-run]      take an upstream release on a new studio-update/v<version> branch;
 //   update --continue                 finish one after resolving conflicts (src/platform/node/cli/studio-update.js)
+//   profile [--name ...] [--add-email ...] [--yes]   update your own profile (src/platform/node/cli/studio-profile.js)
+// --as <contributor-key> runs one command as that contributor, for scripted recovery after a Git email change. It is
+// accepted only when that profile matches your Git name or GitHub account and your email isn't linked to someone else,
+// and it grants nothing beyond that contributor's own permissions. A refusal names its cause: an unrecognised Git
+// identity, or a recognised contributor who isn't an Admin or the system's maintainer.
 // Dry runs read declarations as data. --yes trusts the source: its checks run after packages install.
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -43,13 +50,13 @@ import {
   DEFAULT_SYSTEM,
   SYSTEM_IDS,
 } from '../../modules/systems/node/systems.js';
-import { canPerform, studioRole } from '../../core/permissions.ts';
+import { permissionRefusal, refusalMessage, studioRole } from '../../core/permissions.ts';
 import { CONFIG_FILE, configProblems } from '../../core/config.ts';
 import { parseConfigFile, serializeConfig, withModule, withSettings } from '../../core/config-file.ts';
 import { applySetupChanges, editDeclaration } from '../lib/studio-setup.js';
 import { planSettings } from '../lib/studio-settings.js';
 import { renderAgents } from '../lib/agents-file.js';
-import { resolveContributor } from './resolve-contributor.js';
+import { identityHint, resolveActor, resolveIdentity } from './resolve-contributor.js';
 import { fetchSource, walk } from '../lib/fetch-source.js';
 import { loadContributors } from '../lib/contributors.js';
 import {
@@ -71,6 +78,14 @@ const fail = message => {
 };
 const run = (cmd, args, opts = {}) =>
   execFileSync(cmd, args, { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], ...opts });
+// Package-manager steps use the pnpm that launched this command; a failure throws one actionable sentence.
+const pnpm = args => requirePackageManager(args, { cwd: ROOT });
+const refreshLockfile = () =>
+  pnpm(['install', '--lockfile-only', '--ignore-scripts', '--prefer-offline', '--no-frozen-lockfile']);
+{
+  const warning = nodeEngineWarning(ROOT);
+  if (warning) console.error(warning);
+}
 
 // ---- arguments
 const [command, ...rest] = process.argv.slice(2);
@@ -104,6 +119,7 @@ for (let i = 0; i < rest.length; i++) {
       '--system',
       '--admins',
       '--maintainers',
+      '--as',
     ].includes(a)
   ) {
     flags[a.slice(2)] = rest[++i];
@@ -112,6 +128,22 @@ for (let i = 0; i < rest.length; i++) {
   else positional.push(a);
 }
 const ID = /^[a-z][a-z0-9-]*$/;
+// The contributor this command acts as: the linked Git identity, or the --as key when that is allowed.
+let actorKey;
+const actor = () => {
+  if (actorKey === undefined)
+    try {
+      actorKey = resolveActor(flags.as);
+    } catch (error) {
+      fail(error.message);
+    }
+  return actorKey;
+};
+// Stops with the refusal's own message; an unrecognised identity names the Git email and how to link it.
+const refuse = (refusal, system) => {
+  const identity = refusal === 'identity' ? resolveIdentity() : {};
+  fail(refusalMessage(refusal, { email: identity.email, system, hint: identity.email && identityHint(identity) }));
+};
 if (flags.check && command !== 'sync') fail('--check is supported only with sync.');
 const titleOf = id =>
   id
@@ -179,10 +211,10 @@ const syncSkills = () => {
     throw new Error('Project skill adapters need review or synchronization. Run pnpm studio sync.');
   say(`Project skills synchronized (Codex, Cursor, Claude Code; ${result.changed} changes).`);
 };
-const syncInFreshProcess = () => run('node', ['src/platform/node/cli/studio.js', 'sync']);
+const syncInFreshProcess = () => run(process.execPath, ['src/platform/node/cli/studio.js', 'sync']);
 const checkInFreshProcess = () => {
   try {
-    run('node', ['src/platform/node/check/check-modules.js']);
+    run(process.execPath, ['src/platform/node/check/check-modules.js']);
     return null;
   } catch (e) {
     return `${e.stderr ?? ''}${e.stdout ?? ''}`.trim();
@@ -452,10 +484,10 @@ async function add() {
     writeLock(lock);
     if (kind === 'system') {
       say('Installing this system’s workspace dependencies ...');
-      run('pnpm', ['install', '--ignore-scripts', '--no-frozen-lockfile']);
+      pnpm(['install', '--ignore-scripts', '--no-frozen-lockfile']);
     } else if (needed.length) {
       say(`Installing ${needed.map(([n]) => n).join(', ')} ...`);
-      run('pnpm', ['add', '--workspace-root', '--ignore-scripts', ...needed.map(([n, v]) => `${n}@${v}`)]);
+      pnpm(['add', '--workspace-root', '--ignore-scripts', ...needed.map(([n, v]) => `${n}@${v}`)]);
     }
     registerCapability(kind, id, true, remember);
     const problem = checkInFreshProcess();
@@ -481,11 +513,11 @@ async function add() {
 }
 
 function lifecycle(action) {
-  if (
+  const refusal =
     flags.yes &&
-    !canPerform(
+    permissionRefusal(
       CONFIG,
-      resolveContributor(),
+      actor(),
       Object.keys(loadContributors()),
       {
         kind: 'system',
@@ -494,9 +526,8 @@ function lifecycle(action) {
         status: SYSTEM_SPECS[positional[0]]?.status,
       },
       action === 'rename' ? 'rename' : 'manage',
-    )
-  )
-    fail('This system operation requires an Admin or, for rename, an assigned system maintainer.');
+    );
+  if (refusal) refuse(refusal, positional[0]);
   const plan = planSystemLifecycle(ROOT, CONFIG, action, positional[0], {
     name: flags.label,
     restorePrototypes: Boolean(flags['restore-prototypes']),
@@ -512,6 +543,8 @@ function lifecycle(action) {
     say(
       'Retains source; archives associated active prototypes and excludes the system from deployment and new selections.',
     );
+  // Warn before confirmation when something holds a folder this operation moves.
+  for (const held of heldSystemFolders(plan)) say(heldSentence(held, ROOT));
   if (!flags.yes) {
     say('Preview only. Apply with --yes.');
     return;
@@ -539,8 +572,7 @@ function lifecycle(action) {
       }
       if (action === 'delete') delete lock.systems[positional[0]];
       writeLock(lock);
-      if (plan.move || plan.remove)
-        run('pnpm', ['install', '--lockfile-only', '--ignore-scripts', '--prefer-offline', '--no-frozen-lockfile']);
+      if (plan.move || plan.remove) refreshLockfile();
       const problem = checkInFreshProcess();
       if (problem) throw new Error(problem);
       syncInFreshProcess();
@@ -550,7 +582,9 @@ function lifecycle(action) {
     fs.writeFileSync(rel('pnpm-lock.yaml'), packageLockBefore);
     if (lockBefore === null) fs.rmSync(rel('studio.lock.json'), { force: true });
     else fs.writeFileSync(rel('studio.lock.json'), lockBefore);
-    throw error;
+    // Package-manager and lock failures are one actionable sentence; no stack trace.
+    console.error(`Nothing was changed. ${error.message}`);
+    process.exitCode = 1;
   } finally {
     fs.rmSync(marker, { force: true });
   }
@@ -683,7 +717,15 @@ function remove() {
   writeLock(lock);
   registerCapability(isModule ? 'module' : 'system', id, false);
   if (!isModule)
-    run('pnpm', ['install', '--lockfile-only', '--ignore-scripts', '--prefer-offline', '--no-frozen-lockfile']);
+    try {
+      refreshLockfile();
+    } catch (error) {
+      // The files are already gone, so the next action is the lockfile refresh itself.
+      if (!error.packageManager) throw error;
+      fail(
+        `Removed ${id}'s files, but ${packageManagerFailure(error.packageManager, 'then run it again to refresh the lockfile')}`,
+      );
+    }
   syncInFreshProcess();
   say(`Removed ${id}. Restart the dev server.`);
 }
@@ -775,8 +817,7 @@ function create(kind) {
       written.push(to);
     }
     registerCapability(kind, id, true, file => backups.set(file, fs.readFileSync(file)));
-    if (kind === 'system')
-      run('pnpm', ['install', '--lockfile-only', '--ignore-scripts', '--prefer-offline', '--no-frozen-lockfile']);
+    if (kind === 'system') refreshLockfile();
     const problem = checkInFreshProcess();
     if (problem) throw new Error(problem);
   } catch (e) {
@@ -802,7 +843,7 @@ function SECTION_TAKEN(id) {
 
 function check() {
   const problem = checkInFreshProcess();
-  say(problem ?? run('node', ['src/platform/node/check/check-modules.js']).trim());
+  say(problem ?? run(process.execPath, ['src/platform/node/check/check-modules.js']).trim());
   const changes = changesFromLock();
   for (const c of changes) {
     say(
@@ -862,7 +903,7 @@ function status() {
   );
   const report = {
     config: { name: CONFIG.name, usage: CONFIG.usage, defaultSystem: DEFAULT_SYSTEM },
-    contributor: resolveContributor(),
+    contributor: actor(),
     modules: {
       enabled: ENABLED_MODULES.map(module => module.id),
       disabled: Object.keys(MODULES).filter(id => !ENABLED_MODULES.some(module => module.id === id)),
@@ -901,8 +942,11 @@ function context() {
       config: CONFIG,
       systems: SYSTEM_SPECS,
       modules: ENABLED_MODULES,
-      contributor: resolveContributor(),
+      contributor: actor(),
       contributors: Object.keys(loadContributors()),
+      identity: (identity => ({ email: identity.email, hint: identity.email && identityHint(identity) }))(
+        resolveIdentity(),
+      ),
     });
     say(JSON.stringify(report, null, 2));
   } catch (error) {
@@ -943,15 +987,14 @@ const externalScaffold = ['create-module', 'create-system'].includes(command) &&
 const sharedChange =
   ['configure', 'enable', 'disable', 'add', 'remove', 'create-module', 'create-system'].includes(command) &&
   !externalScaffold;
-if (
-  applies &&
-  sharedChange &&
-  !(command === 'configure' && flags.recovery) &&
-  studioRole(CONFIG, resolveContributor(), Object.keys(loadContributors())) !== 'admin'
-)
-  fail(
-    'Only an Admin can apply shared configuration changes. Use a pull request for a proposal. Initial setup or recovery uses configure --recovery.',
-  );
+if (applies && sharedChange && !(command === 'configure' && flags.recovery)) {
+  const role = studioRole(CONFIG, actor(), Object.keys(loadContributors()));
+  if (!role) refuse('identity');
+  if (role !== 'admin')
+    fail(
+      'Only an Admin can apply shared configuration changes. You are recognised as a contributor, not an Admin. Use a pull request for a proposal. Initial setup or recovery uses configure --recovery.',
+    );
+}
 if (applies && flags.recovery)
   say('Explicit configuration recovery: repository access is being used to restore local permissions.');
 await commands[command]();
